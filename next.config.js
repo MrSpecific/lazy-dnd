@@ -1,13 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    appDir: true,
-    outputFileTracingExcludes: {
-      '**': [
-        './node_modules/thread-stream/test/**', // Exclude thread-stream test files
-      ],
-    },
-    serverComponentsExternalPackages: ['thread-stream'],
+    // appDir: true,
+    // outputFileTracingExcludes: {
+    //   '**': [
+    //     './node_modules/thread-stream/test/**', // Exclude thread-stream test files
+    //   ],
+    // },
+    // serverComponentsExternalPackages: ['thread-stream'],
   },
   images: {
     remotePatterns: [

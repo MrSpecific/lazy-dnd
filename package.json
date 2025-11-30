@@ -5,7 +5,10 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "schema": "tsx schema.tsx",
-    "db": "npm run schema && prisma generate && prisma db push && npx prisma db execute --file ./prisma/migrations/trigger.sql --schema prisma/schema.prisma && prisma db seed",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "prisma:migrate": "prisma migrate dev",
+    "db": "npm run schema && prisma generate && prisma db push && npx prisma db execute --file ./prisma/migrations/trigger.sql --schema prisma/schema && prisma db seed",
     "fmt": "prettier --write '**/*' --ignore-unknown",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"

@@ -1,18 +1,18 @@
 generator client {
   provider      = "prisma-client-js"
-  // previewFeatures = ["driverAdapters"]
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
-  // url               = env("DATABASE_URL")
-  // directUrl         = env("DATABASE_URL")
+  schemas  = ["neon_auth", "public"]
 }
 
 model nodes {
   id     String   @id
   expiry DateTime @db.Timestamp(6)
+
+  @@schema("public")
 }
 
 model outbox {
@@ -26,6 +26,8 @@ model outbox {
   locked_by   String?
   lock_expiry DateTime? @db.Timestamp(6)
   processed   Boolean   @default(false)
+
+  @@schema("public")
 }
 
 model User {
@@ -33,6 +35,8 @@ model User {
   username String    @unique
   image    String
   comments Comment[]
+
+  @@schema("public")
 }
 
 model Post {
@@ -40,26 +44,18 @@ model Post {
   title    String
   content  String
   comments Comment[]
+
+  @@schema("public")
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
   content   String
   postId    Int
-  post      Post     @relation(fields: [postId], references: [id])
   authorId  Int
-  author    User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
-}
+  author    User     @relation(fields: [authorId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
 
-model Character {
-  id   String @id @default(uuid())
-  name String
-  age  Int
-}
-
-model CharacterClass {
-  id          String @id @default(uuid())
-  className   String
-  description String
+  @@schema("public")
 }
