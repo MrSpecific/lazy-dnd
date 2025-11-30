@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
+const nextConfig = {
+  experimental: {
+    appDir: true,
+    outputFileTracingExcludes: {
+      '**': [
+        './node_modules/thread-stream/test/**', // Exclude thread-stream test files
+      ],
+    },
+    serverComponentsExternalPackages: ['thread-stream'],
+  },
   images: {
     remotePatterns: [
       {
@@ -30,3 +39,5 @@ module.exports = {
   //   return config
   // },
 };
+
+module.exports = nextConfig;
