@@ -32,13 +32,13 @@ export default function ({ comment, onEdit, onDelete }: CommentProps) {
 
   return (
     <div className={`${comment.optimistic ? 'opacity-25' : ''} w-full`}>
-      <div className="flex flex-col text-white">
+      <div className="flex flex-col">
         <div className="flex items-center py-3 w-screen max-w-full">
           <div className="flex flex-col space-x-4 pr-3">
             <Image src={comment.author.image || DEFAULT_AVATAR_URL} alt={comment.author.username} width={36} height={36} className="rounded-full ring-1 ring-gray-900/5" />
           </div>
           <p className="text-sm font-semibold">{comment.author.username}</p>
-          <p className="ml-auto text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
+          <p className="ml-auto text-sm ">{new Date(comment.createdAt).toLocaleString()}</p>
           {comment.author.id === user?.id && (
             <>
               <PencilIcon className="ml-4 h-6 w-6 text-blue-300 hover:text-blue-500 hover:cursor-pointer" onClick={() => setIsEditMode(!isEditMode)} />
@@ -48,15 +48,8 @@ export default function ({ comment, onEdit, onDelete }: CommentProps) {
         </div>
         {isEditMode ? (
           <form className="space-y-1" onSubmit={onSubmit} onReset={onReset}>
-            <textarea
-              value={editedComment}
-              onChange={(e) => setEditedComment(e.target.value)}
-              className="w-full px-0 text-sm outline-none rounded-lg text-gray-200 bg-black"
-            ></textarea>
-            <button
-              type="reset"
-              className="inline-flex items-center py-2.5 px-4 mr-2 text-xs font-normal text-center text-gray-500 border rounded-lg focus:bg-gray-200 hover:text-gray-700"
-            >
+            <textarea value={editedComment} onChange={(e) => setEditedComment(e.target.value)} className="w-full px-0 text-sm outline-none rounded-lg bg-black"></textarea>
+            <button type="reset" className="inline-flex items-center py-2.5 px-4 mr-2 text-xs font-normal text-center border rounded-lg focus:bg-gray-200 ">
               Cancel
             </button>
             <button

@@ -26,7 +26,7 @@ export default function ({ onAdd }: { onAdd: (author: AuthorType, content: strin
             <div className="flex flex-col space-x-4 pr-3">
               <Image src={author?.image || DEFAULT_AVATAR_URL} alt={author?.username || 'avatar'} width={36} height={36} className="rounded-full ring-1 ring-gray-900/5" />
             </div>
-            <p className="text-sm text-gray-400 font-semibold">{author?.username}</p>
+            <p className="text-sm font-semibold">{author?.username}</p>
           </div>
           <label htmlFor="comment" className="sr-only">
             Your comment
@@ -38,14 +38,11 @@ export default function ({ onAdd }: { onAdd: (author: AuthorType, content: strin
             value={comment}
             placeholder="Write a comment..."
             onChange={(e) => setComment(e.target.value)}
-            className="w-full px-0 text-sm text-white outline-none appearance-none bg-black"
+            className="w-full px-0 text-sm outline-none appearance-none bg-black"
           ></textarea>
         </div>
         <div className="flex items-center justify-between px-3 py-2">
-          <button
-            type="submit"
-            className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-gray-400 hover:text-white bg-black rounded-lg border border-gray-600 hover:border-gray-100"
-          >
+          <button type="submit" className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center bg-black rounded-lg border border-gray-600 hover:border-gray-100">
             Post comment &rarr;
           </button>
         </div>
