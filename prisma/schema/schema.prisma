@@ -61,9 +61,11 @@ model Comment {
 }
 
 model Character {
-  id   String @id @default(uuid())
-  name String
-  age  Int
+  id     String     @id @default(uuid())
+  name   String
+  age    Int
+  userId String     @db.Text
+  user   users_sync @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@schema("public")
 }
