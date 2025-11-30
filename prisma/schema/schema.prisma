@@ -59,3 +59,19 @@ model Comment {
 
   @@schema("public")
 }
+
+model Character {
+  id   String @id @default(uuid())
+  name String
+  age  Int
+
+  @@schema("public")
+}
+
+model CharacterClass {
+  id          String @id @default(uuid())
+  className   String
+  description String
+
+  @@schema("public")
+}
