@@ -1,7 +1,7 @@
 import { stackServerApp } from '@/stack/server'
 import { Header } from '@/components/Header'
 
-const PlayerLayout = async ({ children }: { children: React.ReactNode }) => {
+const DMLayout = async ({ children }: { children: React.ReactNode }) => {
   await stackServerApp.getUser({ or: 'redirect' })
 
   return (
@@ -12,4 +12,4 @@ const PlayerLayout = async ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-export default PlayerLayout
+export default DMLayout
