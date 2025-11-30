@@ -5,7 +5,7 @@ import Link from './common/Link';
 export const Header = () => {
   return (
     <header>
-      <Grid align="center" columns="auto 1fr">
+      <Grid align="center" columns="auto 1fr" pb="2">
         <Box>
           <Heading>
             <Link href="/">Lazy DnD</Link>

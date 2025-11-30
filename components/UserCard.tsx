@@ -9,11 +9,17 @@ export const UserCard = () => {
   if (!user) {
     return (
       <Card>
-        <UserAvatar />
-        You are not logged in
-        <Flex gap="2">
-          <Link href="/handler/sign-in">Log In</Link>
-          <Link href="/handler/sign-up">Sign Up</Link>
+        <Flex gap="2" align="center">
+          <UserAvatar />
+          You are not logged in
+        </Flex>
+        <Flex gap="2" justify="end">
+          <Link href="/handler/sign-in" size="1">
+            Log In
+          </Link>
+          <Link href="/handler/sign-up" size="1">
+            Sign Up
+          </Link>
         </Flex>
       </Card>
     );
@@ -21,11 +27,17 @@ export const UserCard = () => {
 
   return (
     <Card>
-      <UserAvatar />
-      {`Hello, ${user.displayName ?? 'anon'}`}
-      <Flex gap="2">
-        <Link href="/handler/account-settings">Settings</Link>
-        <Link href="/handler/sign-out">Log Out</Link>
+      <Flex gap="2" align="center" mb="1">
+        <UserAvatar user={user} />
+        {user.displayName ?? 'anon'}
+      </Flex>
+      <Flex gap="2" justify="end">
+        <Link href="/handler/account-settings" size="1">
+          Settings
+        </Link>
+        <Link href="/handler/sign-out" size="1">
+          Log Out
+        </Link>
       </Flex>
     </Card>
   );
