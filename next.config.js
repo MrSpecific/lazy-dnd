@@ -14,12 +14,19 @@ module.exports = {
       },
     ],
   },
-  // SEE: https://github.com/vercel/next.js/issues/44273
+  // experimental: {
+  //   turbo: {
+  //     resolveAlias: {
+  //       pino: './lib/shims/pino',
+  //     },
+  //   },
+  // },
   // webpack: (config) => {
-  //   config.externals.push({
-  //     bufferutil: 'commonjs bufferutil',
-  //     'utf-8-validate': 'commonjs utf-8-validate',
-  //   })
+  //   config.resolve = config.resolve || {}
+  //   config.resolve.alias = {
+  //     ...(config.resolve.alias || {}),
+  //     pino: require('path').resolve(__dirname, 'lib/shims/pino'),
+  //   }
   //   return config
   // },
-}
+};

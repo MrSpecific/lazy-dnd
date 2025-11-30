@@ -55,4 +55,11 @@ model Comment {
 model Character {
   id   String @id @default(uuid())
   name String
+  age  Int
+}
+
+model CharacterClass {
+  id          String @id @default(uuid())
+  className   String
+  description String
 }
