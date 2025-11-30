@@ -14,7 +14,7 @@ const inter = Inter({
 export default function ({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={[inter.variable, 'bg-black flex flex-col items-center justify-center'].join(' ')}>
+      <body>
         <StackProvider app={stackServerApp}>
           <StackTheme>
             <Theme>{children}</Theme>
