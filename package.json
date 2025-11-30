@@ -15,7 +15,7 @@
     "@ably-labs/models": "0.0.3",
     "@heroicons/react": "^2.0.18",
     "@neondatabase/serverless": "^0.10.4",
-    "@prisma/adapter-neon": "^5.22.0",
+    "@prisma/adapter-neon": "^7.0.1",
     "@prisma/client": "^7.0.1",
     "@radix-ui/themes": "^3.2.1",
     "@stackframe/stack": "^2.8.54",
@@ -30,7 +30,6 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-feather": "^2.0.10",
-    "typescript": "^5.4.0",
     "uuid": "^11.0.3",
     "ws": "^8.18.0"
   },
@@ -47,6 +46,7 @@
     "prisma": "^7.0.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
-    "turbo": "^1.9.3"
+    "turbo": "^1.9.3",
+    "typescript": "^5.9.3"
   }
 }

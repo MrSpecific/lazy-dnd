@@ -1,5 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client'
-import * as runtime from '@prisma/client/runtime/library'
+import { Prisma } from '@prisma/client'
 import prisma from '@/lib/prisma'
 
 export type Author = {
@@ -68,7 +67,7 @@ export async function getRandomUser() {
   })
 }
 
-export type TxClient = Omit<PrismaClient, runtime.ITXClientDenyList>
+export type TxClient = Prisma.TransactionClient
 
 export async function addComment(tx: TxClient, mutationId: string, postId: number, authorId: number, content: string): Promise<Prisma.outboxCreateInput> {
   const comment = await tx.comment.create({

@@ -77,7 +77,7 @@ You can deploy this template to Vercel/Netlify/Render with the buttons below:
 
 ### UI
 
-- [Tailwind CSS](https://tailwindcss.com/) – Utility-first CSS framework for rapid UI development.
+- [Radix UI](https://) – Radix
 
 ### Code Quality
 
