@@ -5,7 +5,7 @@ export const fetchCache = 'force-no-store';
 import Footer from '@/components/footer';
 import { UserCard } from '@/components/UserCard';
 import { getPost, getRandomUser } from '@/lib/prisma/api';
-import { Box, Card, Heading } from '@radix-ui/themes';
+import { Box, Card, Heading, ThemePanel } from '@radix-ui/themes';
 import { Header } from '@/components/Header';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
@@ -42,6 +42,7 @@ export default async function () {
 
   return (
     <>
+      {/* <ThemePanel /> */}
       <Header />
       <Box>
         <Card>

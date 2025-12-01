@@ -1,15 +1,15 @@
-import { Inter } from 'next/font/google'
-import { StackProvider, StackTheme } from '@stackframe/stack'
-import { stackServerApp } from '@/stack/server'
-import { Theme } from '@radix-ui/themes'
-import '@radix-ui/themes/styles.css'
-import './globals.css'
+import { Inter } from 'next/font/google';
+import { StackProvider, StackTheme } from '@stackframe/stack';
+import { stackServerApp } from '@/stack/server';
+import { Theme } from '@radix-ui/themes';
+import '@radix-ui/themes/styles.css';
+import './globals.css';
 
 const inter = Inter({
   display: 'swap',
   subsets: ['latin'],
   variable: '--font-inter',
-})
+});
 
 export default function ({ children }: { children: React.ReactNode }) {
   return (
@@ -17,10 +17,12 @@ export default function ({ children }: { children: React.ReactNode }) {
       <body>
         <StackProvider app={stackServerApp}>
           <StackTheme>
-            <Theme>{children}</Theme>
+            <Theme accentColor="green" radius="large" scaling="110%">
+              {children}
+            </Theme>
           </StackTheme>
         </StackProvider>
       </body>
     </html>
-  )
+  );
 }
