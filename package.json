@@ -9,6 +9,7 @@
     "prisma:studio": "prisma studio",
     "prisma:db:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:format": "prisma format",
     "db": "npm run schema && prisma generate && prisma db push && npx prisma db execute --file ./prisma/migrations/trigger.sql --schema prisma/schema && prisma db seed",
     "fmt": "prettier --write '**/*' --ignore-unknown",
     "lint": "next lint",

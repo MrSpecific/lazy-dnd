@@ -195,7 +195,7 @@ model CharacterAbility {
 
 model Skill {
   id          String      @id @default(uuid())
-  name        String @@unique // "Stealth"
+  name        String      @unique // "Stealth"
   ability     AbilityType // e.g., DEX-based
   description String?
 
@@ -337,4 +337,3 @@ model CharacterFeature {
   @@unique([characterId, featureId])
   @@schema("public")
 }
-
