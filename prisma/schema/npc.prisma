@@ -1,0 +1,166 @@
+model Npc {
+  id          String  @id @default(uuid())
+  name        String
+  title       String? // "Captain of the Guard", "High Priest", etc.
+  description String? // short blurb for you as DM
+
+  // Optional association to a user (owner of this NPC)
+  createdById String?     @db.Text
+  createdBy   users_sync? @relation(fields: [createdById], references: [id])
+
+  // Narrative/meta
+  importance NpcImportance @default(MINOR)
+  attitude   NpcAttitude   @default(NEUTRAL)
+  isAlive    Boolean       @default(true)
+  isHidden   Boolean       @default(false) // secret NPCs not visible to players yet
+
+  // World context
+  raceId String?
+  race   Race?   @relation(fields: [raceId], references: [id])
+
+  classId String?
+  class   CharacterClass? @relation(fields: [classId], references: [id])
+
+  alignment Alignment? // reuse your Alignment enum
+
+  factionId String?
+  faction   Faction? @relation(fields: [factionId], references: [id])
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+
+  // Mechanics can be optional for “pure flavor” NPCs
+  statBlock NpcStatBlock?
+
+  // Relations / notes
+  tags              NpcTag[]
+  notes             NpcNote[]
+  relationshipsFrom NpcRelationship[] @relation("NpcRelationshipFrom")
+  relationshipsTo   NpcRelationship[] @relation("NpcRelationshipTo")
+
+  characterRelationships CharacterNpcRelationship[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("public")
+}
+
+model Faction {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+
+  npcs Npc[]
+
+  @@schema("public")
+}
+
+model Location {
+  id          String  @id @default(uuid())
+  name        String // "Baldur's Gate", "Yawning Portal Inn"
+  region      String? // "Sword Coast", "City District"
+  description String?
+
+  npcs Npc[]
+
+  @@schema("public")
+}
+
+model NpcStatBlock {
+  id String @id @default(uuid())
+
+  npcId String @unique
+  npc   Npc    @relation(fields: [npcId], references: [id])
+
+  // Basic mechanics
+  challengeRating Float? // e.g., 0.25, 1, 5, etc.
+
+  armorClass Int?
+  maxHp      Int?
+  currentHp  Int?
+  speed      Int? // feet
+
+  // You can reuse AbilityType & CharacterAbility pattern,
+  // but a flat version is fine for most NPCs:
+  strength     Int?
+  dexterity    Int?
+  constitution Int?
+  intelligence Int?
+  wisdom       Int?
+  charisma     Int?
+
+  // Freeform JSON/notes later if you want actions, traits, etc.
+
+  @@schema("public")
+}
+
+model NpcTag {
+  id    String @id @default(uuid())
+  npcId String
+  npc   Npc    @relation(fields: [npcId], references: [id])
+
+  label String // "merchant", "quest-giver", "cultist", etc.
+
+  @@unique([npcId, label])
+  @@schema("public")
+}
+
+model NpcNote {
+  id    String @id @default(uuid())
+  npcId String
+  npc   Npc    @relation(fields: [npcId], references: [id])
+
+  // Optional: which user/DM wrote this
+  authorId String?     @db.Text
+  author   users_sync? @relation(fields: [authorId], references: [id])
+
+  // You can keep this short or long; text is flexible
+  content String
+
+  isPrivate Boolean @default(true) // maybe later you allow player-visible notes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("public")
+}
+
+model NpcRelationship {
+  id String @id @default(uuid())
+
+  fromNpcId String
+  fromNpc   Npc    @relation("NpcRelationshipFrom", fields: [fromNpcId], references: [id])
+
+  toNpcId String
+  toNpc   Npc    @relation("NpcRelationshipTo", fields: [toNpcId], references: [id])
+
+  type  NpcRelationshipType
+  notes String?
+
+  // Optional: strength metric (0–100 "how strong is this relationship")
+  intensity Int?
+
+  @@unique([fromNpcId, toNpcId, type])
+  @@schema("public")
+}
+
+model CharacterNpcRelationship {
+  id String @id @default(uuid())
+
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  npcId String
+  npc   Npc    @relation(fields: [npcId], references: [id])
+
+  type  CharacterNpcRelationshipType
+  notes String?
+
+  // Optional: some handy sliders
+  trust Int? // maybe 0–100
+  fear  Int? // 0–100
+
+  @@unique([characterId, npcId, type])
+  @@schema("public")
+}

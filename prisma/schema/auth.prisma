@@ -7,6 +7,8 @@ model users_sync {
   updated_at DateTime?   @db.Timestamptz(6)
   deleted_at DateTime?   @db.Timestamptz(6)
   characters Character[]
+  npcs       Npc[]
+  npcNotes   NpcNote[]
 
   @@index([deleted_at])
   @@schema("neon_auth")

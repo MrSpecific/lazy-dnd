@@ -92,3 +92,52 @@ enum SpellKnowledgeType {
 
   @@schema("public")
 }
+
+// NPC Enums
+enum NpcAttitude {
+  HOSTILE
+  UNFRIENDLY
+  NEUTRAL
+  FRIENDLY
+  HELPFUL
+
+  @@schema("public")
+}
+
+enum NpcImportance {
+  MINOR // random shopkeeper
+  SUPPORTING
+  MAJOR // recurring ally / villain
+  BOSS
+
+  @@schema("public")
+}
+
+enum NpcRelationshipType {
+  ALLY
+  ENEMY
+  FAMILY
+  EMPLOYER
+  EMPLOYEE
+  CONTACT
+  MENTOR
+  RIVAL
+  ROMANTIC
+  OTHER
+
+  @@schema("public")
+}
+
+enum CharacterNpcRelationshipType {
+  ALLY
+  ENEMY
+  PATRON
+  QUEST_GIVER
+  FAMILY
+  FRIEND
+  RIVAL
+  ACQUAINTANCE
+  OTHER
+
+  @@schema("public")
+}

@@ -85,18 +85,19 @@ model Character {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  classLevels           CharacterClassLevel[]
-  abilities             CharacterAbility[]
-  skills                CharacterSkill[]
-  inventory             CharacterItem[]
-  spells                CharacterSpell[]
-  race                  Race?                  @relation(fields: [raceId], references: [id])
-  raceId                String?
-  background            Background?            @relation(fields: [backgroundId], references: [id])
-  backgroundId          String?
-  characterSavingThrows CharacterSavingThrow[]
-  characterSpellSlots   CharacterSpellSlot[]
-  characterFeatures     CharacterFeature[]
+  classLevels               CharacterClassLevel[]
+  abilities                 CharacterAbility[]
+  skills                    CharacterSkill[]
+  inventory                 CharacterItem[]
+  spells                    CharacterSpell[]
+  race                      Race?                      @relation(fields: [raceId], references: [id])
+  raceId                    String?
+  background                Background?                @relation(fields: [backgroundId], references: [id])
+  backgroundId              String?
+  characterSavingThrows     CharacterSavingThrow[]
+  characterSpellSlots       CharacterSpellSlot[]
+  characterFeatures         CharacterFeature[]
+  characterNpcRelationships CharacterNpcRelationship[]
 
   @@schema("public")
 }
@@ -108,10 +109,11 @@ model CharacterClass {
   hitDie      Int // e.g., 10 for d10, 6 for d6
 
   // For rules-based stuff later
-  primaryAbilities     String? // e.g. "STR,CON"
-  savingThrowProfs     String? // e.g. "STR,CON"
+  primaryAbilities     AbilityType[]
+  savingThrowProfs     AbilityType[] // e.g. [STR, CON]
   subclasses           Subclass[]
   characterClassLevels CharacterClassLevel[]
+  npcs                 Npc[]
 
   @@schema("public")
 }
@@ -160,6 +162,7 @@ model Race {
   // e.g., ability score bonuses, speed, features, etc.
 
   characters Character[]
+  npcs       Npc[]
 
   @@schema("public")
 }
