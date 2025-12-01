@@ -155,7 +155,7 @@ model CharacterClassLevel {
 
 model Race {
   id          String  @id @default(uuid())
-  name        String // "Human", "Elf", etc.
+  name        String  @unique // "Human", "Elf", etc.
   description String?
 
   // Could store rules-ish stuff as JSON or separate tables
