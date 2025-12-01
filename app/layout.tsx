@@ -17,7 +17,7 @@ export default function ({ children }: { children: React.ReactNode }) {
       <body>
         <StackProvider app={stackServerApp}>
           <StackTheme>
-            <Theme accentColor="green" radius="large" scaling="110%">
+            <Theme accentColor="green" radius="large" scaling="110%" appearance="dark">
               {children}
             </Theme>
           </StackTheme>

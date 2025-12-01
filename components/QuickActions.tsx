@@ -1,6 +1,48 @@
-import { Button, DropdownMenu } from '@radix-ui/themes';
+'use client';
 
-export const QuickActions = ({ isDm = false }) => {
+import { Button, DropdownMenu } from '@radix-ui/themes';
+import { useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+type QuickActionsProps = {
+  isDm?: boolean;
+};
+
+const characterRoute = '/player/new';
+const npcRoute = '/dm/new-npc';
+
+export const QuickActions = ({ isDm = false }: QuickActionsProps) => {
+  const router = useRouter();
+
+  const navigate = useCallback(
+    (path: string) => {
+      router.push(path);
+    },
+    [router]
+  );
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      const metaPressed = event.metaKey || event.ctrlKey;
+      if (!metaPressed) return;
+
+      const key = event.key.toLowerCase();
+
+      if (key === 'e') {
+        event.preventDefault();
+        navigate(characterRoute);
+      }
+
+      if (isDm && key === 'd') {
+        event.preventDefault();
+        navigate(npcRoute);
+      }
+    };
+
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
+  }, [isDm, navigate]);
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
@@ -11,8 +53,14 @@ export const QuickActions = ({ isDm = false }) => {
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content>
-        <DropdownMenu.Item shortcut="⌘ E">New Character</DropdownMenu.Item>
-        {isDm && <DropdownMenu.Item shortcut="⌘ D">New NPC</DropdownMenu.Item>}
+        <DropdownMenu.Item onSelect={() => navigate(characterRoute)} shortcut="⌘ E">
+          New Character
+        </DropdownMenu.Item>
+        {isDm && (
+          <DropdownMenu.Item onSelect={() => navigate(npcRoute)} shortcut="⌘ D">
+            New NPC
+          </DropdownMenu.Item>
+        )}
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );
