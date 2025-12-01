@@ -1,0 +1,68 @@
+// enum ToolCategory {
+//   ARTISAN_TOOLS
+//   KIT
+//   GAMING_SET
+//   INSTRUMENT
+//   VEHICLE_LAND
+//   VEHICLE_WATER
+//   OTHER
+//   @@schema("public")
+// }
+
+// model Tool {
+//   id          String        @id @default(uuid())
+//   name        String        @unique
+//   category    ToolCategory
+//   description String?
+//   characterTools CharacterToolProficiency[]
+//   @@schema("public")
+// }
+
+// model CharacterToolProficiency {
+//   id          String          @id @default(uuid())
+//   characterId String
+//   character   Character       @relation(fields: [characterId], references: [id])
+//   toolId      String
+//   tool        Tool            @relation(fields: [toolId], references: [id])
+//   proficiency ProficiencyLevel @default(NORMAL)
+//   @@unique([characterId, toolId])
+//   @@schema("public")
+// }
+
+// INSERT INTO "public"."Tool" ("id","name","category","description") VALUES
+//   (gen_random_uuid(),'Thieves\' Tools','KIT','Lockpicks and burglary gear'),
+//   (gen_random_uuid(),'Herbalism Kit','KIT','Herbs, vials, and mortar/pestle'),
+//   (gen_random_uuid(),'Alchemist\'s Supplies','ARTISAN_TOOLS','Basic alchemy lab'),
+//   (gen_random_uuid(),'Poisoner\'s Kit','KIT','Toxins and handling tools'),
+//   (gen_random_uuid(),'Disguise Kit','KIT','Makeup, wigs, and props'),
+//   (gen_random_uuid(),'Forgery Kit','KIT','Paper, inks, seals'),
+//   (gen_random_uuid(),'Calligrapher\'s Supplies','ARTISAN_TOOLS','Brushes, inks, fine paper'),
+//   (gen_random_uuid(),'Cartographer\'s Tools','ARTISAN_TOOLS','Maps, compass, drafting tools'),
+//   (gen_random_uuid(),'Navigator\'s Tools','ARTISAN_TOOLS','Charts, sextant, compass'),
+//   (gen_random_uuid(),'Tinker\'s Tools','ARTISAN_TOOLS','Small mechanical toolkit'),
+//   (gen_random_uuid(),'Smith\'s Tools','ARTISAN_TOOLS','Forge and metalworking tools'),
+//   (gen_random_uuid(),'Carpenter\'s Tools','ARTISAN_TOOLS','Woodworking tools'),
+//   (gen_random_uuid(),'Mason\'s Tools','ARTISAN_TOOLS','Stoneworking tools'),
+//   (gen_random_uuid(),'Brewer\'s Supplies','ARTISAN_TOOLS','Brewing gear'),
+//   (gen_random_uuid(),'Cook\'s Utensils','ARTISAN_TOOLS','Cooking tools'),
+//   (gen_random_uuid(),'Glassblower\'s Tools','ARTISAN_TOOLS','Glassblowing tools'),
+//   (gen_random_uuid(),'Jeweler\'s Tools','ARTISAN_TOOLS','Jewelry-making tools'),
+//   (gen_random_uuid(),'Leatherworker\'s Tools','ARTISAN_TOOLS','Leatherworking tools'),
+//   (gen_random_uuid(),'Potter\'s Tools','ARTISAN_TOOLS','Pottery tools'),
+//   (gen_random_uuid(),'Weaver\'s Tools','ARTISAN_TOOLS','Weaving tools'),
+//   (gen_random_uuid(),'Woodcarver\'s Tools','ARTISAN_TOOLS','Woodcarving tools'),
+//   (gen_random_uuid(),'Dice Set','GAMING_SET','Standard dice'),
+//   (gen_random_uuid(),'Playing Card Set','GAMING_SET','Deck of cards'),
+//   (gen_random_uuid(),'Dragonchess Set','GAMING_SET','Three-tier chess variant'),
+//   (gen_random_uuid(),'Lute','INSTRUMENT','Stringed instrument'),
+//   (gen_random_uuid(),'Lyre','INSTRUMENT','Stringed instrument'),
+//   (gen_random_uuid(),'Flute','INSTRUMENT','Woodwind'),
+//   (gen_random_uuid(),'Pan Flute','INSTRUMENT','Panpipes'),
+//   (gen_random_uuid(),'Viol','INSTRUMENT','Bowed string instrument'),
+//   (gen_random_uuid(),'Drum','INSTRUMENT','Percussion'),
+//   (gen_random_uuid(),'Horn','INSTRUMENT','Brass/woodwind'),
+//   (gen_random_uuid(),'Bagpipes','INSTRUMENT','Reed instrument'),
+//   (gen_random_uuid(),'Dulcimer','INSTRUMENT','Hammered string instrument'),
+//   (gen_random_uuid(),'Vehicles (Land)','VEHICLE_LAND','Wagons, carts, mounts'),
+//   (gen_random_uuid(),'Vehicles (Water)','VEHICLE_WATER','Boats and ships')
+// ON CONFLICT ("name") DO NOTHING;
