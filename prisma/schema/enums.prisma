@@ -1,0 +1,94 @@
+// Character Enums
+enum Alignment {
+  LAWFUL_GOOD
+  NEUTRAL_GOOD
+  CHAOTIC_GOOD
+  LAWFUL_NEUTRAL
+  TRUE_NEUTRAL
+  CHAOTIC_NEUTRAL
+  LAWFUL_EVIL
+  NEUTRAL_EVIL
+  CHAOTIC_EVIL
+
+  @@schema("public")
+}
+
+enum AbilityType {
+  STR
+  DEX
+  CON
+  INT
+  WIS
+  CHA
+
+  @@schema("public")
+}
+
+enum ProficiencyLevel {
+  NONE
+  HALF
+  NORMAL
+  EXPERTISE
+
+  @@schema("public")
+}
+
+enum EquipmentSlot {
+  HEAD
+  NECK
+  CHEST
+  HANDS
+  FINGER
+  MAIN_HAND
+  OFF_HAND
+  TWO_HANDED
+  FEET
+  BACK
+  OTHER
+
+  @@schema("public")
+}
+
+enum FeatureSourceType {
+  CLASS
+  SUBCLASS
+  RACE
+  FEAT
+  BACKGROUND
+  OTHER
+
+  @@schema("public")
+}
+
+// Inventory Enums
+enum ItemRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  VERY_RARE
+  LEGENDARY
+  ARTIFACT
+
+  @@schema("public")
+}
+
+// Spells & Magic Enums
+enum SpellSchool {
+  ABJURATION
+  CONJURATION
+  DIVINATION
+  ENCHANTMENT
+  EVOCATION
+  ILLUSION
+  NECROMANCY
+  TRANSMUTATION
+
+  @@schema("public")
+}
+
+enum SpellKnowledgeType {
+  KNOWN
+  PREPARED
+
+  @@schema("public")
+}

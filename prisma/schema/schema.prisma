@@ -67,13 +67,270 @@ model Character {
   userId String     @db.Text
   user   users_sync @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // High-level stats
+  level            Int        @default(1)
+  alignment        Alignment?
+  experiencePoints Int        @default(0)
+
+  // Core combat snapshot
+  maxHp       Int?
+  currentHp   Int?
+  tempHp      Int?    @default(0)
+  armorClass  Int?
+  speed       Int? // in feet
+  inspiration Boolean @default(false)
+
+  // Useful meta
+  notes     String? // freeform description, personality, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  classLevels           CharacterClassLevel[]
+  abilities             CharacterAbility[]
+  skills                CharacterSkill[]
+  inventory             CharacterItem[]
+  spells                CharacterSpell[]
+  race                  Race?                  @relation(fields: [raceId], references: [id])
+  raceId                String?
+  background            Background?            @relation(fields: [backgroundId], references: [id])
+  backgroundId          String?
+  characterSavingThrows CharacterSavingThrow[]
+  characterSpellSlots   CharacterSpellSlot[]
+  characterFeatures     CharacterFeature[]
+
   @@schema("public")
 }
 
 model CharacterClass {
   id          String @id @default(uuid())
-  className   String
+  name        String @unique
   description String
+  hitDie      Int // e.g., 10 for d10, 6 for d6
 
+  // For rules-based stuff later
+  primaryAbilities     String? // e.g. "STR,CON"
+  savingThrowProfs     String? // e.g. "STR,CON"
+  subclasses           Subclass[]
+  characterClassLevels CharacterClassLevel[]
+
+  @@schema("public")
+}
+
+model Subclass {
+  id      String         @id @default(uuid())
+  classId String
+  class   CharacterClass @relation(fields: [classId], references: [id])
+
+  name        String // e.g., "Champion"
+  description String?
+
+  // Features unlocked at certain levels can be a separate table later
+  characterClassLevels CharacterClassLevel[]
+
+  @@schema("public")
+}
+
+model CharacterClassLevel {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  classId String
+  class   CharacterClass @relation(fields: [classId], references: [id])
+
+  subclassId String?
+  subclass   Subclass? @relation(fields: [subclassId], references: [id])
+
+  level           Int // level in THIS class
+  hitPointsGained Int? // for tracking HP per level if you want
+
+  // Optional: when this level was added
+  createdAt DateTime @default(now())
+
+  @@unique([characterId, classId]) // simple version: one row per class
+  @@schema("public")
+}
+
+model Race {
+  id          String  @id @default(uuid())
+  name        String // "Human", "Elf", etc.
+  description String?
+
+  // Could store rules-ish stuff as JSON or separate tables
+  // e.g., ability score bonuses, speed, features, etc.
+
+  characters Character[]
+
+  @@schema("public")
+}
+
+model Background {
+  id          String  @id @default(uuid())
+  name        String // "Soldier", "Sage", etc.
+  description String?
+
+  // Could link to starting proficiencies, equipment, etc. later.
+
+  characters Character[]
+
+  @@schema("public")
+}
+
+model CharacterAbility {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  ability   AbilityType
+  baseScore Int // e.g., 15 from point buy
+  bonus     Int         @default(0) // racial/feat bonus
+  temporary Int         @default(0) // spells, etc.
+
+  @@unique([characterId, ability])
+  @@schema("public")
+}
+
+model Skill {
+  id          String      @id @default(uuid())
+  name        String // "Stealth"
+  ability     AbilityType // e.g., DEX-based
+  description String?
+
+  characterSkills CharacterSkill[]
+
+  @@schema("public")
+}
+
+model CharacterSkill {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id])
+
+  proficiency ProficiencyLevel @default(NORMAL)
+
+  @@unique([characterId, skillId])
+  @@schema("public")
+}
+
+model CharacterSavingThrow {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  ability     AbilityType
+  proficiency ProficiencyLevel @default(NONE)
+
+  @@unique([characterId, ability])
+  @@schema("public")
+}
+
+model Item {
+  id           String     @id @default(uuid())
+  name         String
+  description  String?
+  weight       Float? // in pounds
+  rarity       ItemRarity @default(COMMON)
+  isConsumable Boolean    @default(false)
+
+  // Later: type (weapon, armor, etc.), damage, AC, properties, etc.
+
+  characterItems CharacterItem[]
+
+  @@schema("public")
+}
+
+model CharacterItem {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id])
+
+  quantity Int            @default(1)
+  equipped Boolean        @default(false)
+  slot     EquipmentSlot?
+
+  attuned Boolean @default(false)
+  notes   String?
+
+  @@schema("public")
+}
+
+model Spell {
+  id          String      @id @default(uuid())
+  name        String
+  level       Int // 0 = cantrip
+  school      SpellSchool
+  castingTime String?
+  range       String?
+  components  String? // e.g. "V,S,M"
+  duration    String?
+  description String?
+
+  isRitual        Boolean @default(false)
+  isConcentration Boolean @default(false)
+
+  characterSpells CharacterSpell[]
+
+  @@schema("public")
+}
+
+model CharacterSpell {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  spellId String
+  spell   Spell  @relation(fields: [spellId], references: [id])
+
+  knowledge SpellKnowledgeType @default(KNOWN)
+  notes     String?
+
+  @@unique([characterId, spellId, knowledge])
+  @@schema("public")
+}
+
+model CharacterSpellSlot {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  spellLevel   Int // 1–9, not cantrips
+  maxSlots     Int
+  currentSlots Int
+
+  @@unique([characterId, spellLevel])
+  @@schema("public")
+}
+
+model Feature {
+  id          String            @id @default(uuid())
+  name        String
+  description String?
+  sourceType  FeatureSourceType
+  sourceId    String? // e.g., id of class / race / feat record
+
+  characterFeatures CharacterFeature[]
+
+  @@schema("public")
+}
+
+model CharacterFeature {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  featureId String
+  feature   Feature @relation(fields: [featureId], references: [id])
+
+  // For tracking if this is currently usable / toggled
+  usesRemaining Int?
+  notes         String?
+
+  @@unique([characterId, featureId])
   @@schema("public")
 }
