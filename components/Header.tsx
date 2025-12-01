@@ -1,6 +1,7 @@
 import { Grid, Flex, Box, Heading } from '@radix-ui/themes';
 import { UserCard } from './UserCard';
 import Link from './common/Link';
+import { QuickActions } from './QuickActions';
 
 export const Header = () => {
   return (
@@ -11,7 +12,8 @@ export const Header = () => {
             <Link href="/">Lazy DnD</Link>
           </Heading>
         </Box>
-        <Flex justify="end">
+        <Flex justify="end" gap="2" align="center">
+          <QuickActions isDm={true} />
           <UserCard />
         </Flex>
       </Grid>
