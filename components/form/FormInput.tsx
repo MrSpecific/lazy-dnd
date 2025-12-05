@@ -8,9 +8,11 @@ type FormInputProps = RadixInputProps & {
 };
 
 export const FormInput = ({ name, label, tooltip, ...props }: FormInputProps) => {
+  const { required } = props;
+
   return (
     <Form.Field name={name}>
-      <InputLabel label={label} required tooltip={tooltip} />
+      <InputLabel label={label} required={required} tooltip={tooltip} />
       <TextField.Root {...props}></TextField.Root>
     </Form.Field>
   );

@@ -1,4 +1,4 @@
-import { Button, TextField } from '@radix-ui/themes';
+import { Button, Flex, TextField } from '@radix-ui/themes';
 import { Form as RxForm } from 'radix-ui';
 
 type FormProps = {
@@ -11,15 +11,10 @@ export const Form = ({ action, children, submitText = 'Submit' }: FormProps) => 
   return (
     <RxForm.Root action={action}>
       {children}
-      {/* <RxForm.Message /> */}
-      {/* <RxForm.ValidityState>
-        {(validity) => (
-          <RxForm.Control asChild>
-            <TextField.Input variant="primary" state={getTextFieldInputState(validity)} />
-          </RxForm.Control>
-        )}
-      </RxForm.ValidityState> */}
-      <SubmitButton>{submitText}</SubmitButton>
+
+      <Flex justify="end" mt="4">
+        <SubmitButton>{submitText}</SubmitButton>
+      </Flex>
     </RxForm.Root>
   );
 };

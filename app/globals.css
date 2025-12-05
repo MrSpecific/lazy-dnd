@@ -1,0 +1,7 @@
+button {
+  cursor: pointer;
+}
+
+.radix-themes {
+  --cursor-button: pointer;
+}
