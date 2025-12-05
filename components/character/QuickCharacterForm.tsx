@@ -1,6 +1,6 @@
 import { Form, FormInput } from '@/components/form';
 
-export const CharacterForm = () => {
+export const QuickCharacterForm = () => {
   return (
     <Form action="/api/characters">
       <FormInput name="name" label="Name" />
