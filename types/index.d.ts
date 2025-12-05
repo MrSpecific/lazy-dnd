@@ -27,6 +27,7 @@ declare global {
 
   type OneOf<T, U> = (T & { [K in keyof U]?: never }) | (U & { [K in keyof T]?: never });
 
+  type FormAction = string | ((formData: FormData) => void | Promise<void>) | undefined;
   type ValidityState =
     | 'valueMissing'
     | 'typeMismatch'
@@ -40,9 +41,7 @@ declare global {
     | 'customError'
     | 'valid';
 
-  export type PrismaReturnType<T extends (...args: any) => any> = NonNullable<
-    Awaited<ReturnType<T>>
-  >;
+  type PrismaReturnType<T extends (...args: any) => any> = NonNullable<Awaited<ReturnType<T>>>;
 
   type ComponentProps<T> = ReactComponentProps<T>;
 

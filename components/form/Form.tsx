@@ -1,11 +1,17 @@
-import { TextField } from '@radix-ui/themes';
+import { Button, TextField } from '@radix-ui/themes';
 import { Form as RxForm } from 'radix-ui';
 
-export const Form = ({ children }: { children: React.ReactNode }) => {
+type FormProps = {
+  action?: FormAction;
+  children: React.ReactNode;
+  submitText?: string;
+};
+
+export const Form = ({ action, children, submitText = 'Submit' }: FormProps) => {
   return (
-    <RxForm.Root>
+    <RxForm.Root action={action}>
       {children}
-      <RxForm.Message />
+      {/* <RxForm.Message /> */}
       {/* <RxForm.ValidityState>
         {(validity) => (
           <RxForm.Control asChild>
@@ -13,7 +19,15 @@ export const Form = ({ children }: { children: React.ReactNode }) => {
           </RxForm.Control>
         )}
       </RxForm.ValidityState> */}
-      <RxForm.Submit />
+      <SubmitButton>{submitText}</SubmitButton>
     </RxForm.Root>
+  );
+};
+
+export const SubmitButton = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <RxForm.Submit asChild>
+      <Button>{children}</Button>
+    </RxForm.Submit>
   );
 };

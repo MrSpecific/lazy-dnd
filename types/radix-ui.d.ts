@@ -28,6 +28,7 @@ declare global {
   type FormMessageMatch = FormMessageProps['match'];
   type SelectProps = SelectProps;
   type RadixTableProps = TableProps;
+  type RadixInputProps = InputProps;
   type RadixInputSize = InputProps['size'];
   type RadixTextSize = TextProps['size'];
 }
