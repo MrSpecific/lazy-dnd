@@ -7,7 +7,7 @@ const nextConfig = {
     //     './node_modules/thread-stream/test/**', // Exclude thread-stream test files
     //   ],
     // },
-    serverComponentsExternalPackages: ['thread-stream'],
+    // serverComponentsExternalPackages: ['thread-stream'],
   },
   images: {
     remotePatterns: [

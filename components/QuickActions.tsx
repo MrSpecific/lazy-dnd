@@ -2,6 +2,7 @@
 
 import { Button, DropdownMenu } from '@radix-ui/themes';
 import { useCallback, useEffect } from 'react';
+import { useUser, UserAvatar } from '@stackframe/stack';
 import { useRouter } from 'next/navigation';
 
 type QuickActionsProps = {
@@ -13,6 +14,11 @@ const npcRoute = '/dm/new-npc';
 
 export const QuickActions = ({ isDm = false }: QuickActionsProps) => {
   const router = useRouter();
+  const user = useUser();
+
+  if (!user) {
+    return null;
+  }
 
   const navigate = useCallback(
     (path: string) => {
