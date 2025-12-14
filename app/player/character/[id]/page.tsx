@@ -1,11 +1,20 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { Box, Heading, Section, Text } from '@radix-ui/themes';
+import { AbilityTable } from '@/components/character/AbilityTable';
+import { getCharacterAbilities } from '@/data/character/abilities';
+import { stackServerApp } from '@/stack/server';
 
 export default async function CharacterPage({ params }: { params: { id: string } }) {
+  const user = await stackServerApp.getUser({ or: 'redirect' });
   const { id } = await params;
+
+  if (!id) {
+    notFound();
+  }
+
   const character = await prisma.character.findUnique({
-    where: { id },
+    where: { id, userId: user.id },
     include: {
       race: true,
       classLevels: {
@@ -21,6 +30,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
   }
 
   const primaryClass = character.classLevels[0]?.class;
+  const abilities = await getCharacterAbilities(character.id);
 
   return (
     <Section>
@@ -29,6 +39,9 @@ export default async function CharacterPage({ params }: { params: { id: string }
         <Text size="3">
           {primaryClass ? primaryClass.name : 'Unclassed'} {character.race?.name ?? ''}
         </Text>
+      </Box>
+      <Box mt="4">
+        <AbilityTable characterId={character.id} abilities={abilities} />
       </Box>
     </Section>
   );
