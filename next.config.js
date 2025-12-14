@@ -8,10 +8,11 @@ const nextConfig = {
     //   ],
     // },
     // serverComponentsExternalPackages: ['thread-stream'],
-    turbo: {
-      resolveAlias: {
-        pino: './lib/shims/pino',
-      },
+  },
+  turbo: {
+    resolveAlias: {
+      pino: './lib/shims/pino',
+      'thread-stream': './lib/shims/thread-stream',
     },
   },
   images: {
@@ -33,6 +34,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       pino: require('path').resolve(__dirname, 'lib/shims/pino'),
+      'thread-stream': require('path').resolve(__dirname, 'lib/shims/thread-stream'),
     };
     return config;
   },
