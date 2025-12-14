@@ -68,17 +68,14 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
           <Heading size="3" mb="2">
             Add a weapon
           </Heading>
-          <form action={formAction}>
-            <input type="hidden" name="characterId" value={characterId} />
-            <WeaponForm pending={pending} />
-          </form>
+          <WeaponForm pending={pending} action={formAction} characterId={characterId} />
           {state.status === 'error' && (
             <Text color="red" size="2" mt="2">
               {localError ?? state.message}
             </Text>
           )}
           <Button variant="ghost" mt="2" onClick={() => setEditing(false)}>
-            Cancel
+            Close
           </Button>
         </Box>
       )}

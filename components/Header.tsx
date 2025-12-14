@@ -12,7 +12,7 @@ export const Header = () => {
             <Link href="/">Lazy DnD</Link>
           </Heading>
         </Box>
-        <Flex justify="end" gap="2" align="center">
+        <Flex justify="end" gap="2" align="start">
           <QuickActions isDm={true} />
           <UserCard />
         </Flex>

@@ -10,7 +10,7 @@ type QuickActionsProps = {
 };
 
 const characterRoute = '/player/character/new';
-const npcRoute = '/dm/new-npc';
+const npcRoute = '/dm/npc/new';
 
 export const QuickActions = ({ isDm = false }: QuickActionsProps) => {
   const router = useRouter();
@@ -52,7 +52,7 @@ export const QuickActions = ({ isDm = false }: QuickActionsProps) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
-        <Button variant="soft">
+        <Button variant="soft" size="3">
           Actions
           <DropdownMenu.TriggerIcon />
         </Button>
