@@ -11,6 +11,11 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+export const metadata = {
+  title: 'Lazy D&D',
+  description: 'Spin up characters, stats, and gear quickly with Lazy D&D.',
+};
+
 export default function ({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
