@@ -38,9 +38,12 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
   }, [abilities]);
 
   const [scores, setScores] = useState<Record<AbilityType, number>>(initialScores);
-  const [state, formAction, pending] = useActionState<SaveAbilitiesState, FormData>(saveCharacterAbilities, {
-    status: 'idle',
-  });
+  const [state, formAction, pending] = useActionState<SaveAbilitiesState, FormData>(
+    saveCharacterAbilities,
+    {
+      status: 'idle',
+    }
+  );
 
   useEffect(() => {
     setScores(initialScores);
@@ -127,17 +130,35 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
                   </Text>
                 </Table.RowHeaderCell>
                 <Table.Cell align="center">
-                  <TextField.Root
-                    name={`ability-${ability}`}
-                    type="number"
-                    inputMode="numeric"
-                    value={score}
-                    min={1}
-                    max={30}
-                    onChange={(event) => handleScoreChange(ability, Number(event.target.value))}
-                    size="2"
-                    style={{ width: 96 }}
-                  />
+                  <Flex gap="2" justify="center" align="center">
+                    <Button
+                      type="button"
+                      variant="soft"
+                      size="2"
+                      onClick={() => handleScoreChange(ability, score - 1)}
+                    >
+                      −
+                    </Button>
+                    <TextField.Root
+                      name={`ability-${ability}`}
+                      type="number"
+                      inputMode="numeric"
+                      value={score}
+                      min={1}
+                      max={30}
+                      onChange={(event) => handleScoreChange(ability, Number(event.target.value))}
+                      size="2"
+                      style={{ width: 96 }}
+                    />
+                    <Button
+                      type="button"
+                      variant="soft"
+                      size="2"
+                      onClick={() => handleScoreChange(ability, score + 1)}
+                    >
+                      +
+                    </Button>
+                  </Flex>
                 </Table.Cell>
                 <Table.Cell align="center">
                   <Badge color="gray" size="3" variant="soft">
