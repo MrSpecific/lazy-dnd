@@ -86,7 +86,7 @@ export const RaceSelect = ({
 
   return (
     <Form.Field name={name}>
-      <InputLabel label={label} required={required} />
+      <InputLabel label={label} htmlFor={name} required={required} />
 
       <Flex gap="2" align="center" mt="1">
         <Select.Root
@@ -96,7 +96,10 @@ export const RaceSelect = ({
           size={size}
           disabled={loading || !!error}
         >
-          <Select.Trigger placeholder={loading ? 'Loading races…' : 'Select a race'} />
+          <Select.Trigger
+            placeholder={loading ? 'Loading races…' : 'Select a race'}
+            style={{ flexGrow: 1 }}
+          />
           <Select.Content>
             {options.map((race) => (
               <Select.Item key={race.id} value={race.id} textValue={race.name}>
@@ -111,6 +114,7 @@ export const RaceSelect = ({
           variant="surface"
           onClick={selectRandom}
           disabled={!options.length || loading}
+          size={size}
         >
           Random
         </Button>

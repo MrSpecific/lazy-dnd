@@ -3,6 +3,7 @@ import { Form as RxForm } from 'radix-ui';
 
 type FormProps = {
   action?: FormAction;
+  actionSize?: RadixButtonSize;
   children: React.ReactNode;
   submitText?: string;
   allowCancel?: boolean;
@@ -12,6 +13,7 @@ type FormProps = {
 
 export const Form = ({
   action,
+  actionSize,
   children,
   submitText = 'Submit',
   allowCancel = false,
@@ -24,20 +26,26 @@ export const Form = ({
 
       <Flex justify="end" mt="4" gap="2">
         {allowCancel && (
-          <Button color="gray" onClick={cancelAction}>
+          <Button color="gray" onClick={cancelAction} size={actionSize}>
             {cancelText}
           </Button>
         )}
-        <SubmitButton>{submitText}</SubmitButton>
+        <SubmitButton size={actionSize}>{submitText}</SubmitButton>
       </Flex>
     </RxForm.Root>
   );
 };
 
-export const SubmitButton = ({ children }: { children: React.ReactNode }) => {
+export const SubmitButton = ({
+  children,
+  size,
+}: {
+  children: React.ReactNode;
+  size?: RadixButtonSize;
+}) => {
   return (
     <RxForm.Submit asChild>
-      <Button>{children}</Button>
+      <Button size={size}>{children}</Button>
     </RxForm.Submit>
   );
 };

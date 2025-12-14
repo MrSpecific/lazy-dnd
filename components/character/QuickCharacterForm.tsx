@@ -18,7 +18,7 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
   }, [characterClass, race]);
 
   return (
-    <Form action="/api/characters" submitText="Next...">
+    <Form action="/api/characters" submitText="Next..." actionSize={size}>
       <CharacterClassSelect
         name="class"
         label="Class"

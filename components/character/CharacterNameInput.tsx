@@ -8,7 +8,7 @@ import { InputLabel } from '@/components/form/InputLabel';
 export type Hints = { hint: string; value: string }[];
 
 export const CharacterNameInput = ({
-  name,
+  name = 'name',
   value,
   label = 'Name',
   size,
@@ -66,8 +66,15 @@ export const CharacterNameInput = ({
           onChange={(event) => handleChange(event.target.value)}
           placeholder="Enter a name or generate one"
           disabled={isGenerating}
+          style={{ flexGrow: 1 }}
         />
-        <Button type="button" variant="surface" onClick={handleGenerate} disabled={isGenerating}>
+        <Button
+          type="button"
+          variant="surface"
+          onClick={handleGenerate}
+          disabled={isGenerating}
+          size={size}
+        >
           {isGenerating ? 'Generating…' : 'Suggest'}
         </Button>
       </Flex>

@@ -88,10 +88,10 @@ export const CharacterClassSelect = ({
   };
 
   return (
-    <Form.Field name={name}>
-      <InputLabel label={label} required={required} />
+    <Form.Field name={name} style={{ width: '100%', flexGrow: 1 }}>
+      <InputLabel label={label} htmlFor={name} required={required} />
 
-      <Flex gap="2" align="center" mt="1">
+      <Flex gap="2" align="center" mt="1" width="100%">
         <Select.Root
           name={name}
           value={selected || undefined}
@@ -99,7 +99,10 @@ export const CharacterClassSelect = ({
           size={size}
           disabled={loading || !!error}
         >
-          <Select.Trigger placeholder={loading ? 'Loading classes…' : 'Select a class'} />
+          <Select.Trigger
+            placeholder={loading ? 'Loading classes…' : 'Select a class'}
+            style={{ flexGrow: 1 }}
+          />
           <Select.Content>
             {options.map((characterClass) => (
               <Select.Item
@@ -118,6 +121,7 @@ export const CharacterClassSelect = ({
           variant="surface"
           onClick={selectRandom}
           disabled={!options.length || loading}
+          size={size}
         >
           Random
         </Button>
