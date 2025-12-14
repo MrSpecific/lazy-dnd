@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useState } from 'react';
 import { AbilityType } from '@prisma/client';
-import { Badge, Button, Flex, Table, Text, TextField } from '@radix-ui/themes';
+import { Badge, Button, Flex, Switch, Table, Text, TextField } from '@radix-ui/themes';
 import { abilityLabel, ABILITY_TYPES } from '@/lib/abilities';
 import { saveCharacterAbilities, type SaveAbilitiesState } from '@/data/character/abilities';
 
@@ -46,13 +46,30 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
       status: 'idle',
     }
   );
+  const [restricted, setRestricted] = useState(true);
+  const [restrictionMessage, setRestrictionMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setScores(initialScores);
   }, [initialScores]);
 
-  const handleScoreChange = (ability: AbilityType, value: number) => {
-    setScores((prev) => ({ ...prev, [ability]: clamp(value, 1, 30) }));
+  const minScore = restricted ? MIN_RULE_SCORE : 1;
+  const maxScore = restricted ? MAX_RULE_SCORE : 30;
+
+  const applyScoreUpdate = (ability: AbilityType, value: number) => {
+    const clamped = clamp(value, minScore, maxScore);
+    const nextScores = { ...scores, [ability]: clamped };
+
+    if (restricted) {
+      const nextCost = ABILITY_TYPES.reduce((sum, a) => sum + pointBuyCost(nextScores[a] ?? 8), 0);
+      if (nextCost > POINT_BUY_BUDGET) {
+        setRestrictionMessage('Exceeds point buy budget (27).');
+        return;
+      }
+    }
+
+    setRestrictionMessage(null);
+    setScores(nextScores);
   };
 
   const applyStandardArray = () => {
@@ -76,11 +93,33 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
     ABILITY_TYPES.forEach((ability) => {
       next[ability] = roll4d6DropLowest();
     });
+
+    if (restricted) {
+      const nextCost = ABILITY_TYPES.reduce((sum, a) => sum + pointBuyCost(next[a] ?? 8), 0);
+      if (nextCost > POINT_BUY_BUDGET) {
+        setRestrictionMessage('Rolled values exceed point buy budget (27). Try again or switch to unrestricted.');
+        return;
+      }
+    }
+
+    setRestrictionMessage(null);
     setScores(next);
   };
 
   const rollSingle = (ability: AbilityType) => {
-    setScores((prev) => ({ ...prev, [ability]: roll4d6DropLowest() }));
+    const rolled = roll4d6DropLowest();
+    const nextScores = { ...scores, [ability]: rolled };
+
+    if (restricted) {
+      const nextCost = ABILITY_TYPES.reduce((sum, a) => sum + pointBuyCost(nextScores[a] ?? 8), 0);
+      if (nextCost > POINT_BUY_BUDGET) {
+        setRestrictionMessage('This roll exceeds the point buy budget (27).');
+        return;
+      }
+    }
+
+    setRestrictionMessage(null);
+    setScores(nextScores);
   };
 
   const totalPointCost = useMemo(() => {
@@ -108,6 +147,18 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
         <Badge color={remainingPoints >= 0 ? 'green' : 'red'} size="2">
           Point Buy: {remainingPoints} / {POINT_BUY_BUDGET} remaining
         </Badge>
+        <Flex align="center" gap="2">
+          <Switch
+            checked={restricted}
+            onCheckedChange={(checked) => {
+              setRestricted(Boolean(checked));
+              setRestrictionMessage(null);
+            }}
+          />
+          <Text size="2" color="gray">
+            {restricted ? 'Restricted (5e min/max & point buy)' : 'Unrestricted'}
+          </Text>
+        </Flex>
       </Flex>
 
       <Table.Root variant="surface">
@@ -140,7 +191,7 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
                         type="button"
                         variant="soft"
                         size="2"
-                        onClick={() => handleScoreChange(ability, score - 1)}
+                        onClick={() => applyScoreUpdate(ability, score - 1)}
                       >
                         −
                       </Button>
@@ -149,9 +200,9 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
                         type="number"
                         inputMode="numeric"
                         value={score}
-                        min={1}
-                        max={30}
-                        onChange={(event) => handleScoreChange(ability, Number(event.target.value))}
+                        min={minScore}
+                        max={maxScore}
+                        onChange={(event) => applyScoreUpdate(ability, Number(event.target.value))}
                         size="2"
                         color={status === 'ok' ? 'gray' : status === 'low' ? 'red' : 'amber'}
                         style={{ width: 96 }}
@@ -160,12 +211,12 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
                         type="button"
                         variant="soft"
                         size="2"
-                        onClick={() => handleScoreChange(ability, score + 1)}
+                        onClick={() => applyScoreUpdate(ability, score + 1)}
                       >
                         +
                       </Button>
                     </Flex>
-                    {status !== 'ok' && (
+                    {status !== 'ok' && restricted && (
                       <Text size="1" color={status === 'low' ? 'red' : 'amber'}>
                         {status === 'low'
                           ? `Below min (${MIN_RULE_SCORE})`
@@ -191,6 +242,11 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
       </Table.Root>
 
       <Flex justify="end" gap="3" mt="3" align="center">
+        {restrictionMessage && (
+          <Text color="amber" size="2">
+            {restrictionMessage}
+          </Text>
+        )}
         {state.status === 'error' && (
           <Text color="red" size="2">
             {state.message ?? 'Failed to save abilities.'}
