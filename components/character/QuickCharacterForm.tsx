@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useMemo, useState } from 'react';
 import { Text } from '@radix-ui/themes';
 import { useRouter } from 'next/navigation';
-import { Form } from '@/components/form';
+import { Form, FormField } from '@/components/form';
 import { CharacterClassSelect } from '@/components/character/CharacterClassSelect';
 import { RaceSelect } from '@/components/character/RaceSelect';
 import { CharacterNameInput, type Hints } from '@/components/character/CharacterNameInput';
@@ -21,7 +21,7 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
 
   const [state, formAction, pending] = useActionState<CreateCharacterState, FormData>(
     createCharacter,
-    { status: 'idle' },
+    { status: 'idle' }
   );
 
   useEffect(() => {
@@ -38,7 +38,12 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
   }, [characterClass, race]);
 
   return (
-    <Form action={formAction} submitText={pending ? 'Saving…' : 'Next...'} actionSize={size} submitDisabled={pending}>
+    <Form
+      action={formAction}
+      submitText={pending ? 'Saving…' : 'Next...'}
+      actionSize={size}
+      submitDisabled={pending}
+    >
       <CharacterClassSelect
         name="class"
         label="Class"
@@ -46,7 +51,7 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
         onValueChange={(next) => setCharacterClass(next)}
       />
       <RaceSelect name="race" label="Race" size={size} onValueChange={(next) => setRace(next)} />
-      <Form.Field name="gender">
+      <FormField name="gender">
         <InputLabel label="Gender" />
         <Select.Root
           name="gender"
@@ -62,8 +67,8 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
             <Select.Item value="OTHER">Other</Select.Item>
           </Select.Content>
         </Select.Root>
-      </Form.Field>
-      <Form.Field name="alignment">
+      </FormField>
+      <FormField name="alignment">
         <InputLabel label="Alignment" />
         <Select.Root
           name="alignment"
@@ -84,7 +89,7 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
             <Select.Item value="CHAOTIC_EVIL">Chaotic Evil</Select.Item>
           </Select.Content>
         </Select.Root>
-      </Form.Field>
+      </FormField>
       <CharacterNameInput name="name" label="Name" size={size} hints={nameHints} required />
 
       {state.status === 'error' && (

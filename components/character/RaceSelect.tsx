@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Flex, Select, Text } from '@radix-ui/themes';
+import { Flex, Select, Text } from '@radix-ui/themes';
 import { Form } from 'radix-ui';
 import { InputLabel } from '@/components/form/InputLabel';
 import { getRaces, type GetRacesReturn } from '@/data/character/getRaces';
+import { RandomButton } from '@/components/common/RandomButton';
 
 type RaceSelectProps = {
   name?: string;
@@ -109,15 +110,7 @@ export const RaceSelect = ({
           </Select.Content>
         </Select.Root>
 
-        <Button
-          type="button"
-          variant="surface"
-          onClick={selectRandom}
-          disabled={!options.length || loading}
-          size={size}
-        >
-          Random
-        </Button>
+        <RandomButton onClick={selectRandom} disabled={!options.length || loading} size={size} />
       </Flex>
 
       {error && (

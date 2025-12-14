@@ -57,3 +57,5 @@ export const SubmitButton = ({
     </RxForm.Submit>
   );
 };
+
+export const FormField = RxForm.Field;

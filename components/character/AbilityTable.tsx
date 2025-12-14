@@ -5,6 +5,7 @@ import { AbilityType } from '@prisma/client';
 import { Badge, Button, Flex, Switch, Table, Text, TextField } from '@radix-ui/themes';
 import { abilityLabel, ABILITY_TYPES } from '@/lib/abilities';
 import { saveCharacterAbilities, type SaveAbilitiesState } from '@/data/character/abilities';
+import { RandomButton } from '@/components/common/RandomButton';
 
 type AbilityTableProps = {
   characterId: string;
@@ -288,9 +289,7 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
                   </Badge>
                 </Table.Cell>
                 <Table.Cell align="center">
-                  <Button type="button" variant="soft" size="1" onClick={() => rollSingle(ability)}>
-                    🎲 Roll
-                  </Button>
+                  <RandomButton onClick={() => rollSingle(ability)} size="1" variant="soft" label="Roll" />
                 </Table.Cell>
               </Table.Row>
             );
