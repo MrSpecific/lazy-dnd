@@ -8,6 +8,11 @@ const nextConfig = {
     //   ],
     // },
     // serverComponentsExternalPackages: ['thread-stream'],
+    turbo: {
+      resolveAlias: {
+        pino: './lib/shims/pino',
+      },
+    },
   },
   images: {
     remotePatterns: [
@@ -23,21 +28,14 @@ const nextConfig = {
       },
     ],
   },
-  // experimental: {
-  //   turbo: {
-  //     resolveAlias: {
-  //       pino: './lib/shims/pino',
-  //     },
-  //   },
-  // },
-  // webpack: (config) => {
-  //   config.resolve = config.resolve || {}
-  //   config.resolve.alias = {
-  //     ...(config.resolve.alias || {}),
-  //     pino: require('path').resolve(__dirname, 'lib/shims/pino'),
-  //   }
-  //   return config
-  // },
+  webpack: (config) => {
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      pino: require('path').resolve(__dirname, 'lib/shims/pino'),
+    };
+    return config;
+  },
 };
 
 module.exports = nextConfig;
