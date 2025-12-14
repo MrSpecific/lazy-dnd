@@ -1,14 +1,29 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useActionState, useEffect, useMemo, useState } from 'react';
+import { Text } from '@radix-ui/themes';
+import { useRouter } from 'next/navigation';
 import { Form } from '@/components/form';
 import { CharacterClassSelect } from '@/components/character/CharacterClassSelect';
 import { RaceSelect } from '@/components/character/RaceSelect';
 import { CharacterNameInput, type Hints } from '@/components/character/CharacterNameInput';
+import { createCharacter, type CreateCharacterState } from '@/data/character/createCharacter';
 
 export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) => {
   const [characterClass, setCharacterClass] = useState('');
   const [race, setRace] = useState('');
+  const router = useRouter();
+
+  const [state, formAction, pending] = useActionState<CreateCharacterState, FormData>(
+    createCharacter,
+    { status: 'idle' },
+  );
+
+  useEffect(() => {
+    if (state.status === 'success' && state.id) {
+      router.push(`/player/character/${state.id}`);
+    }
+  }, [state, router]);
 
   const nameHints = useMemo<Hints>(() => {
     const hints: Hints = [];
@@ -18,7 +33,7 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
   }, [characterClass, race]);
 
   return (
-    <Form action="/api/characters" submitText="Next..." actionSize={size}>
+    <Form action={formAction} submitText={pending ? 'Saving…' : 'Next...'} actionSize={size} submitDisabled={pending}>
       <CharacterClassSelect
         name="class"
         label="Class"
@@ -26,7 +41,13 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
         onValueChange={(next) => setCharacterClass(next)}
       />
       <RaceSelect name="race" label="Race" size={size} onValueChange={(next) => setRace(next)} />
-      <CharacterNameInput name="name" label="Name" size={size} hints={nameHints} />
+      <CharacterNameInput name="name" label="Name" size={size} hints={nameHints} required />
+
+      {state.status === 'error' && (
+        <Text color="red" size="1" mt="2">
+          {state.message ?? 'Something went wrong.'}
+        </Text>
+      )}
     </Form>
   );
 };

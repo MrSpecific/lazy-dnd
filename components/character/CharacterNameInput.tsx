@@ -14,6 +14,7 @@ export const CharacterNameInput = ({
   size,
   hints,
   onValueChange,
+  required = false,
 }: {
   name?: string;
   value?: string;
@@ -21,6 +22,7 @@ export const CharacterNameInput = ({
   size?: RadixInputSize;
   hints?: Hints;
   onValueChange?: (value: string) => void;
+  required?: boolean;
 }) => {
   const [currentValue, setCurrentValue] = useState(value ?? '');
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +58,7 @@ export const CharacterNameInput = ({
 
   return (
     <Form.Field name={name}>
-      <InputLabel label={label} />
+      <InputLabel label={label} required={required} />
 
       <Flex gap="2" align="center" mt="1">
         <TextField.Root
@@ -66,6 +68,7 @@ export const CharacterNameInput = ({
           onChange={(event) => handleChange(event.target.value)}
           placeholder="Enter a name or generate one"
           disabled={isGenerating}
+          required={required}
           style={{ flexGrow: 1 }}
         />
         <Button
