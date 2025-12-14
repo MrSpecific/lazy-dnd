@@ -66,6 +66,7 @@ model Character {
   age    Int
   userId String     @db.Text
   user   users_sync @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gender String?
 
   // High-level stats
   level            Int        @default(1)
