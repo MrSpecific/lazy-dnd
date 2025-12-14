@@ -16,14 +16,13 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    turbo: {
-      resolveAlias: {
-        'pino': path.resolve(__dirname, 'lib/shims/pino.js'),
-        'thread-stream': path.resolve(__dirname, 'lib/shims/thread-stream.js'),
-      },
-    },
-  },
+  serverExternalPackages: [
+    'pino',
+    'thread-stream',
+    // Add specific transports if you are using them, e.g.:
+    // 'pino-pretty',
+    // '@logtail/pino',
+  ],
 };
 
 module.exports = nextConfig;
