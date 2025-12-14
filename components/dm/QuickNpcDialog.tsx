@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Button, Dialog, Flex, Text, TextArea, Spinner } from '@radix-ui/themes';
+import { useSaveShortcut } from '@/lib/hooks/useSaveShortcut';
 
 type GeneratedNpc = {
   name?: string;
@@ -22,10 +23,13 @@ type GeneratedNpc = {
 
 export const QuickNpcDialog = () => {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useSaveShortcut({ formRef, saveShortcut: true, saveOnEnter: true, saveOnCmdEnter: true });
 
   const generateNpc = async () => {
     try {
@@ -67,34 +71,36 @@ export const QuickNpcDialog = () => {
           Describe the NPC and we&apos;ll draft a name, stats, and gear using Gemini.
         </Dialog.Description>
 
-        <Box mb="3">
-          <TextArea
-            placeholder="e.g., Gruff dwarven blacksmith with a secret past"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            onKeyDown={(e) => {
-              // Stop menu-level keyboard handlers from swallowing the space key.
-              e.stopPropagation();
-            }}
-          />
-        </Box>
+        <form ref={formRef} onSubmit={(e) => e.preventDefault()}>
+          <Box mb="3">
+            <TextArea
+              placeholder="e.g., Gruff dwarven blacksmith with a secret past"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              onKeyDown={(e) => {
+                // Stop menu-level keyboard handlers from swallowing the space key.
+                e.stopPropagation();
+              }}
+            />
+          </Box>
 
-        <Flex gap="2" justify="end" align="center">
-          {error && (
-            <Text color="red" size="2">
-              {error}
-            </Text>
-          )}
-          <Button onClick={generateNpc} disabled={!description.trim() || loading}>
-            {loading ? (
-              <Flex align="center" gap="2">
-                <Spinner /> Generating…
-              </Flex>
-            ) : (
-              'Generate'
+          <Flex gap="2" justify="end" align="center">
+            {error && (
+              <Text color="red" size="2">
+                {error}
+              </Text>
             )}
-          </Button>
-        </Flex>
+            <Button type="button" onClick={generateNpc} disabled={!description.trim() || loading}>
+              {loading ? (
+                <Flex align="center" gap="2">
+                  <Spinner /> Generating…
+                </Flex>
+              ) : (
+                'Generate'
+              )}
+            </Button>
+          </Flex>
+        </form>
       </Dialog.Content>
     </Dialog.Root>
   );

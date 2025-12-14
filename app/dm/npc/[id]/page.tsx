@@ -6,7 +6,7 @@ import { Alignment, Gender } from '@prisma/client';
 
 export default async function NpcPage({ params }: { params: { id: string } }) {
   const user = await stackServerApp.getUser({ or: 'redirect' });
-  const { id } = params;
+  const { id } = await params;
 
   const npc = await prisma.npc.findUnique({
     where: { id, createdById: user.id },
