@@ -13,7 +13,7 @@ const GOOD_COLOR: RadixColor = 'grass';
 const NEUTRAL_COLOR: RadixColor = 'amber';
 const EVIL_COLOR: RadixColor = 'crimson';
 
-export const ALIGNMENT_INFO: Record<AlignmentKey, AlignmentInfo> = {
+export const alignmentMeta: Record<AlignmentKey, AlignmentInfo> = {
   LAWFUL_GOOD: { label: 'Lawful Good', color: GOOD_COLOR },
   NEUTRAL_GOOD: { label: 'Neutral Good', color: GOOD_COLOR },
   CHAOTIC_GOOD: { label: 'Chaotic Good', color: GOOD_COLOR },
@@ -27,5 +27,5 @@ export const ALIGNMENT_INFO: Record<AlignmentKey, AlignmentInfo> = {
   CHAOTIC_EVIL: { label: 'Chaotic Evil', color: EVIL_COLOR },
 };
 
-export const getAlignmentInfo = (alignment: Alignment | null | undefined) =>
-  alignment ? ALIGNMENT_INFO[alignment] : undefined;
+export const getAlignmentMeta = (alignment: Alignment | null | undefined) =>
+  alignment ? alignmentMeta[alignment] : undefined;

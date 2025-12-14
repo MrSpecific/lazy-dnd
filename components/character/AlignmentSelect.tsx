@@ -5,7 +5,7 @@ import { Form } from 'radix-ui';
 import { Flex, Select } from '@radix-ui/themes';
 import { Alignment } from '@prisma/client';
 import { InputLabel } from '@/components/form/InputLabel';
-import { ALIGNMENT_INFO } from '@/lib/alignment';
+import { alignmentMeta } from '@/lib/alignment';
 import { RandomButton } from '@/components/common/RandomButton';
 
 type AlignmentSelectProps = {
@@ -18,7 +18,7 @@ type AlignmentSelectProps = {
   onValueChange?: (value: Alignment) => void;
 };
 
-const alignmentOptions = Object.entries(ALIGNMENT_INFO).map(([value, info]) => ({
+const alignmentOptions = Object.entries(alignmentMeta).map(([value, info]) => ({
   value: value as Alignment,
   label: info.label,
 }));

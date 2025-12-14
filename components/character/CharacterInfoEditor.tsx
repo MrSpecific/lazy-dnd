@@ -8,6 +8,7 @@ import { RaceSelect } from '@/components/character/RaceSelect';
 import { AlignmentSelect } from '@/components/character/AlignmentSelect';
 import { GenderSelect } from '@/components/character/GenderSelect';
 import { updateCharacter, type UpdateCharacterState } from '@/data/character/updateCharacter';
+import { getAlignmentMeta } from '@/lib/alignment';
 
 type CharacterInfoEditorProps = {
   characterId: string;
@@ -29,9 +30,12 @@ export const CharacterInfoEditor = ({
   raceName,
 }: CharacterInfoEditorProps) => {
   const [editing, setEditing] = useState(false);
-  const [state, formAction, pending] = useActionState<UpdateCharacterState, FormData>(updateCharacter, {
-    status: 'idle',
-  });
+  const [state, formAction, pending] = useActionState<UpdateCharacterState, FormData>(
+    updateCharacter,
+    {
+      status: 'idle',
+    }
+  );
   const [localName, setLocalName] = useState(initialName);
   const [localGender, setLocalGender] = useState<Gender | ''>(initialGender ?? '');
   const [localAlignment, setLocalAlignment] = useState<Alignment | ''>(initialAlignment ?? '');
@@ -44,6 +48,8 @@ export const CharacterInfoEditor = ({
       setLocalAlignment((state.alignment as Alignment | null) ?? '');
     }
   }, [state]);
+
+  const alignmentDisplay = getAlignmentMeta(localAlignment || null);
 
   return (
     <Card>
@@ -61,15 +67,22 @@ export const CharacterInfoEditor = ({
 
       {!editing ? (
         <Box>
-          <Text size="2" color="gray">
+          <Text as="div" size="2" color="gray">
             Gender: {localGender || 'Unspecified'}
           </Text>
-          <Text size="2" color="gray">
-            Alignment: {localAlignment || 'Unspecified'}
+          <Text as="div" size="2" color="gray">
+            Alignment:&nbsp;
+            <Text weight="bold" color={alignmentDisplay?.color}>
+              {alignmentDisplay ? alignmentDisplay.label : 'Unspecified'}
+            </Text>
           </Text>
         </Box>
       ) : (
-        <Form action={formAction} submitText={pending ? 'Saving…' : 'Save'} submitDisabled={pending}>
+        <Form
+          action={formAction}
+          submitText={pending ? 'Saving…' : 'Save'}
+          submitDisabled={pending}
+        >
           <input type="hidden" name="characterId" value={characterId} />
           <FormInput
             name="name"
