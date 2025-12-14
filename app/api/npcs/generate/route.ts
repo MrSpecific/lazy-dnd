@@ -15,14 +15,19 @@ Use this player-provided description to guide flavor: "${description}".
 Respond with valid JSON and nothing else.`;
 };
 
-const normalizeEnum = <T extends Record<string, string>>(value: unknown, enumObj: T): T[keyof T] | null => {
+const normalizeEnum = <T extends Record<string, string>>(
+  value: unknown,
+  enumObj: T
+): T[keyof T] | null => {
   if (typeof value !== 'string') return null;
   const key = value
     .toUpperCase()
     .replace(/[^A-Z]/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '');
-  return key in enumObj ? (enumObj as Record<string, string>)[key] : null;
+
+  const matchedKey = Object.keys(enumObj).find((enumKey) => enumKey === key);
+  return matchedKey ? enumObj[matchedKey as keyof T] : null;
 };
 
 const toInt = (value: unknown): number | null => {

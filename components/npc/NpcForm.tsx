@@ -6,6 +6,7 @@ import { Button, Flex, Select, TextArea, Text } from '@radix-ui/themes';
 import { Form, FormInput } from '@/components/form';
 import { CharacterClassSelect } from '@/components/character/CharacterClassSelect';
 import { RaceSelect } from '@/components/character/RaceSelect';
+import { GenderSelect } from '@/components/character/GenderSelect';
 import { createNpc, type CreateNpcState } from '@/data/npc/createNpc';
 import { InputLabel } from '@/components/form/InputLabel';
 import { Alignment, Gender } from '@prisma/client';
@@ -32,18 +33,7 @@ export const NpcForm = () => {
       <FormInput name="title" label="Title" tooltip="e.g. Captain of the Guard" />
       <RaceSelect name="race" label="Race" />
       <CharacterClassSelect name="class" label="Class" />
-      <div>
-        <InputLabel label="Gender" />
-        <Select.Root name="gender">
-          <Select.Trigger placeholder="Select gender (optional)" />
-          <Select.Content>
-            <Select.Item value="MALE">Male</Select.Item>
-            <Select.Item value="FEMALE">Female</Select.Item>
-            <Select.Item value="NON_BINARY">Non-binary</Select.Item>
-            <Select.Item value="OTHER">Other</Select.Item>
-          </Select.Content>
-        </Select.Root>
-      </div>
+      <GenderSelect />
       <div>
         <InputLabel label="Alignment" />
         <Select.Root name="alignment">

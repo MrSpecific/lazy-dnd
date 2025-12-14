@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Form, FormField } from '@/components/form';
 import { CharacterClassSelect } from '@/components/character/CharacterClassSelect';
 import { RaceSelect } from '@/components/character/RaceSelect';
+import { GenderSelect } from '@/components/character/GenderSelect';
 import { CharacterNameInput, type Hints } from '@/components/character/CharacterNameInput';
 import { createCharacter, type CreateCharacterState } from '@/data/character/createCharacter';
 import { Alignment, Gender } from '@prisma/client';
@@ -51,23 +52,7 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
         onValueChange={(next) => setCharacterClass(next)}
       />
       <RaceSelect name="race" label="Race" size={size} onValueChange={(next) => setRace(next)} />
-      <FormField name="gender">
-        <InputLabel label="Gender" />
-        <Select.Root
-          name="gender"
-          value={gender || undefined}
-          onValueChange={(value) => setGender(value as Gender)}
-          size={size}
-        >
-          <Select.Trigger placeholder="Select gender (optional)" />
-          <Select.Content>
-            <Select.Item value="MALE">Male</Select.Item>
-            <Select.Item value="FEMALE">Female</Select.Item>
-            <Select.Item value="NON_BINARY">Non-binary</Select.Item>
-            <Select.Item value="OTHER">Other</Select.Item>
-          </Select.Content>
-        </Select.Root>
-      </FormField>
+      <GenderSelect size={size} value={gender} onValueChange={(value) => setGender(value)} />
       <FormField name="alignment">
         <InputLabel label="Alignment" />
         <Select.Root
