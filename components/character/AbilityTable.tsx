@@ -22,6 +22,10 @@ const MIN_RULE_SCORE = 3;
 const MAX_RULE_SCORE = 20;
 
 export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
+  const hasExistingScores = useMemo(
+    () => abilities.some((row) => row.baseScore !== 8 || row.bonus !== 0 || row.temporary !== 0),
+    [abilities],
+  );
   const initialScores = useMemo(() => {
     const map: Record<AbilityType, number> = {
       STR: 8,
@@ -40,6 +44,7 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
   }, [abilities]);
 
   const [scores, setScores] = useState<Record<AbilityType, number>>(initialScores);
+  const [editing, setEditing] = useState(!hasExistingScores);
   const [state, formAction, pending] = useActionState<SaveAbilitiesState, FormData>(
     saveCharacterAbilities,
     {
@@ -127,6 +132,58 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
   }, [scores]);
 
   const remainingPoints = POINT_BUY_BUDGET - totalPointCost;
+
+  useEffect(() => {
+    if (state.status === 'success') {
+      setEditing(false);
+    }
+  }, [state]);
+
+  if (!editing) {
+    return (
+      <>
+        <Flex justify="between" align="center" mb="2">
+          <Text weight="bold">Abilities</Text>
+          <Button variant="surface" onClick={() => setEditing(true)} size="2">
+            Edit abilities
+          </Button>
+        </Flex>
+        <Table.Root variant="surface">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeaderCell>Ability</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell align="center">Score</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell align="center">Modifier</Table.ColumnHeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {ABILITY_TYPES.map((ability) => {
+              const score = scores[ability] ?? 8;
+              const modifier = formatModifier(scoreToModifier(score));
+              return (
+                <Table.Row key={ability}>
+                  <Table.RowHeaderCell>
+                    <Text weight="bold">{ability}</Text>
+                    <Text color="gray" size="2" ml="2">
+                      {abilityLabel(ability)}
+                    </Text>
+                  </Table.RowHeaderCell>
+                  <Table.Cell align="center">
+                    <Text weight="bold">{score}</Text>
+                  </Table.Cell>
+                  <Table.Cell align="center">
+                    <Badge color="gray" size="3" variant="soft">
+                      {modifier}
+                    </Badge>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Root>
+      </>
+    );
+  }
 
   return (
     <form action={formAction}>
@@ -250,11 +307,6 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
         {state.status === 'error' && (
           <Text color="red" size="2">
             {state.message ?? 'Failed to save abilities.'}
-          </Text>
-        )}
-        {state.status === 'success' && (
-          <Text color="green" size="2">
-            Saved!
           </Text>
         )}
         <Button type="submit" disabled={pending}>
