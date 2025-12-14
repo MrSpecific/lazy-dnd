@@ -9,6 +9,9 @@ import { Box, Card, Heading, ThemePanel } from '@radix-ui/themes';
 import { Header } from '@/components/Header';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
+import { stackServerApp } from '@/stack/server';
+import { getCharacters } from '@/data/character/getCharacters';
+import { CharacterList } from '@/components/character/CharacterList';
 
 const btoa = (str: string) => Buffer.from(str).toString('base64');
 
@@ -36,9 +39,8 @@ export const metadata: Metadata = {
 };
 
 export default async function () {
-  const promises = await Promise.all([getPost(1), getRandomUser()]);
-  const [post] = promises[0];
-  const user = promises[1];
+  const user = await stackServerApp.getUser({ or: 'return-null' });
+  const characters = user ? await getCharacters() : [];
 
   return (
     <>
@@ -46,10 +48,17 @@ export default async function () {
       <Header />
       <Box>
         <Card>
-          {/* <Suspense fallback={<PostPlaceholder />}>
-          <Post user={user} post={post} />
-          </Suspense> */}
-          {/* <Footer /> */}
+          <Heading size="5" mb="4">
+            Welcome to Lazy DnD
+          </Heading>
+          {user ? (
+            <CharacterList characters={characters} />
+          ) : (
+            <Box>
+              <Heading size="4">Sign in to manage your characters</Heading>
+              <UserCard />
+            </Box>
+          )}
         </Card>
       </Box>
     </>
