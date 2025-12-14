@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { ChangeEvent, useActionState, useEffect, useState } from 'react';
 import { Alignment, Gender } from '@prisma/client';
 import { Box, Button, Card, Flex, Select, Text } from '@radix-ui/themes';
 import { Form, FormInput } from '@/components/form';
@@ -70,7 +70,13 @@ export const CharacterInfoEditor = ({
       ) : (
         <Form action={formAction} submitText={pending ? 'Saving…' : 'Save'} submitDisabled={pending}>
           <input type="hidden" name="characterId" value={characterId} />
-          <FormInput name="name" label="Name" value={localName} onChange={(e) => setLocalName(e.target.value)} required />
+          <FormInput
+            name="name"
+            label="Name"
+            value={localName}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalName(e.target.value)}
+            required
+          />
           <RaceSelect name="race" label="Race" defaultValue={initialRaceId ?? undefined} />
           <div>
             <InputLabel label="Gender" />

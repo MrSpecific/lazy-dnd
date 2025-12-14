@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Button, Dialog, Flex, Text, TextArea, Code, Spinner } from '@radix-ui/themes';
+import { useRouter } from 'next/navigation';
+import { Box, Button, Dialog, Flex, Text, TextArea, Spinner } from '@radix-ui/themes';
 
 type GeneratedNpc = {
   name?: string;
@@ -20,17 +21,16 @@ type GeneratedNpc = {
 };
 
 export const QuickNpcDialog = () => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [npc, setNpc] = useState<GeneratedNpc | null>(null);
 
   const generateNpc = async () => {
     try {
       setError(null);
       setLoading(true);
-      setNpc(null);
       const res = await fetch('/api/npcs/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,8 +40,12 @@ export const QuickNpcDialog = () => {
         const text = await res.text();
         throw new Error(text || `Request failed (${res.status})`);
       }
-      const data = (await res.json()) as { npc: GeneratedNpc };
-      setNpc(data.npc);
+      const data = (await res.json()) as { npc?: GeneratedNpc; id?: string };
+      if (!data.id) {
+        throw new Error('Failed to save NPC.');
+      }
+      setOpen(false);
+      router.push(`/dm/npc/${data.id}`);
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'Failed to generate NPC.');
@@ -91,23 +95,6 @@ export const QuickNpcDialog = () => {
             )}
           </Button>
         </Flex>
-
-        {npc && (
-          <Box mt="3" p="3" style={{ background: 'var(--gray-2)', borderRadius: 8 }}>
-            <Text weight="bold">{npc.name ?? 'Unnamed NPC'}</Text>
-            <Text color="gray" size="2">
-              {[npc.title, npc.class, npc.race].filter(Boolean).join(' • ') || 'Details pending'}
-            </Text>
-            {npc.description && (
-              <Text size="2" mt="2" as="p">
-                {npc.description}
-              </Text>
-            )}
-            <Box mt="2">
-              <Code>{JSON.stringify(npc, null, 2)}</Code>
-            </Box>
-          </Box>
-        )}
       </Dialog.Content>
     </Dialog.Root>
   );

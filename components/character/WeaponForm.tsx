@@ -1,8 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { EquipmentSlot } from '@prisma/client';
 import { Button, Dialog, Flex, Select, Text, TextField } from '@radix-ui/themes';
-import { useState } from 'react';
 
 type WeaponFormProps = {
   pending?: boolean;
