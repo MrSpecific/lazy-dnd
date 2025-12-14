@@ -5,6 +5,7 @@ import { Alignment, Gender } from '@prisma/client';
 import { Box, Button, Card, Flex, Select, Text } from '@radix-ui/themes';
 import { Form, FormInput } from '@/components/form';
 import { RaceSelect } from '@/components/character/RaceSelect';
+import { AlignmentSelect } from '@/components/character/AlignmentSelect';
 import { InputLabel } from '@/components/form/InputLabel';
 import { updateCharacter, type UpdateCharacterState } from '@/data/character/updateCharacter';
 
@@ -95,24 +96,11 @@ export const CharacterInfoEditor = ({
             <Text color="amber" size="1">
               Changing alignment can affect gameplay; confirm with your DM.
             </Text>
-            <Select.Root
-              name="alignment"
-              value={localAlignment || undefined}
-              onValueChange={(value) => setLocalAlignment(value as Alignment)}
-            >
-              <Select.Trigger placeholder="Select alignment (optional)" />
-              <Select.Content>
-                <Select.Item value="LAWFUL_GOOD">Lawful Good</Select.Item>
-                <Select.Item value="NEUTRAL_GOOD">Neutral Good</Select.Item>
-                <Select.Item value="CHAOTIC_GOOD">Chaotic Good</Select.Item>
-                <Select.Item value="LAWFUL_NEUTRAL">Lawful Neutral</Select.Item>
-                <Select.Item value="TRUE_NEUTRAL">True Neutral</Select.Item>
-                <Select.Item value="CHAOTIC_NEUTRAL">Chaotic Neutral</Select.Item>
-                <Select.Item value="LAWFUL_EVIL">Lawful Evil</Select.Item>
-                <Select.Item value="NEUTRAL_EVIL">Neutral Evil</Select.Item>
-                <Select.Item value="CHAOTIC_EVIL">Chaotic Evil</Select.Item>
-              </Select.Content>
-            </Select.Root>
+            <AlignmentSelect
+              value={localAlignment}
+              onValueChange={(value) => setLocalAlignment(value)}
+              size="3"
+            />
           </div>
 
           {state.status === 'error' && (

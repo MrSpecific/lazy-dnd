@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Loader2, Dices } from 'lucide-react';
 import { IconButton } from '@radix-ui/themes';
 
@@ -20,16 +21,32 @@ export const RandomButton = ({
   disabled = false,
   loading = false,
 }: RandomButtonProps) => {
+  const [flashLoading, setFlashLoading] = useState(false);
+
+  useEffect(() => {
+    if (!flashLoading) return;
+    const timer = setTimeout(() => setFlashLoading(false), 180);
+    return () => clearTimeout(timer);
+  }, [flashLoading]);
+
+  const handleClick = () => {
+    if (disabled || loading) return;
+    setFlashLoading(true);
+    onClick?.();
+  };
+
+  const showLoading = loading || flashLoading;
+
   return (
     <IconButton
       type="button"
       variant={variant}
       size={size}
-      onClick={onClick}
-      disabled={disabled || loading}
+      onClick={handleClick}
+      disabled={disabled || showLoading}
       aria-label={label}
     >
-      {loading ? <Loader2 className="animate-spin" size={16} /> : <Dices size={16} />}
+      {showLoading ? <Loader2 className="animate-spin" size={16} /> : <Dices size={16} />}
     </IconButton>
   );
 };

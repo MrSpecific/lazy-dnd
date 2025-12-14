@@ -7,6 +7,7 @@ import { Form, FormInput } from '@/components/form';
 import { CharacterClassSelect } from '@/components/character/CharacterClassSelect';
 import { RaceSelect } from '@/components/character/RaceSelect';
 import { GenderSelect } from '@/components/character/GenderSelect';
+import { AlignmentSelect } from '@/components/character/AlignmentSelect';
 import { createNpc, type CreateNpcState } from '@/data/npc/createNpc';
 import { InputLabel } from '@/components/form/InputLabel';
 import { Alignment, Gender } from '@prisma/client';
@@ -34,23 +35,7 @@ export const NpcForm = () => {
       <RaceSelect name="race" label="Race" />
       <CharacterClassSelect name="class" label="Class" />
       <GenderSelect />
-      <div>
-        <InputLabel label="Alignment" />
-        <Select.Root name="alignment">
-          <Select.Trigger placeholder="Select alignment (optional)" />
-          <Select.Content>
-            <Select.Item value="LAWFUL_GOOD">Lawful Good</Select.Item>
-            <Select.Item value="NEUTRAL_GOOD">Neutral Good</Select.Item>
-            <Select.Item value="CHAOTIC_GOOD">Chaotic Good</Select.Item>
-            <Select.Item value="LAWFUL_NEUTRAL">Lawful Neutral</Select.Item>
-            <Select.Item value="TRUE_NEUTRAL">True Neutral</Select.Item>
-            <Select.Item value="CHAOTIC_NEUTRAL">Chaotic Neutral</Select.Item>
-            <Select.Item value="LAWFUL_EVIL">Lawful Evil</Select.Item>
-            <Select.Item value="NEUTRAL_EVIL">Neutral Evil</Select.Item>
-            <Select.Item value="CHAOTIC_EVIL">Chaotic Evil</Select.Item>
-          </Select.Content>
-        </Select.Root>
-      </div>
+      <AlignmentSelect />
       <div>
         <InputLabel label="Description" />
         <TextArea name="description" placeholder="Who are they? What do they want?" />
