@@ -34,8 +34,10 @@ export const QuickCharacterForm = ({ size = '3' }: { size?: RadixInputSize }) =>
     const hints: Hints = [];
     if (characterClass) hints.push({ hint: 'Class', value: characterClass });
     if (race) hints.push({ hint: 'Race', value: race });
+    if (gender) hints.push({ hint: 'Gender', value: gender });
+    if (alignment) hints.push({ hint: 'Alignment', value: alignment });
     return hints;
-  }, [characterClass, race]);
+  }, [characterClass, race, gender, alignment]);
 
   return (
     <Form
