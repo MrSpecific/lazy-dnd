@@ -78,8 +78,10 @@ model NpcStatBlock {
   challengeRating Float? // e.g., 0.25, 1, 5, etc.
 
   armorClass Int?
-  maxHp      Int?
-  currentHp  Int?
+  baseHp     Int? // Base HP without modifiers
+  maxHp      Int? // Maximum HP after modifiers
+  currentHp  Int? // Current HP during gameplay
+  tempHp     Int? // Temporary HP from spells/effects
   speed      Int? // feet
 
   // You can reuse AbilityType & CharacterAbility pattern,

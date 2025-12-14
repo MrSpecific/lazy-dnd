@@ -13,6 +13,7 @@ export default async function NpcPage({ params }: { params: { id: string } }) {
     include: {
       race: true,
       class: true,
+      statBlock: true,
     },
   });
 
@@ -30,6 +31,24 @@ export default async function NpcPage({ params }: { params: { id: string } }) {
       {npc.description && (
         <Box mt="3">
           <Text>{npc.description}</Text>
+        </Box>
+      )}
+      {npc.statBlock && (
+        <Box mt="4">
+          <Heading size="3" mb="2">
+            Stat Block
+          </Heading>
+          <Text>AC: {npc.statBlock.armorClass ?? '—'}</Text>
+          <Text>HP: {npc.statBlock.maxHp ?? '—'}</Text>
+          <Text>Speed: {npc.statBlock.speed ? `${npc.statBlock.speed} ft` : '—'}</Text>
+          <Box mt="2">
+            <Text weight="bold">Abilities</Text>
+            <Text color="gray" size="2">
+              STR {npc.statBlock.strength ?? '—'} • DEX {npc.statBlock.dexterity ?? '—'} • CON{' '}
+              {npc.statBlock.constitution ?? '—'} • INT {npc.statBlock.intelligence ?? '—'} • WIS{' '}
+              {npc.statBlock.wisdom ?? '—'} • CHA {npc.statBlock.charisma ?? '—'}
+            </Text>
+          </Box>
         </Box>
       )}
     </Section>

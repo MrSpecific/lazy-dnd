@@ -43,6 +43,55 @@ const extractStat = (stats: Record<string, unknown> | undefined, key: string) =>
   return toInt(normalizedStats[key.toLowerCase()]);
 };
 
+const normalizeName = (value: unknown) => {
+  if (typeof value !== 'string') return '';
+  return value.trim();
+};
+
+const findClassId = async (raw: unknown) => {
+  const name = normalizeName(raw);
+  if (!name) return null;
+  const found = await prisma.characterClass.findFirst({
+    where: { name: { equals: name, mode: 'insensitive' } },
+    select: { id: true },
+  });
+  return found?.id ?? null;
+};
+
+const findRaceId = async (raw: unknown) => {
+  const name = normalizeName(raw);
+  if (!name) return null;
+  const found = await prisma.race.findFirst({
+    where: { name: { equals: name, mode: 'insensitive' } },
+    select: { id: true },
+  });
+  return found?.id ?? null;
+};
+
+// Gemini sometimes wraps JSON in code fences or prefixes text; try to salvage the JSON object.
+const parseGeminiJson = (text: string) => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    // Try to extract the first JSON object substring
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start !== -1 && end !== -1 && end > start) {
+      const candidate = text.slice(start, end + 1);
+      try {
+        return JSON.parse(candidate);
+      } catch {
+        return { raw: text };
+      }
+    }
+    return { raw: text };
+  }
+};
+
+const extractStatAny = (source: Record<string, unknown>, key: string) => {
+  return extractStat(source, key) ?? extractStat(source.stats as Record<string, unknown>, key);
+};
+
 export async function POST(request: NextRequest) {
   try {
     const user = await stackServerApp.getUser({ or: 'return-null' });
@@ -59,41 +108,36 @@ export async function POST(request: NextRequest) {
     const prompt = buildPrompt(description);
     const { text } = await generateGeminiText(prompt, { maxOutputTokens: 256, temperature: 0.8 });
 
-    let npc;
-    try {
-      npc = JSON.parse(text);
-    } catch {
-      npc = { raw: text };
-    }
+    const npc = parseGeminiJson(text);
 
-    const name =
-      (typeof npc.name === 'string' && npc.name.trim()) ||
-      'Generated NPC';
+    const name = normalizeName(npc.name) || 'Generated NPC';
     const title =
-      (typeof npc.title === 'string' && npc.title.trim()) ||
-      (typeof npc.class === 'string' && npc.class.trim()) ||
+      normalizeName(npc.title) ||
+      normalizeName(npc.class) ||
       null;
     const descriptionToUse =
-      (typeof npc.description === 'string' && npc.description.trim()) ||
+      normalizeName(npc.description) ||
       description;
 
     const alignment = normalizeEnum(npc.alignment, Alignment);
     const gender = normalizeEnum(npc.gender, Gender);
-    const stats = (npc.stats && typeof npc.stats === 'object') ? (npc.stats as Record<string, unknown>) : undefined;
+    const stats = (npc.stats && typeof npc.stats === 'object') ? (npc.stats as Record<string, unknown>) : (typeof npc === 'object' ? (npc as Record<string, unknown>) : undefined);
     const hp = toInt(npc.hp ?? (stats ? (stats as Record<string, unknown>).hp : undefined));
-    const ac = toInt(npc.ac);
-    const speed = toInt(npc.speed);
+    const ac = toInt(npc.ac ?? (stats ? (stats as Record<string, unknown>).ac : undefined));
+    const speed = toInt(npc.speed ?? (stats ? (stats as Record<string, unknown>).speed : undefined));
+    const raceId = await findRaceId(npc.race);
+    const classId = await findClassId(npc.class);
 
     const statBlockData = {
       armorClass: ac,
       maxHp: hp,
       speed,
-      strength: extractStat(stats, 'strength'),
-      dexterity: extractStat(stats, 'dexterity'),
-      constitution: extractStat(stats, 'constitution'),
-      intelligence: extractStat(stats, 'intelligence'),
-      wisdom: extractStat(stats, 'wisdom'),
-      charisma: extractStat(stats, 'charisma'),
+      strength: stats ? extractStatAny(stats, 'strength') : null,
+      dexterity: stats ? extractStatAny(stats, 'dexterity') : null,
+      constitution: stats ? extractStatAny(stats, 'constitution') : null,
+      intelligence: stats ? extractStatAny(stats, 'intelligence') : null,
+      wisdom: stats ? extractStatAny(stats, 'wisdom') : null,
+      charisma: stats ? extractStatAny(stats, 'charisma') : null,
     };
 
     const hasStatBlock = Object.values(statBlockData).some((value) => value !== null);
@@ -106,6 +150,8 @@ export async function POST(request: NextRequest) {
         createdById: user.id,
         alignment,
         gender,
+        raceId,
+        classId,
         ...(hasStatBlock && {
           statBlock: { create: statBlockData },
         }),

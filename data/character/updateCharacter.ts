@@ -91,7 +91,7 @@ export async function updateCharacter(
     }
 
     const nameToSave = name || character.name;
-    if (!nameToSave) {
+    if (!nameToSave?.trim()) {
       return { status: 'error', message: 'Name is required.' };
     }
 

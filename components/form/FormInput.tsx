@@ -13,7 +13,7 @@ export const FormInput = ({ name, label, tooltip, ...props }: FormInputProps) =>
   return (
     <Form.Field name={name}>
       <InputLabel label={label} required={required} tooltip={tooltip} />
-      <TextField.Root {...props}></TextField.Root>
+      <TextField.Root name={name} id={name} {...props}></TextField.Root>
     </Form.Field>
   );
 };

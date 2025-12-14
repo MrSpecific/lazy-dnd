@@ -66,7 +66,7 @@ model Character {
   age    Int
   userId String     @db.Text
   user   users_sync @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gender Gender?
+  gender String?
 
   // High-level stats
   level            Int        @default(1)
@@ -74,9 +74,10 @@ model Character {
   experiencePoints Int        @default(0)
 
   // Core combat snapshot
-  maxHp       Int?
-  currentHp   Int?
-  tempHp      Int?    @default(0)
+  baseHp      Int? // Base HP without modifiers
+  maxHp       Int? // Maximum HP after modifiers
+  currentHp   Int? // Current HP during gameplay
+  tempHp      Int? // Temporary HP from spells/effects
   armorClass  Int?
   speed       Int? // in feet
   inspiration Boolean @default(false)
