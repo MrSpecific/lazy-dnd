@@ -4,6 +4,7 @@ import { Button, DropdownMenu } from '@radix-ui/themes';
 import { useCallback, useEffect } from 'react';
 import { useUser, UserAvatar } from '@stackframe/stack';
 import { useRouter } from 'next/navigation';
+import { QuickNpcDialog } from '@/components/dm/QuickNpcDialog';
 
 type QuickActionsProps = {
   isDm?: boolean;
@@ -63,9 +64,15 @@ export const QuickActions = ({ isDm = false }: QuickActionsProps) => {
           New Character
         </DropdownMenu.Item>
         {isDm && (
-          <DropdownMenu.Item onSelect={() => navigate(npcRoute)} shortcut="⌘ D">
-            New NPC
-          </DropdownMenu.Item>
+          <>
+            <DropdownMenu.Item onSelect={() => navigate(npcRoute)} shortcut="⌘ D">
+              New NPC
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
+              <QuickNpcDialog />
+            </DropdownMenu.Item>
+          </>
         )}
       </DropdownMenu.Content>
     </DropdownMenu.Root>

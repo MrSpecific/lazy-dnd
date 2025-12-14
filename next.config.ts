@@ -23,6 +23,19 @@ const nextConfig = {
     // 'pino-pretty',
     // '@logtail/pino',
   ],
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: [
+          {
+            loader: '@svgr/webpack',
+            options: { icon: true, svgo: true },
+          },
+        ],
+        as: '*.js', // required for Turbopack, tells it the loader outputs JS
+      },
+    },
+  },
 };
 
 module.exports = nextConfig;

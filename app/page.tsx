@@ -5,13 +5,14 @@ export const fetchCache = 'force-no-store';
 import Footer from '@/components/footer';
 import { UserCard } from '@/components/UserCard';
 import { getPost, getRandomUser } from '@/lib/prisma/api';
-import { Box, Card, Heading, ThemePanel } from '@radix-ui/themes';
+import { Box, Card, Container, Heading, ThemePanel } from '@radix-ui/themes';
 import { Header } from '@/components/Header';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { stackServerApp } from '@/stack/server';
 import { getCharacters } from '@/data/character/getCharacters';
 import { CharacterList } from '@/components/character/CharacterList';
+import Illustration from '@/components/svg/lazy-dragon.svg';
 
 const btoa = (str: string) => Buffer.from(str).toString('base64');
 
@@ -48,9 +49,13 @@ export default async function () {
       <Header />
       <Box>
         <Card>
-          <Heading size="5" mb="4">
+          <Heading size="5" mb="4" align="center">
             Welcome to Lazy DnD
           </Heading>
+
+          <Container size="2">
+            <Illustration width="100%" height="auto" />
+          </Container>
           {user ? (
             <CharacterList characters={characters} />
           ) : (
