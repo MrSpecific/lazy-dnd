@@ -12,6 +12,8 @@ import { Suspense } from 'react';
 import { stackServerApp } from '@/stack/server';
 import { getCharacters } from '@/data/character/getCharacters';
 import { CharacterList } from '@/components/character/CharacterList';
+import { getNpcs } from '@/data/npc/getNpcs';
+import { NpcList } from '@/components/npc/NpcList';
 import Illustration from '@/components/svg/lazy-dragon.svg';
 
 const btoa = (str: string) => Buffer.from(str).toString('base64');
@@ -42,6 +44,7 @@ export const metadata: Metadata = {
 export default async function () {
   const user = await stackServerApp.getUser({ or: 'return-null' });
   const characters = user ? await getCharacters() : [];
+  const npcs = await getNpcs();
 
   return (
     <>
@@ -57,7 +60,14 @@ export default async function () {
             <Illustration width="100%" height="auto" />
           </Container>
           {user ? (
-            <CharacterList characters={characters} />
+            <>
+              <CharacterList characters={characters} />
+              {npcs?.length > 0 && (
+                <Box mt="6">
+                  <NpcList npcs={npcs} />
+                </Box>
+              )}
+            </>
           ) : (
             <Box>
               <Heading size="4">Sign in to manage your characters</Heading>
