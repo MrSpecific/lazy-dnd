@@ -2,12 +2,13 @@
 
 import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Flex, TextArea, Text } from '@radix-ui/themes';
+import { Button, Flex, Select, TextArea, Text } from '@radix-ui/themes';
 import { Form, FormInput } from '@/components/form';
 import { CharacterClassSelect } from '@/components/character/CharacterClassSelect';
 import { RaceSelect } from '@/components/character/RaceSelect';
 import { createNpc, type CreateNpcState } from '@/data/npc/createNpc';
 import { InputLabel } from '@/components/form/InputLabel';
+import { Alignment, Gender } from '@prisma/client';
 
 export const NpcForm = () => {
   const router = useRouter();
@@ -31,6 +32,35 @@ export const NpcForm = () => {
       <FormInput name="title" label="Title" tooltip="e.g. Captain of the Guard" />
       <RaceSelect name="race" label="Race" />
       <CharacterClassSelect name="class" label="Class" />
+      <div>
+        <InputLabel label="Gender" />
+        <Select.Root name="gender">
+          <Select.Trigger placeholder="Select gender (optional)" />
+          <Select.Content>
+            <Select.Item value="MALE">Male</Select.Item>
+            <Select.Item value="FEMALE">Female</Select.Item>
+            <Select.Item value="NON_BINARY">Non-binary</Select.Item>
+            <Select.Item value="OTHER">Other</Select.Item>
+          </Select.Content>
+        </Select.Root>
+      </div>
+      <div>
+        <InputLabel label="Alignment" />
+        <Select.Root name="alignment">
+          <Select.Trigger placeholder="Select alignment (optional)" />
+          <Select.Content>
+            <Select.Item value="LAWFUL_GOOD">Lawful Good</Select.Item>
+            <Select.Item value="NEUTRAL_GOOD">Neutral Good</Select.Item>
+            <Select.Item value="CHAOTIC_GOOD">Chaotic Good</Select.Item>
+            <Select.Item value="LAWFUL_NEUTRAL">Lawful Neutral</Select.Item>
+            <Select.Item value="TRUE_NEUTRAL">True Neutral</Select.Item>
+            <Select.Item value="CHAOTIC_NEUTRAL">Chaotic Neutral</Select.Item>
+            <Select.Item value="LAWFUL_EVIL">Lawful Evil</Select.Item>
+            <Select.Item value="NEUTRAL_EVIL">Neutral Evil</Select.Item>
+            <Select.Item value="CHAOTIC_EVIL">Chaotic Evil</Select.Item>
+          </Select.Content>
+        </Select.Root>
+      </div>
       <div>
         <InputLabel label="Description" />
         <TextArea name="description" placeholder="Who are they? What do they want?" />

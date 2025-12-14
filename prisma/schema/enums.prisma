@@ -49,6 +49,15 @@ enum EquipmentSlot {
   @@schema("public")
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  OTHER
+
+  @@schema("public")
+}
+
 enum FeatureSourceType {
   CLASS
   SUBCLASS

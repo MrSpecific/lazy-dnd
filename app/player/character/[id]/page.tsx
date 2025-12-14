@@ -6,6 +6,7 @@ import { WeaponSection } from '@/components/character/WeaponSection';
 import { getCharacterAbilities } from '@/data/character/abilities';
 import { getCharacterWeapons, getWeaponCatalog } from '@/data/character/weapons';
 import { stackServerApp } from '@/stack/server';
+import { CharacterInfoEditor } from '@/components/character/CharacterInfoEditor';
 
 export default async function CharacterPage({ params }: { params: { id: string } }) {
   const user = await stackServerApp.getUser({ or: 'redirect' });
@@ -38,12 +39,15 @@ export default async function CharacterPage({ params }: { params: { id: string }
 
   return (
     <Section>
-      <Heading>{character.name}</Heading>
-      <Box mt="2">
-        <Text size="3">
-          {primaryClass ? primaryClass.name : 'Unclassed'} {character.race?.name ?? ''}
-        </Text>
-      </Box>
+      <CharacterInfoEditor
+        characterId={character.id}
+        initialName={character.name}
+        initialRaceId={character.raceId}
+        initialGender={character.gender}
+        initialAlignment={character.alignment}
+        className={primaryClass?.name ?? null}
+        raceName={character.race?.name ?? null}
+      />
       <Box mt="4">
         <AbilityTable characterId={character.id} abilities={abilities} />
       </Box>

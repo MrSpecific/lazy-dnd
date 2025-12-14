@@ -3,7 +3,6 @@ model Npc {
   name        String
   title       String? // "Captain of the Guard", "High Priest", etc.
   description String? // short blurb for you as DM
-  gender      String?
 
   // Optional association to a user (owner of this NPC)
   createdById String?     @db.Text
@@ -14,6 +13,7 @@ model Npc {
   attitude   NpcAttitude   @default(NEUTRAL)
   isAlive    Boolean       @default(true)
   isHidden   Boolean       @default(false) // secret NPCs not visible to players yet
+  gender     Gender?
 
   // World context
   raceId String?

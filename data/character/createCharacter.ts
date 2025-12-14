@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { stackServerApp } from '@/stack/server';
+import { Alignment, Gender } from '@prisma/client';
 
 export type CreateCharacterState =
   | { status: 'idle'; message?: string; id?: string }
@@ -24,8 +25,13 @@ export async function createCharacter(
     const name = normalizeString(formData.get('name'));
     const classId = normalizeString(formData.get('class')) || null;
     const raceId = normalizeString(formData.get('race')) || null;
+    const genderRaw = normalizeString(formData.get('gender')) || null;
+    const alignmentRaw = normalizeString(formData.get('alignment')) || null;
 
     if (!name) return { status: 'error', message: 'Name is required.' };
+
+    const gender = genderRaw && genderRaw in Gender ? (genderRaw as Gender) : null;
+    const alignment = alignmentRaw && alignmentRaw in Alignment ? (alignmentRaw as Alignment) : null;
 
     const character = await prisma.character.create({
       data: {
@@ -34,6 +40,8 @@ export async function createCharacter(
         age: 0,
         userId: user.id,
         raceId,
+        gender,
+        alignment,
       },
     });
 
