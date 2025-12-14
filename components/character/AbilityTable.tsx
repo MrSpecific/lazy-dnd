@@ -21,6 +21,8 @@ const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
 const POINT_BUY_BUDGET = 27;
 const MIN_RULE_SCORE = 3;
 const MAX_RULE_SCORE = 20;
+const POINT_BUY_MIN = 8;
+const POINT_BUY_MAX = 15;
 
 export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
   const hasExistingScores = useMemo(
@@ -59,8 +61,8 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
     setScores(initialScores);
   }, [initialScores]);
 
-  const minScore = restricted ? MIN_RULE_SCORE : 1;
-  const maxScore = restricted ? MAX_RULE_SCORE : 30;
+  const minScore = restricted ? POINT_BUY_MIN : 1;
+  const maxScore = restricted ? POINT_BUY_MAX : 30;
 
   const applyScoreUpdate = (ability: AbilityType, value: number) => {
     const clamped = clamp(value, minScore, maxScore);
@@ -129,10 +131,11 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
   };
 
   const totalPointCost = useMemo(() => {
+    if (!restricted) return 0;
     return ABILITY_TYPES.reduce((sum, ability) => sum + pointBuyCost(scores[ability] ?? 8), 0);
-  }, [scores]);
+  }, [scores, restricted]);
 
-  const remainingPoints = POINT_BUY_BUDGET - totalPointCost;
+  const remainingPoints = restricted ? POINT_BUY_BUDGET - totalPointCost : null;
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -202,9 +205,15 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
             Roll All (4d6 drop lowest)
           </Button>
         </Flex>
-        <Badge color={remainingPoints >= 0 ? 'green' : 'red'} size="2">
-          Point Buy: {remainingPoints} / {POINT_BUY_BUDGET} remaining
-        </Badge>
+        {restricted ? (
+          <Badge color={remainingPoints !== null && remainingPoints >= 0 ? 'green' : 'red'} size="2">
+            Point Buy: {remainingPoints} / {POINT_BUY_BUDGET} remaining
+          </Badge>
+        ) : (
+          <Badge color="gray" size="2">
+            Point Buy: unrestricted
+          </Badge>
+        )}
         <Flex align="center" gap="2">
           <Switch
             checked={restricted}
@@ -334,8 +343,11 @@ const pointBuyCost = (score: number) => {
     15: 9,
   };
 
-  if (score <= 8) return 0;
-  if (score >= 15) return table[15];
+  if (score < POINT_BUY_MIN) return 0;
+  if (score > POINT_BUY_MAX) {
+    // Disallow buying above point-buy cap by making cost exceed the budget.
+    return POINT_BUY_BUDGET + 1;
+  }
   return table[score] ?? 0;
 };
 
