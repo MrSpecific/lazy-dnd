@@ -2,11 +2,11 @@
 
 import { ChangeEvent, useActionState, useEffect, useState } from 'react';
 import { Alignment, Gender } from '@prisma/client';
-import { Box, Button, Card, Flex, Select, Text } from '@radix-ui/themes';
+import { Box, Button, Card, Flex, Text } from '@radix-ui/themes';
 import { Form, FormInput } from '@/components/form';
 import { RaceSelect } from '@/components/character/RaceSelect';
 import { AlignmentSelect } from '@/components/character/AlignmentSelect';
-import { InputLabel } from '@/components/form/InputLabel';
+import { GenderSelect } from '@/components/character/GenderSelect';
 import { updateCharacter, type UpdateCharacterState } from '@/data/character/updateCharacter';
 
 type CharacterInfoEditorProps = {
@@ -79,20 +79,8 @@ export const CharacterInfoEditor = ({
             required
           />
           <RaceSelect name="race" label="Race" defaultValue={initialRaceId ?? undefined} />
+          <GenderSelect value={localGender} onValueChange={(value) => setLocalGender(value)} />
           <div>
-            <InputLabel label="Gender" />
-            <Select.Root name="gender" value={localGender || undefined} onValueChange={(value) => setLocalGender(value as Gender)}>
-              <Select.Trigger placeholder="Select gender (optional)" />
-              <Select.Content>
-                <Select.Item value="MALE">Male</Select.Item>
-                <Select.Item value="FEMALE">Female</Select.Item>
-                <Select.Item value="NON_BINARY">Non-binary</Select.Item>
-                <Select.Item value="OTHER">Other</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </div>
-          <div>
-            <InputLabel label="Alignment" />
             <Text color="amber" size="1">
               Changing alignment can affect gameplay; confirm with your DM.
             </Text>
