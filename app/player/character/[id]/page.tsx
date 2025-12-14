@@ -4,7 +4,7 @@ import { Box, Heading, Section, Text } from '@radix-ui/themes';
 import { AbilityTable } from '@/components/character/AbilityTable';
 import { WeaponSection } from '@/components/character/WeaponSection';
 import { getCharacterAbilities } from '@/data/character/abilities';
-import { getCharacterWeapons } from '@/data/character/weapons';
+import { getCharacterWeapons, getWeaponCatalog } from '@/data/character/weapons';
 import { stackServerApp } from '@/stack/server';
 
 export default async function CharacterPage({ params }: { params: { id: string } }) {
@@ -34,6 +34,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
   const primaryClass = character.classLevels[0]?.class;
   const abilities = await getCharacterAbilities(character.id);
   const weapons = await getCharacterWeapons(character.id);
+  const catalog = await getWeaponCatalog();
 
   return (
     <Section>
@@ -47,7 +48,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
         <AbilityTable characterId={character.id} abilities={abilities} />
       </Box>
       <Box mt="4">
-        <WeaponSection characterId={character.id} initialWeapons={weapons} />
+        <WeaponSection characterId={character.id} initialWeapons={weapons} catalog={catalog} />
       </Box>
     </Section>
   );

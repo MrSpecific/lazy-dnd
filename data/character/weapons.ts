@@ -13,6 +13,13 @@ export type WeaponEntry = {
   equipped: boolean;
 };
 
+export type WeaponCatalogItem = {
+  id: string;
+  name: string;
+  description: string | null;
+  weight: number | null;
+};
+
 export type AddWeaponState =
   | { status: 'idle'; message?: string }
   | { status: 'success'; message?: string; weapon: WeaponEntry }
@@ -49,6 +56,24 @@ export async function getCharacterWeapons(characterId: string): Promise<WeaponEn
     slot: ci.slot,
     equipped: ci.equipped,
   }));
+}
+
+export async function getWeaponCatalog(): Promise<WeaponCatalogItem[]> {
+  const user = await stackServerApp.getUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const items = await prisma.item.findMany({
+    where: { isConsumable: false },
+    orderBy: { name: 'asc' },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      weight: true,
+    },
+  });
+
+  return items;
 }
 
 export async function addWeapon(
@@ -117,6 +142,60 @@ export async function addWeapon(
     };
   } catch (error) {
     console.error('failed to add weapon', error);
+    const message = error instanceof Error ? error.message : 'Failed to add weapon.';
+    return { status: 'error', message };
+  }
+}
+
+export async function addExistingWeapon(
+  _prev: AddWeaponState,
+  formData: FormData,
+): Promise<AddWeaponState> {
+  try {
+    const user = await stackServerApp.getUser();
+    if (!user) return { status: 'error', message: 'Unauthorized' };
+
+    const characterId = formData.get('characterId');
+    const itemId = formData.get('itemId');
+    const slot = formData.get('slot');
+
+    if (!characterId || typeof characterId !== 'string') {
+      return { status: 'error', message: 'Character id is required.' };
+    }
+    if (!itemId || typeof itemId !== 'string') {
+      return { status: 'error', message: 'Weapon selection is required.' };
+    }
+
+    await ensureCharacterAccess(characterId, user.id);
+
+    const item = await prisma.item.findUnique({ where: { id: itemId } });
+    if (!item) return { status: 'error', message: 'Weapon not found.' };
+
+    const slotValue =
+      typeof slot === 'string' && ['MAIN_HAND', 'OFF_HAND', 'TWO_HANDED'].includes(slot) ? (slot as EquipmentSlot) : null;
+
+    const characterItem = await prisma.characterItem.create({
+      data: {
+        characterId,
+        itemId,
+        slot: slotValue,
+        equipped: false,
+      },
+    });
+
+    return {
+      status: 'success',
+      weapon: {
+        id: characterItem.id,
+        name: item.name,
+        description: item.description,
+        weight: item.weight,
+        slot: characterItem.slot,
+        equipped: characterItem.equipped,
+      },
+    };
+  } catch (error) {
+    console.error('failed to attach weapon', error);
     const message = error instanceof Error ? error.message : 'Failed to add weapon.';
     return { status: 'error', message };
   }

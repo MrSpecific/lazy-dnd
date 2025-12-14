@@ -16,11 +16,12 @@ const nextConfig = {
       },
     ],
   },
-  // Aliases for Turbopack (Next 16 default) to avoid bundling server-only pino/thread-stream on the client.
-  turbopack: {
-    resolveAlias: {
-      pino: path.resolve(__dirname, 'lib/shims/pino'),
-      'thread-stream': path.resolve(__dirname, 'lib/shims/thread-stream'),
+  experimental: {
+    turbo: {
+      resolveAlias: {
+        'pino': path.resolve(__dirname, 'lib/shims/pino.js'),
+        'thread-stream': path.resolve(__dirname, 'lib/shims/thread-stream.js'),
+      },
     },
   },
 };
