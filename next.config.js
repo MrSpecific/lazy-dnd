@@ -1,20 +1,7 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // appDir: true,
-    // outputFileTracingExcludes: {
-    //   '**': [
-    //     './node_modules/thread-stream/test/**', // Exclude thread-stream test files
-    //   ],
-    // },
-    // serverComponentsExternalPackages: ['thread-stream'],
-  },
-  turbo: {
-    resolveAlias: {
-      pino: './lib/shims/pino',
-      'thread-stream': './lib/shims/thread-stream',
-    },
-  },
   images: {
     remotePatterns: [
       {
@@ -29,14 +16,12 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config) => {
-    config.resolve = config.resolve || {};
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      pino: require('path').resolve(__dirname, 'lib/shims/pino'),
-      'thread-stream': require('path').resolve(__dirname, 'lib/shims/thread-stream'),
-    };
-    return config;
+  // Aliases for Turbopack (Next 16 default) to avoid bundling server-only pino/thread-stream on the client.
+  turbopack: {
+    resolveAlias: {
+      pino: path.resolve(__dirname, 'lib/shims/pino'),
+      'thread-stream': path.resolve(__dirname, 'lib/shims/thread-stream'),
+    },
   },
 };
 
