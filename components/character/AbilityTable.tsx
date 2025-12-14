@@ -18,6 +18,8 @@ type AbilityTableProps = {
 
 const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
 const POINT_BUY_BUDGET = 27;
+const MIN_RULE_SCORE = 3;
+const MAX_RULE_SCORE = 20;
 
 export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
   const initialScores = useMemo(() => {
@@ -121,6 +123,8 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
           {ABILITY_TYPES.map((ability) => {
             const score = scores[ability] ?? 8;
             const modifier = formatModifier(scoreToModifier(score));
+            const status = score < MIN_RULE_SCORE ? 'low' : score > MAX_RULE_SCORE ? 'high' : 'ok';
+
             return (
               <Table.Row key={ability}>
                 <Table.RowHeaderCell>
@@ -130,34 +134,44 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
                   </Text>
                 </Table.RowHeaderCell>
                 <Table.Cell align="center">
-                  <Flex gap="2" justify="center" align="center">
-                    <Button
-                      type="button"
-                      variant="soft"
-                      size="2"
-                      onClick={() => handleScoreChange(ability, score - 1)}
-                    >
-                      −
-                    </Button>
-                    <TextField.Root
-                      name={`ability-${ability}`}
-                      type="number"
-                      inputMode="numeric"
-                      value={score}
-                      min={1}
-                      max={30}
-                      onChange={(event) => handleScoreChange(ability, Number(event.target.value))}
-                      size="2"
-                      style={{ width: 96 }}
-                    />
-                    <Button
-                      type="button"
-                      variant="soft"
-                      size="2"
-                      onClick={() => handleScoreChange(ability, score + 1)}
-                    >
-                      +
-                    </Button>
+                  <Flex direction="column" align="center" gap="1">
+                    <Flex gap="2" justify="center" align="center">
+                      <Button
+                        type="button"
+                        variant="soft"
+                        size="2"
+                        onClick={() => handleScoreChange(ability, score - 1)}
+                      >
+                        −
+                      </Button>
+                      <TextField.Root
+                        name={`ability-${ability}`}
+                        type="number"
+                        inputMode="numeric"
+                        value={score}
+                        min={1}
+                        max={30}
+                        onChange={(event) => handleScoreChange(ability, Number(event.target.value))}
+                        size="2"
+                        color={status === 'ok' ? 'gray' : status === 'low' ? 'red' : 'amber'}
+                        style={{ width: 96 }}
+                      />
+                      <Button
+                        type="button"
+                        variant="soft"
+                        size="2"
+                        onClick={() => handleScoreChange(ability, score + 1)}
+                      >
+                        +
+                      </Button>
+                    </Flex>
+                    {status !== 'ok' && (
+                      <Text size="1" color={status === 'low' ? 'red' : 'amber'}>
+                        {status === 'low'
+                          ? `Below min (${MIN_RULE_SCORE})`
+                          : `Above max (${MAX_RULE_SCORE})`}
+                      </Text>
+                    )}
                   </Flex>
                 </Table.Cell>
                 <Table.Cell align="center">
