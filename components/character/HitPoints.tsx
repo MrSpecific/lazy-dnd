@@ -66,15 +66,26 @@ export const HitPoints = ({
     }
   };
 
-  const submitWithMode = (mode: 'compute' | 'update') => {
+  const submitWithMode = (mode: 'compute' | 'update' | 'reset') => {
     const form = new FormData();
     form.set('characterId', characterId);
     form.set('mode', mode);
+
     if (mode === 'update') {
       if (baseHp !== '') form.set('baseHp', String(baseHp));
       if (maxHp !== '') form.set('maxHp', String(maxHp));
       if (currentHp !== '') form.set('currentHp', String(currentHp));
       if (tempHp !== '') form.set('tempHp', String(tempHp));
+    }
+    if (mode === 'compute') {
+      if (conMod != null) {
+        form.set('conMod', String(conMod));
+      }
+      form.set('level', String(level));
+      form.set('hitDie', String(hitDie));
+    }
+    if (mode === 'reset') {
+      // No additional fields needed
     }
     startTransition(() => formAction(form));
   };
@@ -92,14 +103,20 @@ export const HitPoints = ({
 
   return (
     <Card>
-      <Flex justify="between" align="start" mb="3">
-        <div>
+      <Flex
+        justify="between"
+        align="start"
+        mb="3"
+        direction={{ initial: 'column', md: 'row' }}
+        gap="2"
+      >
+        <Box>
           <Text weight="bold">Hit Points</Text>
           <Text color="gray" size="2" style={{ display: 'block' }}>
             Level {level} • d{hitDie}
             {conMod != null ? ` • CON mod ${conMod >= 0 ? `+${conMod}` : conMod}` : ''}
           </Text>
-        </div>
+        </Box>
         <Flex gap="2">
           <Button
             variant="soft"
@@ -116,6 +133,14 @@ export const HitPoints = ({
             disabled={pending || transitionPending}
           >
             Update from sheet
+          </Button>
+          <Button
+            variant="soft"
+            size="1"
+            onClick={() => submitWithMode('reset')}
+            disabled={pending || transitionPending}
+          >
+            Reset
           </Button>
         </Flex>
       </Flex>

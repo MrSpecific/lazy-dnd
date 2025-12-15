@@ -14,6 +14,7 @@ import { getGenderMeta } from '@/lib/helpers/gender';
 type CharacterInfoEditorProps = {
   characterId: string;
   initialName: string;
+  level: number;
   initialRaceId: string | null;
   initialGender: Gender | null;
   initialAlignment: Alignment | null;
@@ -24,6 +25,7 @@ type CharacterInfoEditorProps = {
 export const CharacterInfoEditor = ({
   characterId,
   initialName,
+  level,
   initialRaceId,
   initialGender,
   initialAlignment,
@@ -59,7 +61,7 @@ export const CharacterInfoEditor = ({
         <div>
           <Text weight="bold">{localName}</Text>
           <Text color="gray" size="2" ml="2">
-            {className ?? 'Unclassed'} {raceName ?? ''}
+            Level {level} • {className ?? 'Unclassed'} {raceName ?? ''}
           </Text>
         </div>
         <Button variant="surface" onClick={() => setEditing((prev) => !prev)}>
@@ -99,19 +101,20 @@ export const CharacterInfoEditor = ({
             value={localName}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalName(e.target.value)}
             required
+            size="3"
           />
           <RaceSelect name="race" label="Race" defaultValue={initialRaceId ?? undefined} />
           <GenderSelect value={localGender} onValueChange={(value) => setLocalGender(value)} />
-          <div>
-            <Text color="amber" size="1">
-              Changing alignment can affect gameplay; confirm with your DM.
-            </Text>
+          <Box>
             <AlignmentSelect
               value={localAlignment}
               onValueChange={(value) => setLocalAlignment(value)}
               size="3"
             />
-          </div>
+            <Text color="amber" size="1">
+              Changing alignment can affect gameplay; confirm with your DM.
+            </Text>
+          </Box>
 
           {state.status === 'error' && (
             <Text color="red" size="2" mt="2">

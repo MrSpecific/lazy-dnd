@@ -48,6 +48,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
       <CharacterInfoEditor
         characterId={character.id}
         initialName={character.name}
+        level={level}
         initialRaceId={character.raceId}
         initialGender={character.gender as Gender}
         initialAlignment={character.alignment}
