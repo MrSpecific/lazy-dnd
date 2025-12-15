@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useState } from 'react';
 import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
+import { BowArrow } from 'lucide-react';
 import { WeaponForm } from '@/components/character/WeaponForm';
 import { WeaponTable, type WeaponRow } from '@/components/character/WeaponTable';
 import { WeaponPickerDialog } from '@/components/character/WeaponPickerDialog';
@@ -62,7 +63,10 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
   return (
     <Box mt="4">
       <Flex justify="between" align="center" mb="2">
-        <Heading size="4">Weapons</Heading>
+        <Flex gap="1" align="center">
+          <BowArrow size="1.3em" />
+          <Heading size="6">Weapons</Heading>
+        </Flex>
         {!editing && (
           <Flex gap="2">
             <Button variant="surface" size="2" onClick={() => setPickerOpen(true)}>

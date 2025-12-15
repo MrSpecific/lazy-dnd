@@ -71,10 +71,7 @@ export const HitPoints = ({
       );
       const toSpend = Math.max(
         0,
-        Math.min(
-          availableHd,
-          Number.isFinite(Number(toSpendRaw)) ? Number(toSpendRaw) : 0
-        )
+        Math.min(availableHd, Number.isFinite(Number(toSpendRaw)) ? Number(toSpendRaw) : 0)
       );
       if (toSpend <= 0 || typeof maxHp !== 'number') return;
 
@@ -142,7 +139,7 @@ export const HitPoints = ({
       >
         <Box>
           <Text weight="bold">Hit Points</Text>
-          <Text color="gray" size="2" style={{ display: 'block' }}>
+          <Text color="gray" size="1" style={{ display: 'block' }}>
             Level {level} • d{hitDie}
             {conMod != null ? ` • CON mod ${conMod >= 0 ? `+${conMod}` : conMod}` : ''}
           </Text>

@@ -55,6 +55,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
         className={primaryClass?.name ?? null}
         raceName={character.race?.name ?? null}
       />
+
       <Box mt="4">
         <HitPoints
           characterId={character.id}
@@ -67,6 +68,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
           initialTempHp={character.tempHp}
         />
       </Box>
+
       <Box mt="4">
         <AbilityTable characterId={character.id} abilities={abilities} />
       </Box>

@@ -2,7 +2,8 @@
 
 import { useActionState, useEffect, useMemo, useState } from 'react';
 import { AbilityType } from '@prisma/client';
-import { Badge, Button, Flex, Switch, Table, Text, TextField } from '@radix-ui/themes';
+import { Badge, Button, Flex, Heading, Switch, Table, Text, TextField } from '@radix-ui/themes';
+import { ToyBrick } from 'lucide-react';
 import { abilityLabel, ABILITY_TYPES } from '@/lib/helpers/abilities';
 import { saveCharacterAbilities, type SaveAbilitiesState } from '@/data/character/abilities';
 import { RandomButton } from '@/components/common/RandomButton';
@@ -149,7 +150,11 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
     return (
       <>
         <Flex justify="between" align="center" mb="2">
-          <Text weight="bold">Abilities</Text>
+          <Flex gap="1" align="center">
+            <ToyBrick size="1.3em" />
+            <Heading size="6">Abilities</Heading>
+          </Flex>
+
           <Button variant="surface" onClick={() => setEditing(true)} size="2">
             Edit abilities
           </Button>

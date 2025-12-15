@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useActionState, useEffect, useState } from 'react';
 import { Alignment, Gender } from '@prisma/client';
-import { Box, Button, Card, Flex, Text } from '@radix-ui/themes';
+import { Box, Button, Card, Flex, Heading, Text } from '@radix-ui/themes';
 import { Form, FormInput } from '@/components/form';
 import { RaceSelect } from '@/components/character/RaceSelect';
 import { AlignmentSelect } from '@/components/character/AlignmentSelect';
@@ -58,13 +58,13 @@ export const CharacterInfoEditor = ({
   return (
     <Card>
       <Flex justify="between" align="center" mb="2">
-        <div>
-          <Text weight="bold">{localName}</Text>
-          <Text color="gray" size="2" ml="2">
+        <Box>
+          <Heading size="6">{localName}</Heading>
+          <Text color="gray" size="2">
             Level {level} • {className ?? 'Unclassed'} {raceName ?? ''}
           </Text>
-        </div>
-        <Button variant="surface" onClick={() => setEditing((prev) => !prev)}>
+        </Box>
+        <Button variant="surface" onClick={() => setEditing((prev) => !prev)} size="1">
           {editing ? 'Cancel' : 'Edit'}
         </Button>
       </Flex>
