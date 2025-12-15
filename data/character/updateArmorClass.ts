@@ -47,22 +47,22 @@ export async function updateArmorClass(
       const dexMod = dexScore != null ? Math.floor((dexScore - 10) / 2) : 0;
 
       const equippedArmor = character.inventory
-        .filter((ci) => ci.equipped && ci.item.type === 'ARMOR' && ci.item.armorClass != null)
-        .sort((a, b) => (b.item.armorClass ?? 0) - (a.item.armorClass ?? 0))[0];
+        .filter((ci) => ci.equipped && ci.item?.type === 'ARMOR' && ci.item?.armorClass != null)
+        .sort((a, b) => (b.item?.armorClass ?? 0) - (a.item?.armorClass ?? 0))[0];
 
       const shieldBonus =
         character.inventory
           .filter(
             (ci) =>
               ci.equipped &&
-              ci.item.type === 'ARMOR' &&
+              ci.item?.type === 'ARMOR' &&
               (ci.item?.name?.toLowerCase().includes('shield') || ci.slot === 'OFF_HAND') &&
               ci.item.armorClass != null
           )
-          .reduce((max, ci) => Math.max(max, ci.item.armorClass ?? 0), 0) || 0;
+          .reduce((max, ci) => Math.max(max, ci.item?.armorClass ?? 0), 0) || 0;
 
       const baseArmor =
-        equippedArmor?.item.armorClass != null
+        equippedArmor?.item?.armorClass != null
           ? (equippedArmor.item.armorClass as number) + Math.max(dexMod, 0)
           : 10 + dexMod;
 

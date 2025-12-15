@@ -50,7 +50,10 @@ export const ArmorClass = ({ characterId, initialArmorClass, initialSpeed }: Arm
   return (
     <Card>
       <Flex justify="between" align="center" mb="2">
-        <Heading size="5">Armor Class</Heading>
+        <Flex align="center" gap="2">
+          <Shield />
+          <Heading size="5">Armor Class</Heading>
+        </Flex>
         <Button variant="surface" size="1" onClick={() => setEditing((prev) => !prev)}>
           {editing ? 'Cancel' : 'Edit'}
         </Button>
