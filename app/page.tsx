@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
-import { Footer } from '@/components/Footer';
 import { Box, Card, Container, Flex, Heading, ThemePanel, Text } from '@radix-ui/themes';
-import { Header } from '@/components/Header';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import { Metadata } from 'next';
 import { stackServerApp } from '@/stack/server';
 import { getCharacters } from '@/data/character/getCharacters';

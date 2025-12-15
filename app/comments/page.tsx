@@ -2,7 +2,8 @@ export const dynamic = 'force-dynamic';
 
 export const fetchCache = 'force-no-store';
 
-import { Footer } from '@/components/Footer';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import Post from '@/components/post';
 import PostPlaceholder from '@/components/post-placeholder';
 import { UserCard } from '@/components/UserCard';
