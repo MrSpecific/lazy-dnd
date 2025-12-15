@@ -4,11 +4,14 @@ import { Card, Flex, Heading, Text } from '@radix-ui/themes';
 import { NpcSummary } from '@/data/npc/getNpcs';
 import { Link } from '@/components/common/Link';
 
+export type NpcCardDetail = 'low' | 'medium' | 'high';
+
 type NpcCardProps = {
   npc: NpcSummary;
+  detail?: NpcCardDetail;
 };
 
-export const NpcCard = ({ npc }: NpcCardProps) => {
+export const NpcCard = ({ npc, detail = 'low' }: NpcCardProps) => {
   const subtitle = [npc.title, npc.className, npc.raceName].filter(Boolean).join(' • ');
 
   return (

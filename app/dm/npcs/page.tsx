@@ -15,7 +15,7 @@ export default async function NpcsPage() {
   return (
     <Section pt="0">
       {npcs.length ? (
-        <NpcList npcs={npcs} />
+        <NpcList npcs={npcs} detail="medium" />
       ) : (
         <Box>
           <Text color="gray">You don&apos;t have any NPCs yet.</Text>
