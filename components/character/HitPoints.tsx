@@ -94,7 +94,8 @@ export const HitPoints = ({
         <div>
           <Text weight="bold">Hit Points</Text>
           <Text color="gray" size="2" style={{ display: 'block' }}>
-            Level {level} • d{hitDie}{conMod != null ? ` • CON mod ${conMod >= 0 ? `+${conMod}` : conMod}` : ''}
+            Level {level} • d{hitDie}
+            {conMod != null ? ` • CON mod ${conMod >= 0 ? `+${conMod}` : conMod}` : ''}
           </Text>
         </div>
         <Flex gap="2">
@@ -122,16 +123,36 @@ export const HitPoints = ({
         <StatField label="Max HP" value={maxHp} onChange={setMaxHp} pending={pending} />
         <StatField label="Current HP" value={currentHp} onChange={setCurrentHp} pending={pending}>
           <Flex gap="2">
-            <Button variant="soft" size="1" onClick={() => handleAdjustCurrent(-1)} disabled={pending || transitionPending}>
+            <Button
+              variant="soft"
+              size="1"
+              onClick={() => handleAdjustCurrent(-1)}
+              disabled={pending || transitionPending}
+            >
               -1
             </Button>
-            <Button variant="soft" size="1" onClick={() => handleAdjustCurrent(-5)} disabled={pending || transitionPending}>
+            <Button
+              variant="soft"
+              size="1"
+              onClick={() => handleAdjustCurrent(-5)}
+              disabled={pending || transitionPending}
+            >
               -5
             </Button>
-            <Button variant="soft" size="1" onClick={() => handleAdjustCurrent(+1)} disabled={pending || transitionPending}>
+            <Button
+              variant="soft"
+              size="1"
+              onClick={() => handleAdjustCurrent(+1)}
+              disabled={pending || transitionPending}
+            >
               +1
             </Button>
-            <Button variant="soft" size="1" onClick={() => handleAdjustCurrent(+5)} disabled={pending || transitionPending}>
+            <Button
+              variant="soft"
+              size="1"
+              onClick={() => handleAdjustCurrent(+5)}
+              disabled={pending || transitionPending}
+            >
               +5
             </Button>
           </Flex>
@@ -146,7 +167,7 @@ export const HitPoints = ({
         </StatField>
       </Grid>
 
-      <Flex justify="space-between" align="center" mt="3" wrap="wrap" gap="2">
+      <Flex justify="between" align="center" mt="3" wrap="wrap" gap="2">
         <Flex gap="2" align="center">
           <Button
             variant="surface"
@@ -156,7 +177,12 @@ export const HitPoints = ({
           >
             Short Rest
           </Button>
-          <Button variant="surface" size="2" onClick={() => handleRest('long')} disabled={pending || transitionPending}>
+          <Button
+            variant="surface"
+            size="2"
+            onClick={() => handleRest('long')}
+            disabled={pending || transitionPending}
+          >
             Long Rest
           </Button>
         </Flex>

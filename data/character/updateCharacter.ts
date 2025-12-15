@@ -115,10 +115,18 @@ export async function updateCharacter(
       },
     });
 
-    return { status: 'success', ...updated };
+    return {
+      status: 'success',
+      name: updated.name,
+      raceId: updated.raceId,
+      gender: updated.gender as Gender | null,
+      alignment: updated.alignment as Alignment | null,
+    };
   } catch (error) {
     console.error('failed to update character', error);
     const message = error instanceof Error ? error.message : 'Failed to update character.';
     return { status: 'error', message };
   }
 }
+
+export type UpdateCharacterReturn = PrismaReturnType<typeof updateCharacter>;
