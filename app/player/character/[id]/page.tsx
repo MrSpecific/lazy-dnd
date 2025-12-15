@@ -8,6 +8,7 @@ import { getCharacterWeapons, getWeaponCatalog } from '@/data/character/weapons'
 import { stackServerApp } from '@/stack/server';
 import { CharacterInfoEditor } from '@/components/character/CharacterInfoEditor';
 import { HitPoints } from '@/components/character/HitPoints';
+import { Gender } from '@prisma/client';
 
 export default async function CharacterPage({ params }: { params: { id: string } }) {
   const user = await stackServerApp.getUser({ or: 'redirect' });
@@ -48,7 +49,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
         characterId={character.id}
         initialName={character.name}
         initialRaceId={character.raceId}
-        initialGender={character.gender}
+        initialGender={character.gender as Gender}
         initialAlignment={character.alignment}
         className={primaryClass?.name ?? null}
         raceName={character.race?.name ?? null}
