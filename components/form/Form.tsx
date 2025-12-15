@@ -1,5 +1,6 @@
 import { Button, Flex } from '@radix-ui/themes';
 import { Form as RxForm } from 'radix-ui';
+import type { FormEvent } from 'react';
 
 type FormProps = {
   action?: FormAction;
@@ -11,6 +12,7 @@ type FormProps = {
   cancelText?: string;
   cancelAction?: () => void;
   submitDisabled?: boolean;
+  onSubmit?: (event: FormEvent<HTMLFormElement>) => void;
 };
 
 export const Form = ({
@@ -23,9 +25,10 @@ export const Form = ({
   cancelText = 'Cancel',
   cancelAction,
   submitDisabled,
+  onSubmit,
 }: FormProps) => {
   return (
-    <RxForm.Root action={action}>
+    <RxForm.Root action={action} onSubmit={onSubmit}>
       {children}
 
       {showActions && (

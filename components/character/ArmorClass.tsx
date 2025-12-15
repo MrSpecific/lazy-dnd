@@ -1,7 +1,8 @@
 'use client';
 
-import { useActionState, useState, ChangeEvent, useTransition } from 'react';
+import { useActionState, useState, ChangeEvent, useTransition, useEffect } from 'react';
 import { Box, Button, Card, Flex, Grid, Heading, Text } from '@radix-ui/themes';
+import { Shield } from 'lucide-react';
 import { Form, FormInput } from '@/components/form';
 import { updateArmorClass, type UpdateArmorClassState } from '@/data/character/updateArmorClass';
 
@@ -20,15 +21,17 @@ export const ArmorClass = ({ characterId, initialArmorClass, initialSpeed }: Arm
   const [editing, setEditing] = useState(!initialArmorClass);
   const [ac, setAc] = useState<number | ''>(initialArmorClass ?? '');
   const [speed, setSpeed] = useState<number | ''>(initialSpeed ?? '');
+  const [lastMode, setLastMode] = useState<'update' | 'compute'>('update');
 
-  const acDisplay = state.status === 'success' ? state.armorClass : ac;
-  const speedDisplay = state.status === 'success' ? state.speed : speed;
-
-  const handleCancel = () => {
-    setEditing(false);
-    setAc(initialArmorClass ?? '');
-    setSpeed(initialSpeed ?? '');
-  };
+  useEffect(() => {
+    if (state.status === 'success') {
+      if (state.armorClass !== undefined) setAc(state.armorClass ?? '');
+      if (state.speed !== undefined) setSpeed(state.speed ?? '');
+      if (lastMode === 'update') {
+        setEditing(false);
+      }
+    }
+  }, [state, lastMode]);
 
   const handleNumberChange =
     (setter: (val: number | '') => void) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +43,7 @@ export const ArmorClass = ({ characterId, initialArmorClass, initialSpeed }: Arm
     const fd = new FormData();
     fd.set('characterId', characterId);
     fd.set('mode', 'compute');
+    setLastMode('compute');
     startTransition(() => formAction(fd));
   };
 
@@ -54,12 +58,18 @@ export const ArmorClass = ({ characterId, initialArmorClass, initialSpeed }: Arm
 
       {!editing ? (
         <Grid columns={{ initial: '2' }} gap="3">
-          <StatTile label="AC" value={acDisplay} />
-          <StatTile label="Speed" value={speedDisplay} suffix="ft" />
+          <StatTile label="AC" value={ac} />
+          <StatTile label="Speed" value={speed} suffix="ft" />
         </Grid>
       ) : (
-        <Form action={formAction} submitText={pending ? 'Saving…' : 'Save'} submitDisabled={pending}>
+        <Form
+          action={formAction}
+          submitText={pending ? 'Saving…' : 'Save'}
+          submitDisabled={pending}
+          onSubmit={() => setLastMode('update')}
+        >
           <input type="hidden" name="characterId" value={characterId} />
+          <input type="hidden" name="mode" value="update" />
           <Grid columns={{ initial: '1', sm: '2' }} gap="2">
             <FormInput
               name="armorClass"
@@ -78,7 +88,13 @@ export const ArmorClass = ({ characterId, initialArmorClass, initialSpeed }: Arm
             />
           </Grid>
           <Flex gap="2" mt="2">
-            <Button type="button" variant="soft" size="1" onClick={computeFromCharacter} disabled={transitionPending}>
+            <Button
+              type="button"
+              variant="soft"
+              size="1"
+              onClick={computeFromCharacter}
+              disabled={transitionPending}
+            >
               Set from character
             </Button>
           </Flex>

@@ -35,7 +35,7 @@ export async function updateArmorClass(
       where: { id: characterId, userId: user.id },
       include: {
         abilities: true,
-        characterItems: { include: { item: true } },
+        inventory: { include: { item: true } },
       },
     });
     if (!character) return { status: 'error', message: 'Character not found.' };
@@ -46,12 +46,12 @@ export async function updateArmorClass(
         dex?.baseScore !== undefined ? dex.baseScore + dex.bonus + dex.temporary : null;
       const dexMod = dexScore != null ? Math.floor((dexScore - 10) / 2) : 0;
 
-      const equippedArmor = character.characterItems
+      const equippedArmor = character.inventory
         .filter((ci) => ci.equipped && ci.item.type === 'ARMOR' && ci.item.armorClass != null)
         .sort((a, b) => (b.item.armorClass ?? 0) - (a.item.armorClass ?? 0))[0];
 
       const shieldBonus =
-        character.characterItems
+        character.inventory
           .filter(
             (ci) =>
               ci.equipped &&
@@ -69,13 +69,7 @@ export async function updateArmorClass(
       const computedAc = baseArmor + shieldBonus;
       const computedSpeed = character.speed ?? 30;
 
-      const updated = await prisma.character.update({
-        where: { id: characterId },
-        data: { armorClass: computedAc, speed: computedSpeed },
-        select: { armorClass: true, speed: true },
-      });
-
-      return { status: 'success', armorClass: updated.armorClass, speed: updated.speed };
+      return { status: 'success', armorClass: computedAc, speed: computedSpeed };
     }
 
     const armorClass = parseIntOrNull(formData.get('armorClass'));
