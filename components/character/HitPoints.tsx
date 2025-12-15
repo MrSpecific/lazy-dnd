@@ -1,9 +1,11 @@
 'use client';
 
 import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
-import { Badge, Box, Button, Card, Flex, Grid, Text, TextField } from '@radix-ui/themes';
+import { Badge, Box, Button, Card, Flex, Grid, Heading, Text, TextField } from '@radix-ui/themes';
+import { Heart, HeartCrack, HeartMinus, HeartPlus } from 'lucide-react';
 import { updateHitPoints, type UpdateHpState } from '@/data/character/updateHitPoints';
 import { RandomButton } from '@/components/common/RandomButton';
+import { max } from 'lodash';
 
 type HitPointsProps = {
   characterId: string;
@@ -138,7 +140,13 @@ export const HitPoints = ({
         gap="2"
       >
         <Box>
-          <Text weight="bold">Hit Points</Text>
+          <Flex gap="2" align="center" mb="1">
+            <HeartIcon
+              current={typeof currentHp === 'number' ? currentHp : 0}
+              max={typeof maxHp === 'number' ? maxHp : 1}
+            />
+            <Heading size="5">Hit Points</Heading>
+          </Flex>
           <Text color="gray" size="1" style={{ display: 'block' }}>
             Level {level} • d{hitDie}
             {conMod != null ? ` • CON mod ${conMod >= 0 ? `+${conMod}` : conMod}` : ''}
@@ -397,4 +405,22 @@ const StaticStat = ({
       </Flex>
     </Box>
   );
+};
+
+const HeartIcon = ({ current, max }: { current: number; max: number }) => {
+  const ratio = current / max;
+
+  if (ratio <= 0.1) {
+    return <HeartCrack size="1.3em" style={{ color: 'var(--red-a12)' }} />;
+  }
+
+  if (ratio < 0.5) {
+    return <HeartMinus size="1.3em" style={{ color: 'var(--red-a12)' }} />;
+  }
+
+  if (ratio > 1) {
+    return <HeartPlus size="1.3em" style={{ color: 'var(--red-a10)' }} />;
+  }
+
+  return <Heart size="1.3em" style={{ color: 'var(--red-a11)' }} />;
 };
