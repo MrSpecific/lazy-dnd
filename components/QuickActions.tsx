@@ -5,6 +5,7 @@ import { Button, DropdownMenu, Flex, Box } from '@radix-ui/themes';
 import { useUser, UserAvatar } from '@stackframe/stack';
 import { useRouter } from 'next/navigation';
 import { QuickNpcDialog } from '@/components/dm/QuickNpcDialog';
+import { RefreshButton } from './RefreshButton';
 
 type QuickActionsProps = {
   isDm?: boolean;
@@ -21,12 +22,11 @@ export const QuickActions = ({ isDm = false }: QuickActionsProps) => {
   }
 
   return (
-    <Box>
-      <Flex gap="2" align="center">
-        <DmActions />
-        <PlayerActions />
-      </Flex>
-    </Box>
+    <Flex gap="2" align="center">
+      <RefreshButton />
+      <DmActions />
+      <PlayerActions />
+    </Flex>
   );
 };
 

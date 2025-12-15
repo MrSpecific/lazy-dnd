@@ -10,7 +10,14 @@ export const RefreshButton = () => {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <IconButton loading={isPending} onClick={() => startTransition(() => router.refresh())}>
+    <IconButton
+      loading={isPending}
+      onClick={() => startTransition(() => router.refresh())}
+      aria-label="Refresh page"
+      variant="soft"
+      radius="full"
+      color="gray"
+    >
       <RefreshCw />
     </IconButton>
   );
