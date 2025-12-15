@@ -1,7 +1,7 @@
 import { Grid, Flex, Box, Heading } from '@radix-ui/themes';
-import { UserCard } from './UserCard';
-import Link from './common/Link';
-import { QuickActions } from './QuickActions';
+import { UserCard } from '@/components/UserCard';
+import { Link } from '@/components/common/Link';
+import { QuickActions } from '@/components/QuickActions';
 import SiteLogo from '@/components/svg/lazy-dnd-icon.svg';
 
 export const Header = ({ showUserCard = true }) => {
