@@ -171,6 +171,7 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
             {ABILITY_TYPES.map((ability) => {
               const score = scores[ability] ?? 8;
               const modifier = formatModifier(scoreToModifier(score));
+
               return (
                 <Table.Row key={ability}>
                   <Table.RowHeaderCell>
@@ -180,11 +181,13 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
                     </Text>
                   </Table.RowHeaderCell>
                   <Table.Cell align="center">
-                    <Text weight="bold">{score}</Text>
+                    <Text weight="bold" size="5">
+                      {score}
+                    </Text>
                   </Table.Cell>
                   <Table.Cell align="center">
                     <Badge color="gray" size="3" variant="soft">
-                      {modifier}
+                      <Text size="4">{modifier}</Text>
                     </Badge>
                   </Table.Cell>
                 </Table.Row>

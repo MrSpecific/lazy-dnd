@@ -1,11 +1,22 @@
 'use client';
 
 import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
-import { Badge, Box, Button, Card, Flex, Grid, Heading, Text, TextField } from '@radix-ui/themes';
-import { Heart, HeartCrack, HeartMinus, HeartPlus } from 'lucide-react';
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Text,
+  TextField,
+  AlertDialog,
+  IconButton,
+} from '@radix-ui/themes';
+import { Heart, HeartCrack, HeartMinus, HeartPlus, Sparkles, RefreshCcw } from 'lucide-react';
 import { updateHitPoints, type UpdateHpState } from '@/data/character/updateHitPoints';
 import { RandomButton } from '@/components/common/RandomButton';
-import { max } from 'lodash';
 
 type HitPointsProps = {
   characterId: string;
@@ -60,6 +71,10 @@ export const HitPoints = ({
       const next = base + delta;
       return clampNonNegative(next);
     });
+  };
+
+  const handleSetCurrent = (value: number) => {
+    setCurrentHp(clampNonNegative(value));
   };
 
   const handleRest = (type: 'short' | 'long') => {
@@ -125,8 +140,11 @@ export const HitPoints = ({
         ? 'red'
         : currentHp <= maxHp * 0.25
           ? 'amber'
-          : 'green'
+          : currentHp > maxHp
+            ? 'mint'
+            : 'green'
       : 'gray';
+  const aboveMax = typeof currentHp === 'number' && typeof maxHp === 'number' && currentHp > maxHp;
 
   const adjustButtonSize: RadixButtonSize = '2';
 
@@ -265,6 +283,7 @@ export const HitPoints = ({
               </Button>
             </Flex>
             <Badge color={hpBadgeColor} size="3" variant="soft">
+              {aboveMax && <Sparkles />}
               {typeof currentHp === 'number' && typeof maxHp === 'number'
                 ? `${currentHp} / ${maxHp} HP`
                 : 'HP pending'}
@@ -310,6 +329,36 @@ export const HitPoints = ({
               >
                 +5
               </Button>
+              <AlertDialog.Root>
+                <AlertDialog.Trigger>
+                  <IconButton color="gray" aria-label="Reset" variant="soft">
+                    <RefreshCcw />
+                  </IconButton>
+                </AlertDialog.Trigger>
+                <AlertDialog.Content maxWidth="450px">
+                  <AlertDialog.Title>Reset Current HP</AlertDialog.Title>
+                  <AlertDialog.Description size="2">
+                    This will set your current HP to your max HP.
+                  </AlertDialog.Description>
+
+                  <Flex gap="3" mt="4" justify="end">
+                    <AlertDialog.Cancel>
+                      <Button variant="soft" color="gray">
+                        Cancel
+                      </Button>
+                    </AlertDialog.Cancel>
+                    <AlertDialog.Action>
+                      <Button
+                        variant="solid"
+                        color="orange"
+                        onClick={() => handleSetCurrent(parseInt((maxHp as string) ?? '0'))}
+                      >
+                        Reset
+                      </Button>
+                    </AlertDialog.Action>
+                  </Flex>
+                </AlertDialog.Content>
+              </AlertDialog.Root>
             </Flex>
           </StaticStat>
 
@@ -339,6 +388,7 @@ export const HitPoints = ({
               </Button>
             </Flex>
             <Badge color={hpBadgeColor} size="3" variant="soft">
+              {aboveMax && <Sparkles />}
               <Text size="5">
                 {typeof currentHp === 'number' && typeof maxHp === 'number'
                   ? `${currentHp} / ${maxHp} HP`
