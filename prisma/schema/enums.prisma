@@ -70,6 +70,17 @@ enum FeatureSourceType {
 }
 
 // Inventory Enums
+enum ItemType {
+  WEAPON
+  ARMOR
+  POTION
+  SCROLL
+  TOOL
+  MISCELLANEOUS
+
+  @@schema("public")
+}
+
 enum ItemRarity {
   COMMON
   UNCOMMON

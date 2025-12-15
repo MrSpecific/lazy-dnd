@@ -36,6 +36,7 @@ export const HitPoints = ({
   const [maxHp, setMaxHp] = useState<number | ''>(initialMaxHp ?? initialBaseHp ?? '');
   const [currentHp, setCurrentHp] = useState<number | ''>(initialCurrentHp ?? '');
   const [tempHp, setTempHp] = useState<number | ''>(initialTempHp ?? '');
+  const [editing, setEditing] = useState(!initialMaxHp && !initialCurrentHp);
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -61,6 +62,35 @@ export const HitPoints = ({
 
   const handleRest = (type: 'short' | 'long') => {
     setTempHp(0);
+
+    if (type === 'short') {
+      const availableHd = Math.max(level, 1);
+      const toSpendRaw = prompt(
+        `Short Rest: Spend how many hit dice? You can spend up to ${availableHd} (d${hitDie}).`,
+        '1'
+      );
+      const toSpend = Math.max(
+        0,
+        Math.min(
+          availableHd,
+          Number.isFinite(Number(toSpendRaw)) ? Number(toSpendRaw) : 0
+        )
+      );
+      if (toSpend <= 0 || typeof maxHp !== 'number') return;
+
+      let healed = 0;
+      for (let i = 0; i < toSpend; i += 1) {
+        const roll = 1 + Math.floor(Math.random() * hitDie);
+        healed += roll + (conMod ?? 0);
+      }
+      healed = Math.max(0, healed);
+      setCurrentHp((prev) => {
+        const base = typeof prev === 'number' ? prev : 0;
+        return Math.min(base + healed, maxHp as number);
+      });
+      return;
+    }
+
     if (type === 'long' && typeof maxHp === 'number') {
       setCurrentHp(maxHp);
     }
@@ -119,109 +149,203 @@ export const HitPoints = ({
         </Box>
         <Flex gap="2">
           <Button
-            variant="soft"
-            size="1"
-            onClick={() => submitWithMode('compute')}
-            disabled={pending || transitionPending}
-          >
-            Set from character
-          </Button>
-          <Button
             variant="surface"
             size="1"
-            onClick={() => submitWithMode('update')}
+            onClick={() => setEditing((prev) => !prev)}
             disabled={pending || transitionPending}
           >
-            Update from sheet
+            {editing ? 'Cancel' : 'Edit'}
           </Button>
-          <Button
-            variant="soft"
-            size="1"
-            onClick={() => submitWithMode('reset')}
-            disabled={pending || transitionPending}
-          >
-            Reset
-          </Button>
+          {editing && (
+            <>
+              <Button
+                variant="soft"
+                size="1"
+                onClick={() => submitWithMode('compute')}
+                disabled={pending || transitionPending}
+              >
+                Set from character
+              </Button>
+              <Button
+                variant="solid"
+                size="1"
+                onClick={() => submitWithMode('update')}
+                disabled={pending || transitionPending}
+              >
+                Update from sheet
+              </Button>
+              <Button
+                variant="soft"
+                size="1"
+                onClick={() => submitWithMode('reset')}
+                disabled={pending || transitionPending}
+              >
+                Reset
+              </Button>
+            </>
+          )}
         </Flex>
       </Flex>
 
-      <Grid columns={{ initial: '1', sm: '2' }} gap="3">
-        <StatField label="Base HP" value={baseHp} onChange={setBaseHp} pending={pending} />
-        <StatField label="Max HP" value={maxHp} onChange={setMaxHp} pending={pending} />
-        <StatField label="Current HP" value={currentHp} onChange={setCurrentHp} pending={pending}>
-          <Flex gap="1">
-            <Button
-              variant="soft"
-              size={adjustButtonSize}
-              onClick={() => handleAdjustCurrent(-5)}
-              disabled={pending || transitionPending}
+      {editing ? (
+        <>
+          <Grid columns={{ initial: '1', sm: '2' }} gap="3">
+            <StatField label="Base HP" value={baseHp} onChange={setBaseHp} pending={pending} />
+            <StatField label="Max HP" value={maxHp} onChange={setMaxHp} pending={pending} />
+            <StatField
+              label="Current HP"
+              value={currentHp}
+              onChange={setCurrentHp}
+              pending={pending}
             >
-              -5
-            </Button>
-            <Button
-              variant="soft"
-              size={adjustButtonSize}
-              onClick={() => handleAdjustCurrent(-1)}
-              disabled={pending || transitionPending}
-            >
-              -1
-            </Button>
-            <Button
-              variant="soft"
-              size={adjustButtonSize}
-              onClick={() => handleAdjustCurrent(+1)}
-              disabled={pending || transitionPending}
-              style={{ fontWeight: 'bold' }}
-            >
-              +1
-            </Button>
-            <Button
-              variant="soft"
-              size={adjustButtonSize}
-              onClick={() => handleAdjustCurrent(+5)}
-              disabled={pending || transitionPending}
-              style={{ fontWeight: 'bold' }}
-            >
-              +5
-            </Button>
+              <Flex gap="1">
+                <Button
+                  variant="soft"
+                  size={adjustButtonSize}
+                  onClick={() => handleAdjustCurrent(-5)}
+                  disabled={pending || transitionPending}
+                >
+                  -5
+                </Button>
+                <Button
+                  variant="soft"
+                  size={adjustButtonSize}
+                  onClick={() => handleAdjustCurrent(-1)}
+                  disabled={pending || transitionPending}
+                >
+                  -1
+                </Button>
+                <Button
+                  variant="soft"
+                  size={adjustButtonSize}
+                  onClick={() => handleAdjustCurrent(+1)}
+                  disabled={pending || transitionPending}
+                  style={{ fontWeight: 'bold' }}
+                >
+                  +1
+                </Button>
+                <Button
+                  variant="soft"
+                  size={adjustButtonSize}
+                  onClick={() => handleAdjustCurrent(+5)}
+                  disabled={pending || transitionPending}
+                  style={{ fontWeight: 'bold' }}
+                >
+                  +5
+                </Button>
+              </Flex>
+            </StatField>
+            <StatField label="Temp HP" value={tempHp} onChange={setTempHp} pending={pending}>
+              <RandomButton
+                size="1"
+                variant="soft"
+                onClick={() => setTempHp(Math.max(0, Math.floor(Math.random() * 10) + 1))}
+                label="Roll temp HP"
+              />
+            </StatField>
+          </Grid>
+
+          <Flex justify="between" align="center" mt="3" wrap="wrap" gap="2">
+            <Flex gap="2" align="center">
+              <Button
+                variant="surface"
+                size="2"
+                onClick={() => handleRest('short')}
+                disabled={pending || transitionPending}
+              >
+                Short Rest
+              </Button>
+              <Button
+                variant="surface"
+                size="2"
+                onClick={() => handleRest('long')}
+                disabled={pending || transitionPending}
+              >
+                Long Rest
+              </Button>
+            </Flex>
+            <Badge color={hpBadgeColor} size="3" variant="soft">
+              {typeof currentHp === 'number' && typeof maxHp === 'number'
+                ? `${currentHp} / ${maxHp} HP`
+                : 'HP pending'}
+              {typeof tempHp === 'number' && tempHp > 0 ? ` (+${tempHp} temp)` : ''}
+            </Badge>
           </Flex>
-        </StatField>
-        <StatField label="Temp HP" value={tempHp} onChange={setTempHp} pending={pending}>
-          <RandomButton
-            size="1"
-            variant="soft"
-            onClick={() => setTempHp(Math.max(0, Math.floor(Math.random() * 10) + 1))}
-            label="Roll temp HP"
-          />
-        </StatField>
-      </Grid>
+        </>
+      ) : (
+        <>
+          <Grid columns={{ initial: '1', sm: '2' }} gap="3">
+            <StaticStat label="Base HP" value={baseHp} />
+            <StaticStat label="Max HP" value={maxHp} />
+            <StaticStat label="Current HP" value={currentHp}>
+              <Flex gap="1">
+                <Button
+                  variant="soft"
+                  size={adjustButtonSize}
+                  onClick={() => handleAdjustCurrent(-5)}
+                  disabled={pending || transitionPending}
+                >
+                  -5
+                </Button>
+                <Button
+                  variant="soft"
+                  size={adjustButtonSize}
+                  onClick={() => handleAdjustCurrent(-1)}
+                  disabled={pending || transitionPending}
+                >
+                  -1
+                </Button>
+                <Button
+                  variant="soft"
+                  size={adjustButtonSize}
+                  onClick={() => handleAdjustCurrent(+1)}
+                  disabled={pending || transitionPending}
+                  style={{ fontWeight: 'bold' }}
+                >
+                  +1
+                </Button>
+                <Button
+                  variant="soft"
+                  size={adjustButtonSize}
+                  onClick={() => handleAdjustCurrent(+5)}
+                  disabled={pending || transitionPending}
+                  style={{ fontWeight: 'bold' }}
+                >
+                  +5
+                </Button>
+              </Flex>
+            </StaticStat>
+            <StaticStat label="Temp HP" value={tempHp} />
+          </Grid>
 
-      <Flex justify="between" align="center" mt="3" wrap="wrap" gap="2">
-        <Flex gap="2" align="center">
-          <Button
-            variant="surface"
-            size="2"
-            onClick={() => handleRest('short')}
-            disabled={pending || transitionPending}
-          >
-            Short Rest
-          </Button>
-          <Button
-            variant="surface"
-            size="2"
-            onClick={() => handleRest('long')}
-            disabled={pending || transitionPending}
-          >
-            Long Rest
-          </Button>
-        </Flex>
-        <Badge color={hpBadgeColor} size="3" variant="soft">
-          {typeof currentHp === 'number' && typeof maxHp === 'number'
-            ? `${currentHp} / ${maxHp} HP`
-            : 'HP pending'}
-          {typeof tempHp === 'number' && tempHp > 0 ? ` (+${tempHp} temp)` : ''}
-        </Badge>
-      </Flex>
+          <Flex justify="between" align="center" mt="3" wrap="wrap" gap="2">
+            <Flex gap="2" align="center">
+              <Button
+                variant="surface"
+                size="2"
+                onClick={() => handleRest('short')}
+                disabled={pending || transitionPending}
+              >
+                Short Rest
+              </Button>
+              <Button
+                variant="surface"
+                size="2"
+                onClick={() => handleRest('long')}
+                disabled={pending || transitionPending}
+              >
+                Long Rest
+              </Button>
+            </Flex>
+            <Badge color={hpBadgeColor} size="3" variant="soft">
+              {typeof currentHp === 'number' && typeof maxHp === 'number'
+                ? `${currentHp} / ${maxHp} HP`
+                : 'HP pending'}
+              {typeof tempHp === 'number' && tempHp > 0 ? ` (+${tempHp} temp)` : ''}
+            </Badge>
+          </Flex>
+        </>
+      )}
 
       {state.status === 'error' && (
         <Text color="red" size="2" mt="2">
@@ -259,6 +383,26 @@ const StatField = ({
           style={{ width: '100%' }}
           disabled={pending}
         />
+        {children}
+      </Flex>
+    </Box>
+  );
+};
+
+const StaticStat = ({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value: number | '';
+  children?: React.ReactNode;
+}) => {
+  return (
+    <Box>
+      <Text weight="bold">{label}</Text>
+      <Flex gap="2" align="center" mt="1">
+        <TextField.Root value={value === '' ? '—' : value} readOnly />
         {children}
       </Flex>
     </Box>

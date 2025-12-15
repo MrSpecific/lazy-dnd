@@ -66,7 +66,7 @@ model Character {
   age    Int
   userId String     @db.Text
   user   users_sync @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gender String?
+  gender Gender?
 
   // High-level stats
   level            Int        @default(1)
@@ -239,6 +239,9 @@ model Item {
   weight       Float? // in pounds
   rarity       ItemRarity @default(COMMON)
   isConsumable Boolean    @default(false)
+  damage       String?
+  armorClass   Int?
+  type         ItemType?
 
   // Later: type (weapon, armor, etc.), damage, AC, properties, etc.
 
@@ -255,9 +258,12 @@ model CharacterItem {
   itemId String
   item   Item   @relation(fields: [itemId], references: [id])
 
-  quantity Int            @default(1)
-  equipped Boolean        @default(false)
-  slot     EquipmentSlot?
+  customName        String? // custom name for this item instance
+  customDescription String? // custom description/notes for this item instance
+  quantity          Int            @default(1)
+  equipped          Boolean        @default(false)
+  slot              EquipmentSlot?
+  condition         String? // e.g., "Worn", "Damaged"
 
   attuned Boolean @default(false)
   notes   String?
