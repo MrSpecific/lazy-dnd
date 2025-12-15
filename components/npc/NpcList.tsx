@@ -19,7 +19,7 @@ export const NpcList = ({ npcs }: NpcListProps) => {
 
   return (
     <Box>
-      <Heading size="4" mb="3">
+      <Heading size="5" mb="3">
         Your NPCs
       </Heading>
       <Grid columns={{ initial: '1', sm: '2', md: '3' }} gap="3">

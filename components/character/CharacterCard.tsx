@@ -1,5 +1,6 @@
 'use client';
 
+import { Fragment } from 'react';
 import { Card, Flex, Heading, Text } from '@radix-ui/themes';
 import { CharacterSummary } from '@/data/character/getCharacters';
 import { Link } from '@/components/common/Link';
@@ -42,12 +43,12 @@ export const CharacterCard = ({ character, detail = 'low' }: CharacterCardProps)
           {detail !== 'low' && (
             <Flex gap="2" align="center" wrap="wrap" mt="1">
               {vitals.map((v, index) => (
-                <>
+                <Fragment key={`${character.id}-fragment-${v.label}`}>
                   <Vital key={`${character.id}-${v.label}`} label={v.label} value={v.value} />
                   {index < vitals.length - 1 && (
                     <span key={`separator-${character.id}-${v.label}`}> • </span>
                   )}
-                </>
+                </Fragment>
               ))}
             </Flex>
           )}

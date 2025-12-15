@@ -13,7 +13,7 @@ export default async function CharactersPage() {
   const characters = await getCharacters();
 
   return (
-    <Section>
+    <Section pt="0">
       <CharacterList characters={characters} detail="medium" />
     </Section>
   );
