@@ -1,3 +1,52 @@
+// NPC Enums
+enum NpcAttitude {
+  HOSTILE
+  UNFRIENDLY
+  NEUTRAL
+  FRIENDLY
+  HELPFUL
+
+  @@schema("public")
+}
+
+enum NpcImportance {
+  MINOR // random shopkeeper
+  SUPPORTING
+  MAJOR // recurring ally / villain
+  BOSS
+
+  @@schema("public")
+}
+
+enum NpcRelationshipType {
+  ALLY
+  ENEMY
+  FAMILY
+  EMPLOYER
+  EMPLOYEE
+  CONTACT
+  MENTOR
+  RIVAL
+  ROMANTIC
+  OTHER
+
+  @@schema("public")
+}
+
+enum CharacterNpcRelationshipType {
+  ALLY
+  ENEMY
+  PATRON
+  QUEST_GIVER
+  FAMILY
+  FRIEND
+  RIVAL
+  ACQUAINTANCE
+  OTHER
+
+  @@schema("public")
+}
+
 model Npc {
   id          String  @id @default(uuid())
   name        String
@@ -11,9 +60,14 @@ model Npc {
   // Narrative/meta
   importance NpcImportance @default(MINOR)
   attitude   NpcAttitude   @default(NEUTRAL)
-  isAlive    Boolean       @default(true)
   isHidden   Boolean       @default(false) // secret NPCs not visible to players yet
   gender     Gender?
+
+  // Status
+  deceased   Boolean   @default(false)
+  deceasedAt DateTime?
+  retired    Boolean   @default(false)
+  archived   Boolean   @default(false)
 
   // World context
   raceId String?
@@ -38,6 +92,7 @@ model Npc {
   notes             NpcNote[]
   relationshipsFrom NpcRelationship[] @relation("NpcRelationshipFrom")
   relationshipsTo   NpcRelationship[] @relation("NpcRelationshipTo")
+  campaigns         Campaign[]        @relation("CampaignNpcs")
 
   characterRelationships CharacterNpcRelationship[]
 

@@ -1,0 +1,67 @@
+// Spells & Magic Enums
+enum SpellSchool {
+  ABJURATION
+  CONJURATION
+  DIVINATION
+  ENCHANTMENT
+  EVOCATION
+  ILLUSION
+  NECROMANCY
+  TRANSMUTATION
+
+  @@schema("public")
+}
+
+enum SpellKnowledgeType {
+  KNOWN
+  PREPARED
+
+  @@schema("public")
+}
+
+model Spell {
+  id          String      @id @default(uuid())
+  name        String
+  level       Int // 0 = cantrip
+  school      SpellSchool
+  castingTime String?
+  range       String?
+  components  String? // e.g. "V,S,M"
+  duration    String?
+  description String?
+
+  isRitual        Boolean @default(false)
+  isConcentration Boolean @default(false)
+
+  characterSpells CharacterSpell[]
+
+  @@schema("public")
+}
+
+model CharacterSpell {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  spellId String
+  spell   Spell  @relation(fields: [spellId], references: [id])
+
+  knowledge SpellKnowledgeType @default(KNOWN)
+  notes     String?
+
+  @@unique([characterId, spellId, knowledge])
+  @@schema("public")
+}
+
+model CharacterSpellSlot {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  spellLevel   Int // 1–9, not cantrips
+  maxSlots     Int
+  currentSlots Int
+
+  @@unique([characterId, spellLevel])
+  @@schema("public")
+}

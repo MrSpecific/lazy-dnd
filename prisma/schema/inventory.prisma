@@ -1,0 +1,63 @@
+// Inventory Enums
+enum ItemType {
+  WEAPON
+  ARMOR
+  POTION
+  SCROLL
+  TOOL
+  MISCELLANEOUS
+
+  @@schema("public")
+}
+
+enum ItemRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  VERY_RARE
+  LEGENDARY
+  ARTIFACT
+
+  @@schema("public")
+}
+
+// Default items
+model Item {
+  id           String     @id @default(uuid())
+  name         String
+  description  String?
+  weight       Float? // in pounds
+  rarity       ItemRarity @default(COMMON)
+  isConsumable Boolean    @default(false)
+  damage       String?
+  armorClass   Int?
+  type         ItemType?
+
+  // Later: type (weapon, armor, etc.), damage, AC, properties, etc.
+
+  characterItems CharacterItem[]
+
+  @@schema("public")
+}
+
+// Character's owned items
+model CharacterItem {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  itemId String?
+  item   Item?   @relation(fields: [itemId], references: [id])
+
+  customName        String? // custom name for this item instance
+  customDescription String? // custom description/notes for this item instance
+  quantity          Int            @default(1)
+  equipped          Boolean        @default(false)
+  slot              EquipmentSlot?
+  condition         String? // e.g., "Worn", "Damaged"
+
+  attuned Boolean @default(false)
+  notes   String?
+
+  @@schema("public")
+}

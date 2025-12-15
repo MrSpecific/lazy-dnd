@@ -1,0 +1,59 @@
+model Campaign {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+
+  notes   String?
+  dmNotes String?
+
+  active    Boolean @default(true)
+  completed Boolean @default(false)
+  archived  Boolean @default(false)
+
+  ownerId String     @db.Text
+  owner   users_sync @relation("CampaignOwner", fields: [ownerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dms     users_sync[] @relation("CampaignDMs")
+  players users_sync[] @relation("CampaignPlayers")
+
+  npcs          Npc[]         @relation("CampaignNpcs")
+  sessions      GameSession[]
+  playerParties PlayerParty[] @relation("CampaignPlayerParties")
+
+  @@schema("public")
+}
+
+model PlayerParty {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  notes       String?
+  dmNotes     String?
+
+  active   Boolean @default(true)
+  archived Boolean @default(false)
+
+  ownerId String     @db.Text
+  owner   users_sync @relation("PartyOwner", fields: [ownerId], references: [id])
+
+  campaigns  Campaign[]  @relation("CampaignPlayerParties")
+  characters Character[]
+
+  @@schema("public")
+}
+
+model GameSession {
+  id       String   @id @default(uuid())
+  date     DateTime
+  notes    String?
+  dmNotes  String?
+  archived Boolean  @default(false)
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+
+  @@schema("public")
+}
