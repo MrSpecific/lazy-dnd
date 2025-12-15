@@ -5,11 +5,13 @@ import { AbilityTable } from '@/components/character/AbilityTable';
 import { WeaponSection } from '@/components/character/WeaponSection';
 import { getCharacterAbilities } from '@/data/character/abilities';
 import { getCharacterWeapons, getWeaponCatalog } from '@/data/character/weapons';
+import { getCharacterArmor, getArmorCatalog } from '@/data/character/armor';
 import { stackServerApp } from '@/stack/server';
 import { CharacterInfoEditor } from '@/components/character/CharacterInfoEditor';
 import { HitPoints } from '@/components/character/HitPoints';
 import { Gender } from '@prisma/client';
 import { ArmorClass } from '@/components/character/ArmorClass';
+import { ArmorSection } from '@/components/character/ArmorSection';
 
 export default async function CharacterPage({ params }: { params: { id: string } }) {
   const user = await stackServerApp.getUser({ or: 'redirect' });
@@ -39,6 +41,8 @@ export default async function CharacterPage({ params }: { params: { id: string }
   const abilities = await getCharacterAbilities(character.id);
   const weapons = await getCharacterWeapons(character.id);
   const catalog = await getWeaponCatalog();
+  const armor = await getCharacterArmor(character.id);
+  const armorCatalog = await getArmorCatalog();
   const con = abilities.find((a) => a.ability === 'CON');
   const conScore = con ? con.baseScore + con.bonus + con.temporary : null;
   const level = character.classLevels.reduce((sum, cl) => sum + (cl.level ?? 0), 0) || 1;
@@ -82,6 +86,11 @@ export default async function CharacterPage({ params }: { params: { id: string }
       {/* Weapons */}
       <Box mt="4">
         <WeaponSection characterId={character.id} initialWeapons={weapons} catalog={catalog} />
+      </Box>
+
+      {/* Armor */}
+      <Box mt="4">
+        <ArmorSection characterId={character.id} initialArmor={armor} catalog={armorCatalog} />
       </Box>
 
       {/* Spells */}
