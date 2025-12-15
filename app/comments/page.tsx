@@ -1,23 +1,24 @@
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
-export const fetchCache = 'force-no-store'
+export const fetchCache = 'force-no-store';
 
-import Footer from '@/components/footer'
-import Post from '@/components/post'
-import PostPlaceholder from '@/components/post-placeholder'
-import { UserCard } from '@/components/UserCard'
-import { getPost, getRandomUser } from '@/lib/prisma/api'
-import { Box, Card, Heading } from '@radix-ui/themes'
-import { Metadata } from 'next'
-import { Suspense } from 'react'
+import Footer from '@/components/Footerz';
+import Post from '@/components/post';
+import PostPlaceholder from '@/components/post-placeholder';
+import { UserCard } from '@/components/UserCard';
+import { getPost, getRandomUser } from '@/lib/prisma/api';
+import { Box, Card, Heading } from '@radix-ui/themes';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
 
-const btoa = (str: string) => Buffer.from(str).toString('base64')
+const btoa = (str: string) => Buffer.from(str).toString('base64');
 
 const config = {
   url: 'https://ably-livesync-neon.vercel.app',
   title: 'Real-time comments with Ably LiveSync and Postgres',
-  description: 'A demo of how Ably LiveSync can be combined with a Serverless Postgres to power real-time comments.',
-}
+  description:
+    'A demo of how Ably LiveSync can be combined with a Serverless Postgres to power real-time comments.',
+};
 
 export const metadata: Metadata = {
   title: config.title,
@@ -34,12 +35,12 @@ export const metadata: Metadata = {
     description: config.description,
     images: `https://neon.tech/docs/og?title=${btoa(config.title)}&breadcrumb=${btoa('Ably')}`,
   },
-}
+};
 
 export default async function () {
-  const promises = await Promise.all([getPost(1), getRandomUser()])
-  const [post] = promises[0]
-  const user = promises[1]
+  const promises = await Promise.all([getPost(1), getRandomUser()]);
+  const [post] = promises[0];
+  const user = promises[1];
 
   return (
     <Box>
@@ -52,5 +53,5 @@ export default async function () {
         <Footer />
       </Card>
     </Box>
-  )
+  );
 }

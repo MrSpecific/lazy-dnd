@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 export const fetchCache = 'force-no-store';
 
-import Footer from '@/components/footer';
+import { Footer } from '../components/Footer';
 import { UserCard } from '@/components/UserCard';
 import { getPost, getRandomUser } from '@/lib/prisma/api';
 import { Box, Card, Container, Flex, Heading, ThemePanel, Text } from '@radix-ui/themes';
@@ -50,7 +50,8 @@ export default async function () {
   return (
     <>
       {/* <ThemePanel /> */}
-      <Header />
+      <Header showUserCard={!!user} />
+
       <Box>
         <Card>
           {user ? (
@@ -86,6 +87,8 @@ export default async function () {
           </Container>
         </Card>
       </Box>
+
+      <Footer />
     </>
   );
 }
