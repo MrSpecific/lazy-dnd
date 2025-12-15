@@ -24,7 +24,7 @@ export const CharacterList = ({ characters, detail = 'low' }: CharacterListProps
         Your characters
       </Heading>
 
-      <Grid columns={{ initial: '1', sm: '2', md: '3' }} gap="3">
+      <Grid columns={{ initial: '1', sm: '2', md: detail === 'low' ? '4' : '3' }} gap="3">
         {characters.map((character) => (
           <CharacterCard key={character.id} character={character} detail={detail} />
         ))}

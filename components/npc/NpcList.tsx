@@ -1,6 +1,6 @@
 'use client';
 
-import { Grid, Heading, Text } from '@radix-ui/themes';
+import { Box, Grid, Heading, Text } from '@radix-ui/themes';
 import { NpcSummary } from '@/data/npc/getNpcs';
 import { NpcCard } from '@/components/npc/NpcCard';
 
@@ -18,7 +18,7 @@ export const NpcList = ({ npcs }: NpcListProps) => {
   }
 
   return (
-    <div>
+    <Box>
       <Heading size="4" mb="3">
         Your NPCs
       </Heading>
@@ -27,6 +27,6 @@ export const NpcList = ({ npcs }: NpcListProps) => {
           <NpcCard key={npc.id} npc={npc} />
         ))}
       </Grid>
-    </div>
+    </Box>
   );
 };

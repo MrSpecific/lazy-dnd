@@ -13,7 +13,7 @@ export const NpcCard = ({ npc }: NpcCardProps) => {
 
   return (
     <Link href={`/dm/npc/${npc.id}`}>
-      <Card asChild variant="classic" style={{ cursor: 'pointer' }}>
+      <Card>
         <Flex direction="column" gap="1">
           <Heading size="3">{npc.name}</Heading>
           {subtitle && (

@@ -44,7 +44,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
   const hitDie = primaryClass?.hitDie ?? 8;
 
   return (
-    <Section>
+    <Section pt="0">
       <CharacterInfoEditor
         characterId={character.id}
         initialName={character.name}
