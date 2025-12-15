@@ -145,14 +145,6 @@ export const HitPoints = ({
           </Text>
         </Box>
         <Flex gap="2">
-          <Button
-            variant="surface"
-            size="1"
-            onClick={() => setEditing((prev) => !prev)}
-            disabled={pending || transitionPending}
-          >
-            {editing ? 'Cancel' : 'Edit'}
-          </Button>
           {editing && (
             <>
               <Button
@@ -171,16 +163,17 @@ export const HitPoints = ({
               >
                 Update from sheet
               </Button>
-              <Button
-                variant="soft"
-                size="1"
-                onClick={() => submitWithMode('reset')}
-                disabled={pending || transitionPending}
-              >
-                Reset
-              </Button>
             </>
           )}
+          <Button
+            variant="surface"
+            size="1"
+            onClick={() => setEditing((prev) => !prev)}
+            disabled={pending || transitionPending}
+            color={editing ? 'orange' : undefined}
+          >
+            {editing ? 'Cancel' : 'Edit'}
+          </Button>
         </Flex>
       </Flex>
 

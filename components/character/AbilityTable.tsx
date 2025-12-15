@@ -155,8 +155,8 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
             <Heading size="6">Abilities</Heading>
           </Flex>
 
-          <Button variant="surface" onClick={() => setEditing(true)} size="2">
-            Edit abilities
+          <Button variant="surface" onClick={() => setEditing(true)} size="1">
+            Edit
           </Button>
         </Flex>
         <Table.Root variant="surface">

@@ -39,32 +39,52 @@ export const CharacterInfoEditor = ({
       status: 'idle',
     }
   );
-  const [localName, setLocalName] = useState(initialName);
-  const [localGender, setLocalGender] = useState<Gender | ''>(initialGender ?? '');
-  const [localAlignment, setLocalAlignment] = useState<Alignment | ''>(initialAlignment ?? '');
+  const [viewName, setViewName] = useState(initialName);
+  const [viewGender, setViewGender] = useState<Gender | ''>(initialGender ?? '');
+  const [viewAlignment, setViewAlignment] = useState<Alignment | ''>(initialAlignment ?? '');
+  const [draftName, setDraftName] = useState(initialName);
+  const [draftGender, setDraftGender] = useState<Gender | ''>(initialGender ?? '');
+  const [draftAlignment, setDraftAlignment] = useState<Alignment | ''>(initialAlignment ?? '');
 
   useEffect(() => {
     if (state.status === 'success') {
       setEditing(false);
-      setLocalName(state.name);
-      setLocalGender((state.gender as Gender | null) ?? '');
-      setLocalAlignment((state.alignment as Alignment | null) ?? '');
+      setViewName(state.name);
+      setViewGender((state.gender as Gender | null) ?? '');
+      setViewAlignment((state.alignment as Alignment | null) ?? '');
+      setDraftName(state.name);
+      setDraftGender((state.gender as Gender | null) ?? '');
+      setDraftAlignment((state.alignment as Alignment | null) ?? '');
     }
   }, [state]);
 
-  const alignmentDisplay = getAlignmentMeta(localAlignment || null);
-  const genderDisplay = getGenderMeta(localGender || null);
+  const alignmentDisplay = getAlignmentMeta(viewAlignment || null);
+  const genderDisplay = getGenderMeta(viewGender || null);
+
+  const startEditing = () => {
+    setDraftName(viewName);
+    setDraftGender(viewGender || '');
+    setDraftAlignment(viewAlignment || '');
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setDraftName(viewName);
+    setDraftGender(viewGender || '');
+    setDraftAlignment(viewAlignment || '');
+    setEditing(false);
+  };
 
   return (
     <Card>
-      <Flex justify="between" align="center" mb="2">
+      <Flex justify="between" align="start" mb="2">
         <Box>
-          <Heading size="6">{localName}</Heading>
+          <Heading size="6">{viewName}</Heading>
           <Text color="gray" size="2">
             Level {level} • {className ?? 'Unclassed'} {raceName ?? ''}
           </Text>
         </Box>
-        <Button variant="surface" onClick={() => setEditing((prev) => !prev)} size="1">
+        <Button variant="surface" onClick={editing ? cancelEditing : startEditing} size="1">
           {editing ? 'Cancel' : 'Edit'}
         </Button>
       </Flex>
@@ -98,17 +118,17 @@ export const CharacterInfoEditor = ({
           <FormInput
             name="name"
             label="Name"
-            value={localName}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalName(e.target.value)}
+            value={draftName}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setDraftName(e.target.value)}
             required
             size="3"
           />
           <RaceSelect name="race" label="Race" defaultValue={initialRaceId ?? undefined} />
-          <GenderSelect value={localGender} onValueChange={(value) => setLocalGender(value)} />
+          <GenderSelect value={draftGender} onValueChange={(value) => setDraftGender(value)} />
           <Box>
             <AlignmentSelect
-              value={localAlignment}
-              onValueChange={(value) => setLocalAlignment(value)}
+              value={draftAlignment}
+              onValueChange={(value) => setDraftAlignment(value)}
               size="3"
             />
             <Text color="amber" size="1">
