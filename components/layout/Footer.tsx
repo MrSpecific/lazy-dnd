@@ -1,6 +1,7 @@
 import { GitHub, Linkedin, Twitter } from 'react-feather';
 import { Link } from '@/components/common/Link';
 import { Card, Grid, Box, Text } from '@radix-ui/themes';
+import { BuyMeACoffee } from '../BuyMeACoffee';
 
 export const Footer = () => {
   return (
@@ -15,6 +16,10 @@ export const Footer = () => {
             <Link href="https://willchristenson.com" target="_blank" rel="noopener noreferrer">
               Will Christenson
             </Link>
+          </Text>
+
+          <Text as="div" align={{ initial: 'center', md: 'right' }}>
+            <BuyMeACoffee />
           </Text>
         </Grid>
       </Card>
