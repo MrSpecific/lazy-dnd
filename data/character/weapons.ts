@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { stackServerApp } from '@/stack/server';
-import { EquipmentSlot, ItemRarity } from '@prisma/client';
+import { EquipmentSlot, ItemRarity, ItemType, Item } from '@prisma/client';
 
 export type WeaponEntry = {
   id: string;
@@ -13,12 +13,7 @@ export type WeaponEntry = {
   equipped: boolean;
 };
 
-export type WeaponCatalogItem = {
-  id: string;
-  name: string;
-  description: string | null;
-  weight: number | null;
-};
+export type WeaponCatalogItem = Item;
 
 export type AddWeaponState =
   | { status: 'idle'; message?: string }
@@ -63,14 +58,32 @@ export async function getWeaponCatalog(): Promise<WeaponCatalogItem[]> {
   if (!user) throw new Error('Unauthorized');
 
   const items = await prisma.item.findMany({
-    where: { isConsumable: false },
+    where: { isConsumable: false, type: ItemType.WEAPON },
     orderBy: { name: 'asc' },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      weight: true,
+  });
+
+  return items;
+}
+
+export async function searchWeapons(search: string): Promise<WeaponCatalogItem[]> {
+  const user = await stackServerApp.getUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const items = await prisma.item.findMany({
+    where: {
+      isConsumable: false,
+      type: ItemType.WEAPON,
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
     },
+    orderBy: { name: 'asc' },
+    take: 100,
   });
 
   return items;
@@ -78,7 +91,7 @@ export async function getWeaponCatalog(): Promise<WeaponCatalogItem[]> {
 
 export async function addWeapon(
   _prev: AddWeaponState,
-  formData: FormData,
+  formData: FormData
 ): Promise<AddWeaponState> {
   try {
     const user = await stackServerApp.getUser();
@@ -102,13 +115,17 @@ export async function addWeapon(
     }
 
     const descriptionParts: string[] = [];
-    if (damage && typeof damage === 'string' && damage.trim()) descriptionParts.push(`Damage: ${damage.trim()}`);
-    if (properties && typeof properties === 'string' && properties.trim()) descriptionParts.push(properties.trim());
+    if (damage && typeof damage === 'string' && damage.trim())
+      descriptionParts.push(`Damage: ${damage.trim()}`);
+    if (properties && typeof properties === 'string' && properties.trim())
+      descriptionParts.push(properties.trim());
 
     const description = descriptionParts.length ? descriptionParts.join(' | ') : null;
     const parsedWeight = typeof weight === 'string' && weight.trim() ? Number(weight) : null;
     const slotValue =
-      typeof slot === 'string' && ['MAIN_HAND', 'OFF_HAND', 'TWO_HANDED'].includes(slot) ? (slot as EquipmentSlot) : null;
+      typeof slot === 'string' && ['MAIN_HAND', 'OFF_HAND', 'TWO_HANDED'].includes(slot)
+        ? (slot as EquipmentSlot)
+        : null;
 
     const item = await prisma.item.create({
       data: {
@@ -149,7 +166,7 @@ export async function addWeapon(
 
 export async function addExistingWeapon(
   _prev: AddWeaponState,
-  formData: FormData,
+  formData: FormData
 ): Promise<AddWeaponState> {
   try {
     const user = await stackServerApp.getUser();
@@ -172,7 +189,9 @@ export async function addExistingWeapon(
     if (!item) return { status: 'error', message: 'Weapon not found.' };
 
     const slotValue =
-      typeof slot === 'string' && ['MAIN_HAND', 'OFF_HAND', 'TWO_HANDED'].includes(slot) ? (slot as EquipmentSlot) : null;
+      typeof slot === 'string' && ['MAIN_HAND', 'OFF_HAND', 'TWO_HANDED'].includes(slot)
+        ? (slot as EquipmentSlot)
+        : null;
 
     const characterItem = await prisma.characterItem.create({
       data: {

@@ -70,9 +70,17 @@ export default async function CharacterPage({ params }: { params: { id: string }
       <Box mt="4">
         <AbilityTable characterId={character.id} abilities={abilities} />
       </Box>
+
+      {/* Weapons */}
       <Box mt="4">
         <WeaponSection characterId={character.id} initialWeapons={weapons} catalog={catalog} />
       </Box>
+
+      {/* Spells */}
+      <Box mt="4"></Box>
+
+      {/* Items */}
+      <Box mt="4"></Box>
     </Section>
   );
 }

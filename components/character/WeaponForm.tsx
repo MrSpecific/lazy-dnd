@@ -3,36 +3,33 @@
 import { useState } from 'react';
 import { EquipmentSlot } from '@prisma/client';
 import { Button, Dialog, Flex, Select, Text, TextField } from '@radix-ui/themes';
+import { Form } from '@/components/form';
+import { slotOptions } from '@/lib/helpers/equipmentSlots';
 
 type WeaponFormProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   pending?: boolean;
   action?: FormAction;
   characterId?: string;
 };
 
-const SLOTS: { value: EquipmentSlot; label: string }[] = [
-  { value: 'MAIN_HAND', label: 'Main hand' },
-  { value: 'OFF_HAND', label: 'Off hand' },
-  { value: 'TWO_HANDED', label: 'Two handed' },
-];
-
-export const WeaponForm = ({ pending = false, action, characterId }: WeaponFormProps) => {
-  const [open, setOpen] = useState(false);
-
+export const WeaponForm = ({
+  open = false,
+  onOpenChange,
+  pending = false,
+  action,
+  characterId,
+}: WeaponFormProps) => {
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger>
-        <Button type="button" variant="surface">
-          Add weapon
-        </Button>
-      </Dialog.Trigger>
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Content maxWidth="720px">
         <Dialog.Title>Add a weapon</Dialog.Title>
         <Dialog.Description size="2" mb="3">
           Enter details for a weapon to add it to your character.
         </Dialog.Description>
 
-        <form action={action}>
+        <Form action={action}>
           {characterId && <input type="hidden" name="characterId" value={characterId} />}
           <Flex gap="2" wrap="wrap" align="center">
             <TextField.Root name="name" placeholder="Weapon name" required />
@@ -42,7 +39,7 @@ export const WeaponForm = ({ pending = false, action, characterId }: WeaponFormP
             <Select.Root name="slot" defaultValue="MAIN_HAND">
               <Select.Trigger />
               <Select.Content>
-                {SLOTS.map((slot) => (
+                {slotOptions.map((slot) => (
                   <Select.Item key={slot.value} value={slot.value}>
                     {slot.label}
                   </Select.Item>
@@ -62,7 +59,7 @@ export const WeaponForm = ({ pending = false, action, characterId }: WeaponFormP
               </Button>
             </Dialog.Close>
           </Flex>
-        </form>
+        </Form>
       </Dialog.Content>
     </Dialog.Root>
   );
