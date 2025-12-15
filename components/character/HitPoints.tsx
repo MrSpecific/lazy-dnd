@@ -14,7 +14,15 @@ import {
   AlertDialog,
   IconButton,
 } from '@radix-ui/themes';
-import { Heart, HeartCrack, HeartMinus, HeartPlus, Sparkles, RefreshCcw } from 'lucide-react';
+import {
+  Heart,
+  HeartCrack,
+  HeartMinus,
+  HeartPlus,
+  Sparkles,
+  RefreshCcw,
+  Skull,
+} from 'lucide-react';
 import { updateHitPoints, type UpdateHpState } from '@/data/character/updateHitPoints';
 import { RandomButton } from '@/components/common/RandomButton';
 
@@ -145,6 +153,7 @@ export const HitPoints = ({
             : 'green'
       : 'gray';
   const aboveMax = typeof currentHp === 'number' && typeof maxHp === 'number' && currentHp > maxHp;
+  const hpIsZero = typeof currentHp === 'number' && currentHp <= 0;
 
   const adjustButtonSize: RadixButtonSize = '2';
 
@@ -154,7 +163,7 @@ export const HitPoints = ({
         justify="between"
         align="start"
         mb="3"
-        direction={{ initial: 'column', md: 'row' }}
+        direction={{ initial: editing ? 'column' : 'row', md: 'row' }}
         gap="2"
       >
         <Box>
@@ -294,7 +303,7 @@ export const HitPoints = ({
       ) : (
         <>
           <StaticStat label="Current HP" value={currentHp} size="3">
-            <Flex gap="1">
+            <Flex gap="1" justify="end" flexGrow="1">
               <Button
                 variant="soft"
                 size={adjustButtonSize}
@@ -388,6 +397,7 @@ export const HitPoints = ({
               </Button>
             </Flex>
             <Badge color={hpBadgeColor} size="3" variant="soft">
+              {hpIsZero && <Skull />}
               {aboveMax && <Sparkles />}
               <Text size="5">
                 {typeof currentHp === 'number' && typeof maxHp === 'number'
