@@ -5,7 +5,7 @@ export const fetchCache = 'force-no-store';
 import Footer from '@/components/footer';
 import { UserCard } from '@/components/UserCard';
 import { getPost, getRandomUser } from '@/lib/prisma/api';
-import { Box, Card, Container, Heading, ThemePanel } from '@radix-ui/themes';
+import { Box, Card, Container, Flex, Heading, ThemePanel, Text } from '@radix-ui/themes';
 import { Header } from '@/components/Header';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
@@ -15,6 +15,7 @@ import { CharacterList } from '@/components/character/CharacterList';
 import { getNpcs } from '@/data/npc/getNpcs';
 import { NpcList } from '@/components/npc/NpcList';
 import Illustration from '@/components/svg/lazy-dragon.svg';
+import Link from '@/components/common/Link';
 
 const btoa = (str: string) => Buffer.from(str).toString('base64');
 
@@ -52,13 +53,6 @@ export default async function () {
       <Header />
       <Box>
         <Card>
-          <Heading size="5" mb="4" align="center" style={{ color: 'var(--green-a12)' }}>
-            Welcome to Lazy DnD, pull up a chair and let&apos;s get started!
-          </Heading>
-
-          <Container size="2">
-            <Illustration width="100%" height="auto" style={{ fill: '#010101' }} />
-          </Container>
           {user ? (
             <>
               <CharacterList characters={characters} />
@@ -69,11 +63,27 @@ export default async function () {
               )}
             </>
           ) : (
-            <Box>
-              <Heading size="4">Sign in to manage your characters</Heading>
-              <UserCard />
-            </Box>
+            <Container size="1" mt="6" mb="4">
+              <Heading size="5" mb="4" align="center" style={{ color: 'var(--green-a12)' }}>
+                Welcome to Lazy DnD. <br /> Pull up a chair and let&apos;s get started!
+              </Heading>
+              <Flex gap="2" justify="center" align="center">
+                <Link href="/handler/sign-in" size="3">
+                  Log In
+                </Link>
+                <Text size="1" color="gray">
+                  or
+                </Text>
+                <Link href="/handler/sign-up" size="3">
+                  Sign Up
+                </Link>
+              </Flex>
+            </Container>
           )}
+
+          <Container size="2" mt="6" mb="4">
+            <Illustration width="100%" height="auto" style={{ fill: '#010101' }} />
+          </Container>
         </Card>
       </Box>
     </>

@@ -4,7 +4,7 @@ import Link from './common/Link';
 import { QuickActions } from './QuickActions';
 import SiteLogo from '@/components/svg/lazy-dnd-icon.svg';
 
-export const Header = () => {
+export const Header = ({ showUserCard = true }) => {
   return (
     <header>
       <Grid align="center" columns={{ initial: '1', md: 'auto 1fr' }} pb="2">
@@ -21,10 +21,12 @@ export const Header = () => {
             </Heading>
           </Flex>
         </Link>
-        <Flex justify={{ initial: 'between', md: 'end' }} gap="2" align="start">
-          <QuickActions isDm={true} />
-          <UserCard />
-        </Flex>
+        {showUserCard && (
+          <Flex justify={{ initial: 'between', md: 'end' }} gap="2" align="start">
+            <QuickActions isDm={true} />
+            <UserCard />
+          </Flex>
+        )}
       </Grid>
     </header>
   );
