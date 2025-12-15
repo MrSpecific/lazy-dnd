@@ -52,12 +52,12 @@ export default async function () {
       <Header />
       <Box>
         <Card>
-          <Heading size="5" mb="4" align="center">
-            Welcome to Lazy DnD
+          <Heading size="5" mb="4" align="center" style={{ color: 'var(--green-a12)' }}>
+            Welcome to Lazy DnD, pull up a chair and let&apos;s get started!
           </Heading>
 
           <Container size="2">
-            <Illustration width="100%" height="auto" />
+            <Illustration width="100%" height="auto" style={{ fill: '#010101' }} />
           </Container>
           {user ? (
             <>

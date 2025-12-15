@@ -8,12 +8,14 @@ export const Header = () => {
   return (
     <header>
       <Grid align="center" columns="auto 1fr" pb="2">
-        <Flex align="center" gap="2">
-          <SiteLogo width={40} height={40} />
-          <Heading>
-            <Link href="/">Lazy DnD</Link>
-          </Heading>
-        </Flex>
+        <Link href="/">
+          <Flex align="center" gap="2">
+            <SiteLogo width={40} height={40} style={{ fill: 'var(--green-a12)' }} />
+            <Heading weight="bold" style={{ fontWeight: 800 }}>
+              Lazy DnD
+            </Heading>
+          </Flex>
+        </Link>
         <Flex justify="end" gap="2" align="start">
           <QuickActions isDm={true} />
           <UserCard />
