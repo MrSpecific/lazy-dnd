@@ -5,7 +5,7 @@ import { Card, Grid, Box, Text } from '@radix-ui/themes';
 export const Footer = () => {
   return (
     <footer>
-      <Card>
+      <Card mt="4">
         <Grid columns={{ initial: '1', md: '3' }} gap="4" p="4" justify="between" align="center">
           <Text as="div" align={{ initial: 'center', md: 'left' }} size="1" color="gray">
             &copy; {new Date().getFullYear()} Lazy DnD. All rights reserved.
