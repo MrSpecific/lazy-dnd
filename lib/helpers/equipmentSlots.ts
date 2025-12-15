@@ -70,22 +70,21 @@ export const slotMeta: { [key in EquipmentSlot]: SlotMeta } = {
   },
   OTHER: {
     label: 'Other',
-    description: 'Items that do not fit into other categories.',
-    forWeapons: false,
-    forArmor: false,
+    description: 'Slots that do not fit into other categories.',
+    forWeapons: true,
+    forArmor: true,
   },
 };
 
-export const slotOptions: { value: EquipmentSlot; label: string }[] = [
-  { value: 'HEAD', label: 'Head' },
-  { value: 'NECK', label: 'Neck' },
-  { value: 'CHEST', label: 'Chest' },
-  { value: 'HANDS', label: 'Hands' },
-  { value: 'FINGER', label: 'Finger' },
-  { value: 'MAIN_HAND', label: 'Main hand' },
-  { value: 'OFF_HAND', label: 'Off hand' },
-  { value: 'TWO_HANDED', label: 'Two handed' },
-  { value: 'FEET', label: 'Feet' },
-  { value: 'BACK', label: 'Back' },
-  { value: 'OTHER', label: 'Other' },
-];
+export const slotOptions = Object.keys(slotMeta).map((slot) => ({
+  value: slot as EquipmentSlot,
+  label: slotMeta[slot as EquipmentSlot].label,
+}));
+
+export const weaponSlotOptions = slotOptions.filter((option) => {
+  return slotMeta[option.value].forWeapons;
+});
+
+export const armorSlotOptions = slotOptions.filter((option) => {
+  return slotMeta[option.value].forArmor;
+});

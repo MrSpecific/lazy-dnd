@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { EquipmentSlot } from '@prisma/client';
-import { Button, Dialog, Flex, Select, Text, TextField } from '@radix-ui/themes';
+import { Button, Dialog, Flex, Grid } from '@radix-ui/themes';
 import { Form } from '@/components/form';
-import { slotOptions } from '@/lib/helpers/equipmentSlots';
+import { FormInput } from '@/components/form';
+import { EquipmentSlotSelect } from '@/components/character/EquipmentSlotSelect';
 
 type WeaponFormProps = {
   open?: boolean;
@@ -29,24 +29,25 @@ export const WeaponForm = ({
           Enter details for a weapon to add it to your character.
         </Dialog.Description>
 
-        <Form action={action}>
+        <Form action={action} showActions={false}>
           {characterId && <input type="hidden" name="characterId" value={characterId} />}
-          <Flex gap="2" wrap="wrap" align="center">
-            <TextField.Root name="name" placeholder="Weapon name" required />
-            <TextField.Root name="damage" placeholder="Damage (e.g. 1d8 slashing)" />
-            <TextField.Root name="properties" placeholder="Properties (e.g. finesse, light)" />
-            <TextField.Root name="weight" placeholder="Weight (lbs)" inputMode="decimal" />
-            <Select.Root name="slot" defaultValue="MAIN_HAND">
-              <Select.Trigger />
-              <Select.Content>
-                {slotOptions.map((slot) => (
-                  <Select.Item key={slot.value} value={slot.value}>
-                    {slot.label}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </Flex>
+          <Grid gap="2" columns={{ initial: '1', md: '2' }}>
+            <FormInput name="name" label="Name" placeholder="Weapon name" required />
+            <FormInput name="damage" label="Damage" placeholder="Damage (e.g. 1d8 slashing)" />
+            <FormInput
+              name="properties"
+              label="Properties"
+              placeholder="Properties (e.g. finesse, light)"
+            />
+            <FormInput
+              name="weight"
+              label="Weight"
+              placeholder="Weight (lbs)"
+              inputMode="decimal"
+            />
+            <EquipmentSlotSelect name="slot" defaultValue="MAIN_HAND" slotType="weapons" />
+          </Grid>
+
           <Flex gap="2" mt="3" justify="end">
             <Dialog.Close>
               <Button type="button" variant="soft" color="gray">
