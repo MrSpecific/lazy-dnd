@@ -1,21 +1,17 @@
 export const dynamic = 'force-dynamic';
-
 export const fetchCache = 'force-no-store';
 
-import { Footer } from '../components/Footer';
-import { UserCard } from '@/components/UserCard';
-import { getPost, getRandomUser } from '@/lib/prisma/api';
+import { Footer } from '@/components/Footer';
 import { Box, Card, Container, Flex, Heading, ThemePanel, Text } from '@radix-ui/themes';
 import { Header } from '@/components/Header';
 import { Metadata } from 'next';
-import { Suspense } from 'react';
 import { stackServerApp } from '@/stack/server';
 import { getCharacters } from '@/data/character/getCharacters';
 import { CharacterList } from '@/components/character/CharacterList';
 import { getNpcs } from '@/data/npc/getNpcs';
 import { NpcList } from '@/components/npc/NpcList';
+import { Link } from '@/components/common/Link';
 import Illustration from '@/components/svg/lazy-dragon.svg';
-import Link from '@/components/common/Link';
 
 const btoa = (str: string) => Buffer.from(str).toString('base64');
 

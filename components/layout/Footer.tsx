@@ -1,5 +1,5 @@
 import { GitHub, Linkedin, Twitter } from 'react-feather';
-import { Link } from './common/Link';
+import { Link } from '@/components/common/Link';
 import { Card, Grid, Box, Text } from '@radix-ui/themes';
 
 export const Footer = () => {
