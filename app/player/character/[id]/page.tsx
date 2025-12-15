@@ -47,6 +47,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
   const conScore = con ? con.baseScore + con.bonus + con.temporary : null;
   const level = character.classLevels.reduce((sum, cl) => sum + (cl.level ?? 0), 0) || 1;
   const hitDie = primaryClass?.hitDie ?? 8;
+  const sectionGap: RadixMargin['mt'] = '6';
 
   return (
     <Section pt="0">
@@ -61,7 +62,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
         raceName={character.race?.name ?? null}
       />
 
-      <Grid mt="4" columns={{ initial: '1', md: '2' }} gap="4">
+      <Grid mt={sectionGap} columns={{ initial: '1', md: '2' }} gap="4">
         <HitPoints
           characterId={character.id}
           level={level}
@@ -79,25 +80,25 @@ export default async function CharacterPage({ params }: { params: { id: string }
         />
       </Grid>
 
-      <Box mt="4">
+      <Box mt={sectionGap}>
         <AbilityTable characterId={character.id} abilities={abilities} />
       </Box>
 
       {/* Weapons */}
-      <Box mt="4">
+      <Box mt={sectionGap}>
         <WeaponSection characterId={character.id} initialWeapons={weapons} catalog={catalog} />
       </Box>
 
       {/* Armor */}
-      <Box mt="4">
+      <Box mt={sectionGap}>
         <ArmorSection characterId={character.id} initialArmor={armor} catalog={armorCatalog} />
       </Box>
 
       {/* Spells */}
-      <Box mt="4"></Box>
+      <Box mt={sectionGap}></Box>
 
       {/* Items */}
-      <Box mt="4"></Box>
+      <Box mt={sectionGap}></Box>
     </Section>
   );
 }

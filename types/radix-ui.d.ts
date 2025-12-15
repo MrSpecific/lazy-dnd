@@ -31,4 +31,6 @@ declare global {
   type RadixInputProps = InputProps;
   type RadixInputSize = InputProps['size'];
   type RadixTextSize = TextProps['size'];
+
+  type RadixMargin = RadixBoxMargin;
 }
