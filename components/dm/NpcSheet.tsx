@@ -10,6 +10,7 @@ import { GenderSelect } from '@/components/character/GenderSelect';
 import { AlignmentSelect } from '@/components/character/AlignmentSelect';
 import { Form, FormInput } from '@/components/form';
 import { updateNpc, type UpdateNpcState, type NpcResponse } from '@/data/npc/updateNpc';
+import { CharacterNameInput, type Hints as NameHints } from '@/components/character/CharacterNameInput';
 
 type NpcSheetProps = {
   npc: NpcResponse;
@@ -86,6 +87,10 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
   };
 
   const statBlock = view.statBlock;
+  const nameHints: NameHints = [
+    ...(className ? [{ hint: 'Class', value: className }] : []),
+    ...(raceName ? [{ hint: 'Race', value: raceName }] : []),
+  ];
 
   return (
     <Card>
@@ -134,11 +139,12 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
       ) : (
         <Form action={formAction} submitText={pending ? 'Saving…' : 'Save'} submitDisabled={pending}>
           <input type="hidden" name="npcId" value={npc.id} />
-          <FormInput
+          <CharacterNameInput
             name="name"
             label="Name"
             value={draft.name}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setDraft({ ...draft, name: e.target.value })}
+            onValueChange={(val) => setDraft({ ...draft, name: val })}
+            hints={nameHints}
             required
           />
           <FormInput

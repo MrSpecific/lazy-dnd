@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { Box, Heading, Section, Text } from '@radix-ui/themes';
+import { Box, Grid, Heading, Section, Text } from '@radix-ui/themes';
 import { AbilityTable } from '@/components/character/AbilityTable';
 import { WeaponSection } from '@/components/character/WeaponSection';
 import { getCharacterAbilities } from '@/data/character/abilities';
@@ -9,6 +9,7 @@ import { stackServerApp } from '@/stack/server';
 import { CharacterInfoEditor } from '@/components/character/CharacterInfoEditor';
 import { HitPoints } from '@/components/character/HitPoints';
 import { Gender } from '@prisma/client';
+import { ArmorClass } from '@/components/character/ArmorClass';
 
 export default async function CharacterPage({ params }: { params: { id: string } }) {
   const user = await stackServerApp.getUser({ or: 'redirect' });
@@ -56,7 +57,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
         raceName={character.race?.name ?? null}
       />
 
-      <Box mt="4">
+      <Grid mt="4" columns={{ initial: '1', md: '2' }} gap="4">
         <HitPoints
           characterId={character.id}
           level={level}
@@ -67,7 +68,12 @@ export default async function CharacterPage({ params }: { params: { id: string }
           initialCurrentHp={character.currentHp}
           initialTempHp={character.tempHp}
         />
-      </Box>
+        <ArmorClass
+          characterId={character.id}
+          initialArmorClass={character.armorClass}
+          initialSpeed={character.speed}
+        />
+      </Grid>
 
       <Box mt="4">
         <AbilityTable characterId={character.id} abilities={abilities} />

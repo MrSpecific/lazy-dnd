@@ -43,8 +43,10 @@ export const CharacterCard = ({ character, detail = 'low' }: CharacterCardProps)
             <Flex gap="2" align="center" wrap="wrap" mt="1">
               {vitals.map((v, index) => (
                 <>
-                  <Vital key={v.label} label={v.label} value={v.value} />
-                  {index < vitals.length - 1 && <span key={`separator-${v.label}`}> • </span>}
+                  <Vital key={`${character.id}-${v.label}`} label={v.label} value={v.value} />
+                  {index < vitals.length - 1 && (
+                    <span key={`separator-${character.id}-${v.label}`}> • </span>
+                  )}
                 </>
               ))}
             </Flex>

@@ -152,6 +152,7 @@ export const HitPoints = ({
             {conMod != null ? ` • CON mod ${conMod >= 0 ? `+${conMod}` : conMod}` : ''}
           </Text>
         </Box>
+
         <Flex gap="2">
           {editing && (
             <>
@@ -173,6 +174,7 @@ export const HitPoints = ({
               </Button>
             </>
           )}
+
           <Button
             variant="surface"
             size="1"
@@ -272,47 +274,48 @@ export const HitPoints = ({
         </>
       ) : (
         <>
-          <Grid columns={{ initial: '1', sm: '2' }} gap="3">
+          <StaticStat label="Current HP" value={currentHp} size="3">
+            <Flex gap="1">
+              <Button
+                variant="soft"
+                size={adjustButtonSize}
+                onClick={() => handleAdjustCurrent(-5)}
+                disabled={pending || transitionPending}
+              >
+                -5
+              </Button>
+              <Button
+                variant="soft"
+                size={adjustButtonSize}
+                onClick={() => handleAdjustCurrent(-1)}
+                disabled={pending || transitionPending}
+              >
+                -1
+              </Button>
+              <Button
+                variant="soft"
+                size={adjustButtonSize}
+                onClick={() => handleAdjustCurrent(+1)}
+                disabled={pending || transitionPending}
+                style={{ fontWeight: 'bold' }}
+              >
+                +1
+              </Button>
+              <Button
+                variant="soft"
+                size={adjustButtonSize}
+                onClick={() => handleAdjustCurrent(+5)}
+                disabled={pending || transitionPending}
+                style={{ fontWeight: 'bold' }}
+              >
+                +5
+              </Button>
+            </Flex>
+          </StaticStat>
+
+          <Grid columns={{ initial: '3', sm: '3' }} gap="3" mt="4">
             <StaticStat label="Base HP" value={baseHp} />
             <StaticStat label="Max HP" value={maxHp} />
-            <StaticStat label="Current HP" value={currentHp}>
-              <Flex gap="1">
-                <Button
-                  variant="soft"
-                  size={adjustButtonSize}
-                  onClick={() => handleAdjustCurrent(-5)}
-                  disabled={pending || transitionPending}
-                >
-                  -5
-                </Button>
-                <Button
-                  variant="soft"
-                  size={adjustButtonSize}
-                  onClick={() => handleAdjustCurrent(-1)}
-                  disabled={pending || transitionPending}
-                >
-                  -1
-                </Button>
-                <Button
-                  variant="soft"
-                  size={adjustButtonSize}
-                  onClick={() => handleAdjustCurrent(+1)}
-                  disabled={pending || transitionPending}
-                  style={{ fontWeight: 'bold' }}
-                >
-                  +1
-                </Button>
-                <Button
-                  variant="soft"
-                  size={adjustButtonSize}
-                  onClick={() => handleAdjustCurrent(+5)}
-                  disabled={pending || transitionPending}
-                  style={{ fontWeight: 'bold' }}
-                >
-                  +5
-                </Button>
-              </Flex>
-            </StaticStat>
             <StaticStat label="Temp HP" value={tempHp} />
           </Grid>
 
@@ -336,10 +339,12 @@ export const HitPoints = ({
               </Button>
             </Flex>
             <Badge color={hpBadgeColor} size="3" variant="soft">
-              {typeof currentHp === 'number' && typeof maxHp === 'number'
-                ? `${currentHp} / ${maxHp} HP`
-                : 'HP pending'}
-              {typeof tempHp === 'number' && tempHp > 0 ? ` (+${tempHp} temp)` : ''}
+              <Text size="5">
+                {typeof currentHp === 'number' && typeof maxHp === 'number'
+                  ? `${currentHp} / ${maxHp} HP`
+                  : 'HP pending'}
+                {typeof tempHp === 'number' && tempHp > 0 ? ` (+${tempHp} temp)` : ''}
+              </Text>
             </Badge>
           </Flex>
         </>
@@ -390,17 +395,23 @@ const StatField = ({
 const StaticStat = ({
   label,
   value,
+  size = '2',
   children,
 }: {
   label: string;
   value: number | '';
+  size?: RadixTextSize;
   children?: React.ReactNode;
 }) => {
   return (
     <Box>
-      <Text weight="bold">{label}</Text>
-      <Flex gap="2" align="center" mt="1">
-        <TextField.Root value={value === '' ? '—' : value} readOnly />
+      <Text size={size} color="gray">
+        {label}
+      </Text>
+      <Flex gap="4" align="center" mt="1">
+        <Text weight="bold" size="7">
+          {value === '' ? '—' : value}
+        </Text>
         {children}
       </Flex>
     </Box>
