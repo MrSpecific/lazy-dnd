@@ -1,8 +1,9 @@
 'use client';
 
+import { useMemo } from 'react';
 import { EquipmentSlot } from '@prisma/client';
 import { Badge, Button, Flex, Table, Text } from '@radix-ui/themes';
-import { useMemo } from 'react';
+import { WeaponEditDialog } from '@/components/character/WeaponEditDialog';
 
 export type WeaponRow = {
   id: string;
@@ -11,16 +12,23 @@ export type WeaponRow = {
   weight: number | null;
   slot: EquipmentSlot | null;
   equipped: boolean;
+  customName?: string | null;
+  customDescription?: string | null;
+  notes?: string | null;
+  condition?: string | null;
 };
 
 type WeaponTableProps = {
   weapons: WeaponRow[];
-  onEdit?: () => void;
+  onEdit?: (id: string) => void;
 };
 
 export const WeaponTable = ({ weapons, onEdit }: WeaponTableProps) => {
   const hasWeapons = weapons.length > 0;
-  const sorted = useMemo(() => [...weapons].sort((a, b) => a.name.localeCompare(b.name)), [weapons]);
+  const sorted = useMemo(
+    () => [...weapons].sort((a, b) => a.name.localeCompare(b.name)),
+    [weapons]
+  );
 
   return (
     <Table.Root variant="surface">
@@ -49,13 +57,11 @@ export const WeaponTable = ({ weapons, onEdit }: WeaponTableProps) => {
                   {weapon.equipped ? 'Equipped' : 'Stowed'}
                 </Badge>
               </Table.Cell>
-              {onEdit && (
-                <Table.Cell align="center">
-                  <Button variant="surface" size="1" onClick={onEdit}>
-                    Manage
-                  </Button>
-                </Table.Cell>
-              )}
+              <Table.Cell align="center">
+                <Button variant="surface" size="1" onClick={() => onEdit?.(weapon.id)}>
+                  Edit
+                </Button>
+              </Table.Cell>
             </Table.Row>
           ))
         ) : (

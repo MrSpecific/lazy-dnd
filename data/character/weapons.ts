@@ -11,6 +11,10 @@ export type WeaponEntry = {
   weight: number | null;
   slot: EquipmentSlot | null;
   equipped: boolean;
+  customName?: string | null;
+  customDescription?: string | null;
+  notes?: string | null;
+  condition?: string | null;
 };
 
 export type WeaponCatalogItem = Item;
@@ -18,6 +22,11 @@ export type WeaponCatalogItem = Item;
 export type AddWeaponState =
   | { status: 'idle'; message?: string }
   | { status: 'success'; message?: string; weapon: WeaponEntry }
+  | { status: 'error'; message: string };
+
+export type UpdateWeaponState =
+  | { status: 'idle'; message?: string }
+  | { status: 'success'; weapon: WeaponEntry }
   | { status: 'error'; message: string };
 
 const ensureCharacterAccess = async (characterId: string, userId: string) => {
@@ -45,11 +54,15 @@ export async function getCharacterWeapons(characterId: string): Promise<WeaponEn
 
   return items.map((ci) => ({
     id: ci.id,
-    name: ci.item.name,
-    description: ci.item.description,
+    name: ci.customName ?? ci.item.name,
+    description: ci.customDescription ?? ci.item.description,
     weight: ci.item.weight,
     slot: ci.slot,
     equipped: ci.equipped,
+    customName: ci.customName,
+    customDescription: ci.customDescription,
+    notes: ci.notes,
+    condition: ci.condition,
   }));
 }
 
@@ -216,6 +229,73 @@ export async function addExistingWeapon(
   } catch (error) {
     console.error('failed to attach weapon', error);
     const message = error instanceof Error ? error.message : 'Failed to add weapon.';
+    return { status: 'error', message };
+  }
+}
+
+export async function updateWeapon(
+  _prev: UpdateWeaponState,
+  formData: FormData
+): Promise<UpdateWeaponState> {
+  try {
+    const user = await stackServerApp.getUser();
+    if (!user) return { status: 'error', message: 'Unauthorized' };
+
+    const characterItemId = formData.get('characterItemId');
+    if (!characterItemId || typeof characterItemId !== 'string') {
+      return { status: 'error', message: 'Character item id is required.' };
+    }
+
+    const equipped = formData.get('equipped') === 'true';
+    const slotRaw = formData.get('slot');
+    const slot =
+      typeof slotRaw === 'string' && ['MAIN_HAND', 'OFF_HAND', 'TWO_HANDED'].includes(slotRaw)
+        ? (slotRaw as EquipmentSlot)
+        : null;
+    const customName = (formData.get('customName') as string | null)?.trim() || null;
+    const customDescription = (formData.get('customDescription') as string | null)?.trim() || null;
+    const notes = (formData.get('notes') as string | null)?.trim() || null;
+    const condition = (formData.get('condition') as string | null)?.trim() || null;
+
+    const existing = await prisma.characterItem.findUnique({
+      where: { id: characterItemId },
+      include: { character: true, item: true },
+    });
+    if (!existing || existing.character.userId !== user.id) {
+      return { status: 'error', message: 'Weapon not found.' };
+    }
+
+    const updated = await prisma.characterItem.update({
+      where: { id: characterItemId },
+      data: {
+        equipped,
+        slot,
+        customName,
+        customDescription,
+        notes,
+        condition,
+      },
+      include: { item: true },
+    });
+
+    return {
+      status: 'success',
+      weapon: {
+        id: updated.id,
+        name: updated.customName ?? updated.item.name,
+        description: updated.customDescription ?? updated.item.description,
+        weight: updated.item.weight,
+        slot: updated.slot,
+        equipped: updated.equipped,
+        customName: updated.customName,
+        customDescription: updated.customDescription,
+        notes: updated.notes,
+        condition: updated.condition,
+      },
+    };
+  } catch (error) {
+    console.error('failed to update weapon', error);
+    const message = error instanceof Error ? error.message : 'Failed to update weapon.';
     return { status: 'error', message };
   }
 }

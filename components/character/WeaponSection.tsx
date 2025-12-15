@@ -12,6 +12,7 @@ import {
   type AddWeaponState,
   type WeaponCatalogItem,
 } from '@/data/character/weapons';
+import { WeaponEditDialog } from '@/components/character/WeaponEditDialog';
 
 type WeaponSectionProps = {
   characterId: string;
@@ -34,6 +35,7 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
   const [localError, setLocalError] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [addFormOpen, setAddFormOpen] = useState(false);
+  const [editWeapon, setEditWeapon] = useState<WeaponRow | null>(null);
 
   useEffect(() => {
     if (state.status === 'success' && state.weapon) {
@@ -79,7 +81,13 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
         )}
       </Flex>
 
-      <WeaponTable weapons={weaponsSorted} onEdit={() => setEditing(true)} />
+      <WeaponTable
+        weapons={weaponsSorted}
+        onEdit={(id) => {
+          const found = weapons.find((w) => w.id === id) ?? null;
+          setEditWeapon(found);
+        }}
+      />
 
       <WeaponForm
         open={addFormOpen}
@@ -87,6 +95,17 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
         pending={pending}
         action={formAction}
         characterId={characterId}
+      />
+
+      <WeaponEditDialog
+        open={!!editWeapon}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setEditWeapon(null);
+        }}
+        weapon={editWeapon}
+        onUpdated={(weapon) => {
+          setWeapons((prev) => prev.map((w) => (w.id === weapon.id ? weapon : w)));
+        }}
       />
 
       <WeaponPickerDialog
