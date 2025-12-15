@@ -21,14 +21,27 @@ type GeneratedNpc = {
   [key: string]: unknown;
 };
 
-export const QuickNpcDialog = () => {
+export const QuickNpcDialog = ({
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  showTrigger = true,
+}: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
+}) => {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const resolvedOpen = controlledOpen ?? internalOpen;
+  const handleOpenChange = (isOpen: boolean) => {
+    if (controlledOnOpenChange) controlledOnOpenChange(isOpen);
+    if (controlledOpen === undefined) setInternalOpen(isOpen);
+  };
   useSaveShortcut({ formRef, saveShortcut: true, saveOnEnter: true, saveOnCmdEnter: true });
 
   const generateNpc = async () => {
@@ -48,7 +61,7 @@ export const QuickNpcDialog = () => {
       if (!data.id) {
         throw new Error('Failed to save NPC.');
       }
-      setOpen(false);
+      handleOpenChange(false);
       router.push(`/dm/npc/${data.id}`);
     } catch (err) {
       console.error(err);
@@ -59,12 +72,14 @@ export const QuickNpcDialog = () => {
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger>
-        <Button variant="soft" size="2">
-          Quick NPC
-        </Button>
-      </Dialog.Trigger>
+    <Dialog.Root open={resolvedOpen} onOpenChange={handleOpenChange}>
+      {showTrigger && (
+        <Dialog.Trigger>
+          <Button variant="soft" size="2">
+            Quick NPC
+          </Button>
+        </Dialog.Trigger>
+      )}
       <Dialog.Content maxWidth="640px">
         <Dialog.Title>Generate a quick NPC</Dialog.Title>
         <Dialog.Description size="2" mb="3">
