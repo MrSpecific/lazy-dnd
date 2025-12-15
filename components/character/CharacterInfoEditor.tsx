@@ -8,7 +8,8 @@ import { RaceSelect } from '@/components/character/RaceSelect';
 import { AlignmentSelect } from '@/components/character/AlignmentSelect';
 import { GenderSelect } from '@/components/character/GenderSelect';
 import { updateCharacter, type UpdateCharacterState } from '@/data/character/updateCharacter';
-import { getAlignmentMeta } from '@/lib/alignment';
+import { getAlignmentMeta } from '@/lib/helpers/alignment';
+import { getGenderMeta } from '@/lib/helpers/gender';
 
 type CharacterInfoEditorProps = {
   characterId: string;
@@ -50,6 +51,7 @@ export const CharacterInfoEditor = ({
   }, [state]);
 
   const alignmentDisplay = getAlignmentMeta(localAlignment || null);
+  const genderDisplay = getGenderMeta(localGender || null);
 
   return (
     <Card>
@@ -68,7 +70,14 @@ export const CharacterInfoEditor = ({
       {!editing ? (
         <Box>
           <Text as="div" size="2" color="gray">
-            Gender: {localGender || 'Unspecified'}
+            Gender:{' '}
+            {genderDisplay ? (
+              <Text weight="bold" color={genderDisplay.color}>
+                {genderDisplay.label}
+              </Text>
+            ) : (
+              'Unspecified'
+            )}
           </Text>
           <Text as="div" size="2" color="gray">
             Alignment:&nbsp;

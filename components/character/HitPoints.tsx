@@ -88,6 +88,8 @@ export const HitPoints = ({
           : 'green'
       : 'gray';
 
+  const adjustButtonSize: RadixButtonSize = '2';
+
   return (
     <Card>
       <Flex justify="between" align="start" mb="3">
@@ -122,18 +124,10 @@ export const HitPoints = ({
         <StatField label="Base HP" value={baseHp} onChange={setBaseHp} pending={pending} />
         <StatField label="Max HP" value={maxHp} onChange={setMaxHp} pending={pending} />
         <StatField label="Current HP" value={currentHp} onChange={setCurrentHp} pending={pending}>
-          <Flex gap="2">
+          <Flex gap="1">
             <Button
               variant="soft"
-              size="1"
-              onClick={() => handleAdjustCurrent(-1)}
-              disabled={pending || transitionPending}
-            >
-              -1
-            </Button>
-            <Button
-              variant="soft"
-              size="1"
+              size={adjustButtonSize}
               onClick={() => handleAdjustCurrent(-5)}
               disabled={pending || transitionPending}
             >
@@ -141,17 +135,27 @@ export const HitPoints = ({
             </Button>
             <Button
               variant="soft"
-              size="1"
+              size={adjustButtonSize}
+              onClick={() => handleAdjustCurrent(-1)}
+              disabled={pending || transitionPending}
+            >
+              -1
+            </Button>
+            <Button
+              variant="soft"
+              size={adjustButtonSize}
               onClick={() => handleAdjustCurrent(+1)}
               disabled={pending || transitionPending}
+              style={{ fontWeight: 'bold' }}
             >
               +1
             </Button>
             <Button
               variant="soft"
-              size="1"
+              size={adjustButtonSize}
               onClick={() => handleAdjustCurrent(+5)}
               disabled={pending || transitionPending}
+              style={{ fontWeight: 'bold' }}
             >
               +5
             </Button>

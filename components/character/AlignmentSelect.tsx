@@ -5,7 +5,7 @@ import { Form } from 'radix-ui';
 import { Flex, Select } from '@radix-ui/themes';
 import { Alignment } from '@prisma/client';
 import { InputLabel } from '@/components/form/InputLabel';
-import { alignmentMeta } from '@/lib/alignment';
+import { alignmentMeta } from '@/lib/helpers/alignment';
 import { RandomButton } from '@/components/common/RandomButton';
 
 type AlignmentSelectProps = {

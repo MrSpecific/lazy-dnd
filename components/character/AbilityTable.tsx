@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useMemo, useState } from 'react';
 import { AbilityType } from '@prisma/client';
 import { Badge, Button, Flex, Switch, Table, Text, TextField } from '@radix-ui/themes';
-import { abilityLabel, ABILITY_TYPES } from '@/lib/abilities';
+import { abilityLabel, ABILITY_TYPES } from '@/lib/helpers/abilities';
 import { saveCharacterAbilities, type SaveAbilitiesState } from '@/data/character/abilities';
 import { RandomButton } from '@/components/common/RandomButton';
 
@@ -27,7 +27,7 @@ const POINT_BUY_MAX = 15;
 export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
   const hasExistingScores = useMemo(
     () => abilities.some((row) => row.baseScore !== 8 || row.bonus !== 0 || row.temporary !== 0),
-    [abilities],
+    [abilities]
   );
   const initialScores = useMemo(() => {
     const map: Record<AbilityType, number> = {
@@ -105,7 +105,9 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
     if (restricted) {
       const nextCost = ABILITY_TYPES.reduce((sum, a) => sum + pointBuyCost(next[a] ?? 8), 0);
       if (nextCost > POINT_BUY_BUDGET) {
-        setRestrictionMessage('Rolled values exceed point buy budget (27). Try again or switch to unrestricted.');
+        setRestrictionMessage(
+          'Rolled values exceed point buy budget (27). Try again or switch to unrestricted.'
+        );
         return;
       }
     }
@@ -206,7 +208,10 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
           </Button>
         </Flex>
         {restricted ? (
-          <Badge color={remainingPoints !== null && remainingPoints >= 0 ? 'green' : 'red'} size="2">
+          <Badge
+            color={remainingPoints !== null && remainingPoints >= 0 ? 'green' : 'red'}
+            size="2"
+          >
             Point Buy: {remainingPoints} / {POINT_BUY_BUDGET} remaining
           </Badge>
         ) : (
@@ -298,7 +303,12 @@ export const AbilityTable = ({ characterId, abilities }: AbilityTableProps) => {
                   </Badge>
                 </Table.Cell>
                 <Table.Cell align="center">
-                  <RandomButton onClick={() => rollSingle(ability)} size="1" variant="soft" label="Roll" />
+                  <RandomButton
+                    onClick={() => rollSingle(ability)}
+                    size="1"
+                    variant="soft"
+                    label="Roll"
+                  />
                 </Table.Cell>
               </Table.Row>
             );

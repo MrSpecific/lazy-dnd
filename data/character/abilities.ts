@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { stackServerApp } from '@/stack/server';
 import { AbilityType } from '@prisma/client';
-import { ABILITY_TYPES } from '@/lib/abilities';
+import { ABILITY_TYPES } from '@/lib/helpers/abilities';
 
 export type CharacterAbilityRow = {
   ability: AbilityType;
@@ -46,7 +46,7 @@ export async function getCharacterAbilities(characterId: string) {
         bonus: 0,
         temporary: 0,
       },
-    ]),
+    ])
   ) as Record<AbilityType, CharacterAbilityRow>;
 
   abilities.forEach((ability) => {
@@ -63,7 +63,7 @@ export async function getCharacterAbilities(characterId: string) {
 
 export async function saveCharacterAbilities(
   _prev: SaveAbilitiesState,
-  formData: FormData,
+  formData: FormData
 ): Promise<SaveAbilitiesState> {
   try {
     const user = await stackServerApp.getUser();
@@ -119,8 +119,8 @@ export async function saveCharacterAbilities(
             update: {
               baseScore: row.baseScore,
             },
-          }),
-        ),
+          })
+        )
       );
     });
 

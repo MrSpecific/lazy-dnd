@@ -1,5 +1,3 @@
-'use client';
-
 import { Alignment } from '@prisma/client';
 
 export type AlignmentKey = Alignment;
