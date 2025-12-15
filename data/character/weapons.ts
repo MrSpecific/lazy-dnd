@@ -54,9 +54,9 @@ export async function getCharacterWeapons(characterId: string): Promise<WeaponEn
 
   return items.map((ci) => ({
     id: ci.id,
-    name: ci.customName ?? ci.item.name,
-    description: ci.customDescription ?? ci.item.description,
-    weight: ci.item.weight,
+    name: ci.customName ?? ci.item?.name ?? 'Weapon Name',
+    description: ci.customDescription ?? ci.item?.description ?? 'No description.',
+    weight: ci.item?.weight ?? null,
     slot: ci.slot,
     equipped: ci.equipped,
     customName: ci.customName,
@@ -261,6 +261,7 @@ export async function updateWeapon(
       where: { id: characterItemId },
       include: { character: true, item: true },
     });
+
     if (!existing || existing.character.userId !== user.id) {
       return { status: 'error', message: 'Weapon not found.' };
     }
@@ -278,13 +279,23 @@ export async function updateWeapon(
       include: { item: true },
     });
 
+    if (!updated.customName && !updated.item?.name) {
+      // If no customizations remain, clear them to revert to base item
+      throw new Error('Name or custom name required');
+    }
+
+    if (!updated.customDescription && !updated.item?.description) {
+      // If no customizations remain, clear them to revert to base item
+      throw new Error('Description or custom description required');
+    }
+
     return {
       status: 'success',
       weapon: {
         id: updated.id,
-        name: updated.customName ?? updated.item.name,
-        description: updated.customDescription ?? updated.item.description,
-        weight: updated.item.weight,
+        name: updated.customName ?? updated.item?.name ?? 'Weapon Name',
+        description: updated.customDescription ?? updated.item?.description ?? 'No description.',
+        weight: updated.item?.weight ?? null,
         slot: updated.slot,
         equipped: updated.equipped,
         customName: updated.customName,

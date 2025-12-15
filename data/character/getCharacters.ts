@@ -52,7 +52,9 @@ export async function getCharacters(): Promise<CharacterSummary[]> {
       {} as Partial<Record<AbilityType, number>>
     );
 
-    const weapons = c.inventory.filter((ci) => ci.item.type === 'WEAPON').map((ci) => ci.item.name);
+    const weapons = c.inventory
+      .filter((ci) => ci.item?.type === 'WEAPON')
+      .map((ci) => ci.item?.name ?? 'Weapon Name');
 
     const spells = c.spells.map((cs) => cs.spell.name);
 

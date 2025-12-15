@@ -3,6 +3,7 @@ import { UserCard } from '@/components/UserCard';
 import { Link } from '@/components/common/Link';
 import { QuickActions } from '@/components/QuickActions';
 import SiteLogo from '@/components/svg/lazy-dnd-icon.svg';
+import { RefreshButton } from '../RefreshButton';
 
 export const Header = ({ showUserCard = true }) => {
   return (
@@ -23,6 +24,7 @@ export const Header = ({ showUserCard = true }) => {
         </Link>
         {showUserCard && (
           <Flex justify={{ initial: 'between', md: 'end' }} gap="2" align="start">
+            <RefreshButton />
             <QuickActions isDm={true} />
             <UserCard />
           </Flex>

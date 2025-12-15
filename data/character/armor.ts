@@ -45,19 +45,22 @@ export async function getCharacterArmor(characterId: string): Promise<ArmorEntry
   await ensureCharacterAccess(characterId, user.id);
 
   const items = await prisma.characterItem.findMany({
-    where: { characterId, slot: { in: ['HEAD', 'CHEST', 'HANDS', 'FEET', 'BACK', 'NECK', 'FINGER', 'OTHER'] } },
+    where: {
+      characterId,
+      slot: { in: ['HEAD', 'CHEST', 'HANDS', 'FEET', 'BACK', 'NECK', 'FINGER', 'OTHER'] },
+    },
     include: { item: true },
     orderBy: { item: { name: 'asc' } },
   });
 
   return items.map((ci) => ({
     id: ci.id,
-    name: ci.item.name,
-    description: ci.item.description,
-    weight: ci.item.weight,
+    name: ci.customName ?? ci.item?.name ?? 'Armor Name',
+    description: ci.customDescription ?? ci.item?.description ?? 'No description.',
+    weight: ci.item?.weight ?? null,
     slot: ci.slot,
     equipped: ci.equipped,
-    armorClass: ci.item.armorClass ?? null,
+    armorClass: ci.item?.armorClass ?? null,
   }));
 }
 
@@ -82,7 +85,7 @@ export async function getArmorCatalog(): Promise<ArmorCatalogItem[]> {
 
 export async function addExistingArmor(
   _prev: AddArmorState,
-  formData: FormData,
+  formData: FormData
 ): Promise<AddArmorState> {
   try {
     const user = await stackServerApp.getUser();
@@ -104,8 +107,7 @@ export async function addExistingArmor(
     const item = await prisma.item.findUnique({ where: { id: itemId } });
     if (!item) return { status: 'error', message: 'Armor not found.' };
 
-    const slotValue =
-      typeof slot === 'string' && slot ? (slot as EquipmentSlot) : null;
+    const slotValue = typeof slot === 'string' && slot ? (slot as EquipmentSlot) : null;
 
     const characterItem = await prisma.characterItem.create({
       data: {
