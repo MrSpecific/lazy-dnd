@@ -29,11 +29,11 @@ export const UserCard = () => {
 
   return (
     <Card>
-      <Flex gap="2" align="center" mb="1">
+      <Flex gap="2" align="center">
         <UserAvatar user={user} />
         <Box>
-          {user.displayName ?? 'anon'}
-          <Flex gap="2" justify="end">
+          <Box display={{ initial: 'none', md: 'block' }}>{user.displayName ?? 'anon'}</Box>
+          <Flex gap="2" justify="end" direction={{ initial: 'column-reverse', md: 'row' }}>
             <Link href="/handler/account-settings" size="1">
               Settings
             </Link>
