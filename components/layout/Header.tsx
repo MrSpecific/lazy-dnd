@@ -16,7 +16,7 @@ export const Header = ({ showUserCard = true }) => {
             pb={{ initial: '2', md: '0' }}
           >
             <SiteLogo width={40} height={40} style={{ fill: 'var(--green-a12)' }} />
-            <Heading weight="bold" style={{ fontWeight: 800 }}>
+            <Heading weight="bold" style={{ fontWeight: 800 }} size="6">
               Lazy DnD
             </Heading>
           </Flex>

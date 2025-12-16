@@ -47,7 +47,7 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
       <Flex justify="between" align="center" mb="2">
         <Flex align="center" gap="1">
           <Shield />
-          <Heading size="5">Armor</Heading>
+          <Heading size="6">Armor</Heading>
         </Flex>
         {!editing && (
           <Button variant="surface" size="2" onClick={() => setPickerOpen(true)}>

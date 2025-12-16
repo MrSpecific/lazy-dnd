@@ -4,4 +4,14 @@ button {
 
 .radix-themes {
   --cursor-button: pointer;
+
+  & .rt-Heading {
+    &.rt-r-size-5 {
+      font-family: var(--font-pirata-one);
+    }
+
+    &.rt-r-size-6 {
+      font-family: var(--font-new-rocker);
+    }
+  }
 }
