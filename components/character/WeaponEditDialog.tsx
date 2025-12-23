@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, ChangeEvent } from 'react';
+import { useEffect, useState, ChangeEvent, useTransition } from 'react';
 import { EquipmentSlot } from '@prisma/client';
 import {
   Badge,
@@ -37,6 +37,7 @@ export const WeaponEditDialog = ({
   const [state, formAction, pending] = useActionState<UpdateWeaponState, FormData>(updateWeapon, {
     status: 'idle',
   });
+  const [transitionPending, startTransition] = useTransition();
 
   useEffect(() => {
     setDraft(weapon);
@@ -65,7 +66,7 @@ export const WeaponEditDialog = ({
     fd.set('customDescription', draft.customDescription ?? '');
     fd.set('notes', draft.notes ?? '');
     fd.set('condition', draft.condition ?? '');
-    formAction(fd);
+    startTransition(() => formAction(fd));
   };
 
   return (
@@ -143,8 +144,8 @@ export const WeaponEditDialog = ({
                 Cancel
               </Button>
             </Dialog.Close>
-            <Button onClick={handleSubmit} disabled={pending}>
-              {pending ? 'Saving…' : 'Save'}
+            <Button onClick={handleSubmit} disabled={pending || transitionPending}>
+              {pending || transitionPending ? 'Saving…' : 'Save'}
             </Button>
           </Flex>
         </Form>

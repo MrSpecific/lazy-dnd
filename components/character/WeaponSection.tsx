@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useState } from 'react';
+import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
 import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
 import { BowArrow } from 'lucide-react';
 import { WeaponForm } from '@/components/character/WeaponForm';
@@ -32,6 +32,7 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
       status: 'idle',
     }
   );
+  const [attachTransitionPending, startAttachTransition] = useTransition();
   const [localError, setLocalError] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [addFormOpen, setAddFormOpen] = useState(false);
@@ -111,14 +112,14 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         catalog={catalog}
-        pending={attachPending}
+        pending={attachPending || attachTransitionPending}
         error={localError}
         onAttach={(itemId, slot) => {
           const fd = new FormData();
           fd.append('characterId', characterId);
           fd.append('itemId', itemId);
           if (slot) fd.append('slot', slot);
-          attachAction(fd);
+          startAttachTransition(() => attachAction(fd));
         }}
       />
     </Box>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useState } from 'react';
+import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
 import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
 import { Shield } from 'lucide-react';
 import { ArmorTable, type ArmorRow } from '@/components/character/ArmorTable';
@@ -24,6 +24,7 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
   const [state, attachAction, pending] = useActionState<AddArmorState, FormData>(addExistingArmor, {
     status: 'idle',
   });
+  const [attachTransitionPending, startAttachTransition] = useTransition();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -65,13 +66,13 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
           </Heading>
           <ArmorForm
             characterId={characterId}
-            pending={pending}
+            pending={pending || attachTransitionPending}
             onSubmit={(itemId, slot) => {
               const fd = new FormData();
               fd.append('characterId', characterId);
               fd.append('itemId', itemId);
               if (slot) fd.append('slot', slot);
-              attachAction(fd);
+              startAttachTransition(() => attachAction(fd));
             }}
           />
           {state.status === 'error' && (
@@ -89,14 +90,14 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         catalog={catalog}
-        pending={pending}
+        pending={pending || attachTransitionPending}
         error={localError}
         onAttach={(itemId, slot) => {
           const fd = new FormData();
           fd.append('characterId', characterId);
           fd.append('itemId', itemId);
           if (slot) fd.append('slot', slot);
-          attachAction(fd);
+          startAttachTransition(() => attachAction(fd));
         }}
       />
     </Box>
