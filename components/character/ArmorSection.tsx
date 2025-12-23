@@ -5,9 +5,10 @@ import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
 import { Shield } from 'lucide-react';
 import { ArmorTable, type ArmorRow } from '@/components/character/ArmorTable';
 import { ArmorPickerDialog } from '@/components/character/ArmorPickerDialog';
-import { ArmorForm } from '@/components/character/ArmorForm';
+import { ArmorEditDialog } from '@/components/character/ArmorEditDialog';
 import {
   addExistingArmor,
+  removeArmor,
   type AddArmorState,
   type ArmorCatalogItem,
 } from '@/data/character/armor';
@@ -20,13 +21,15 @@ type ArmorSectionProps = {
 
 export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectionProps) => {
   const [armor, setArmor] = useState<ArmorRow[]>(initialArmor);
-  const [editing, setEditing] = useState(initialArmor.length === 0);
   const [state, attachAction, pending] = useActionState<AddArmorState, FormData>(addExistingArmor, {
     status: 'idle',
   });
   const [attachTransitionPending, startAttachTransition] = useTransition();
+  const [removeTransitionPending, startRemoveTransition] = useTransition();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [editArmor, setEditArmor] = useState<ArmorRow | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.status === 'success' && state.armor) {
@@ -43,6 +46,24 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
     [armor]
   );
 
+  const handleRemove = async (armorId: string) => {
+    setBusyId(armorId);
+    try {
+      const result = await removeArmor({ characterId, armorId });
+      if (result.status === 'error') {
+        setLocalError(result.message);
+      } else {
+        setLocalError(null);
+        setArmor((prev) => prev.filter((item) => item.id !== armorId));
+      }
+    } catch (error) {
+      console.error(error);
+      setLocalError('Failed to remove armor.');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <Box mt="4">
       <Flex justify="between" align="center" mb="2">
@@ -50,47 +71,42 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
           <Shield />
           <Heading size="6">Armor</Heading>
         </Flex>
-        {!editing && (
-          <Button variant="surface" size="2" onClick={() => setPickerOpen(true)}>
-            Pick Armor
-          </Button>
-        )}
+
+        <Button variant="surface" size="2" onClick={() => setPickerOpen(true)}>
+          Pick Armor
+        </Button>
       </Flex>
 
-      <ArmorTable armor={armorSorted} />
+      <ArmorTable
+        armor={armorSorted}
+        onEdit={(id) => {
+          const found = armor.find((item) => item.id === id) ?? null;
+          setEditArmor(found);
+        }}
+        onRemove={(id) => {
+          startRemoveTransition(() => {
+            void handleRemove(id);
+          });
+        }}
+        disableActions={pending || attachTransitionPending || removeTransitionPending || !!busyId}
+      />
 
-      {editing && (
-        <Box mt="3">
-          <Heading size="3" mb="2">
-            Add armor
-          </Heading>
-          <ArmorForm
-            characterId={characterId}
-            pending={pending || attachTransitionPending}
-            onSubmit={(itemId, slot) => {
-              const fd = new FormData();
-              fd.append('characterId', characterId);
-              fd.append('itemId', itemId);
-              if (slot) fd.append('slot', slot);
-              startAttachTransition(() => attachAction(fd));
-            }}
-          />
-          {state.status === 'error' && (
-            <Text color="red" size="2" mt="2">
-              {localError ?? state.message}
-            </Text>
-          )}
-          <Button variant="ghost" mt="2" onClick={() => setEditing(false)}>
-            Close
-          </Button>
-        </Box>
-      )}
+      <ArmorEditDialog
+        open={!!editArmor}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setEditArmor(null);
+        }}
+        armor={editArmor}
+        onUpdated={(updated) => {
+          setArmor((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+        }}
+      />
 
       <ArmorPickerDialog
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         catalog={catalog}
-        pending={pending || attachTransitionPending}
+        pending={pending || attachTransitionPending || removeTransitionPending}
         error={localError}
         onAttach={(itemId, slot) => {
           const fd = new FormData();

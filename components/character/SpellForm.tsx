@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { SpellKnowledgeType, SpellSchool } from '@prisma/client';
 import { Button, Dialog, Flex, Grid, Select, Text, TextArea } from '@radix-ui/themes';
-import { Form, FormInput, FormField } from '@/components/form';
+import { Form, FormInput, FormField, InputLabel } from '@/components/form';
 
 type SpellFormProps = {
   open?: boolean;
@@ -42,7 +42,12 @@ export const SpellForm = ({
               inputMode="numeric"
               defaultValue="0"
             />
-            <SelectField name="school" label="School" options={schoolOptions} defaultValue="EVOCATION" />
+            <SelectField
+              name="school"
+              label="School"
+              options={schoolOptions}
+              defaultValue="EVOCATION"
+            />
             <SelectField
               name="knowledge"
               label="Add as"
@@ -58,7 +63,12 @@ export const SpellForm = ({
           <Text weight="bold" size="2" mt="2">
             Description
           </Text>
-          <TextArea name="description" placeholder="Rules text, scaling, damage, etc." rows={4} mt="1" />
+          <TextArea
+            name="description"
+            placeholder="Rules text, scaling, damage, etc."
+            rows={4}
+            mt="1"
+          />
 
           <Flex gap="2" mt="2">
             <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -100,11 +110,11 @@ const SelectField = ({
 }) => {
   return (
     <FormField name={name}>
-      <Text as="label" size="2">
+      <InputLabel htmlFor={name} style={{ display: 'block' }}>
         {label}
-      </Text>
+      </InputLabel>
       <Select.Root name={name} defaultValue={defaultValue}>
-        <Select.Trigger />
+        <Select.Trigger style={{ width: '100%' }} />
         <Select.Content>
           {options.map((opt) => (
             <Select.Item key={opt} value={opt}>
