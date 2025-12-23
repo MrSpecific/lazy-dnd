@@ -144,8 +144,6 @@ export const SpellSection = ({
         concentration to keep play tidy.
       </Text>
 
-      <SpellSlots characterId={characterId} initialSlots={slots} onUpdated={setSlots} />
-
       <Box mt="4">
         {spellsByLevel.length === 0 ? (
           <Text color="gray" size="2">
@@ -155,9 +153,7 @@ export const SpellSection = ({
           spellsByLevel.map(({ level, spells: rows }) => (
             <Box key={level} mb="4">
               <Flex align="center" gap="2" mb="2">
-                <Heading size="4">
-                  {level === 0 ? 'Cantrips' : `Level ${level} spells`}
-                </Heading>
+                <Heading size="4">{level === 0 ? 'Cantrips' : `Level ${level} spells`}</Heading>
                 <Text color="gray" size="2">
                   {rows.length} {rows.length === 1 ? 'spell' : 'spells'}
                 </Text>
@@ -176,6 +172,8 @@ export const SpellSection = ({
           ))
         )}
       </Box>
+
+      <SpellSlots characterId={characterId} initialSlots={slots} onUpdated={setSlots} />
 
       <SpellForm
         open={addOpen}

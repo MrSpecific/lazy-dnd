@@ -69,12 +69,10 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
   };
 
   const adjustAndSubmit = (level: number, updater: (current: SpellSlotRow) => SpellSlotRow) => {
-    setSlots((prev) => {
-      const current = prev[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
-      const next = updater(current);
-      submitSlot(level, next);
-      return { ...prev, [level]: next };
-    });
+    const current = slots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
+    const next = updater(current);
+    setSlots((prev) => ({ ...prev, [level]: next }));
+    submitSlot(level, next);
   };
 
   const renderRow = (level: number) => {

@@ -69,16 +69,15 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
           <BowArrow size="1.3em" />
           <Heading size="6">Weapons</Heading>
         </Flex>
-        {!editing && (
-          <Flex gap="2">
-            <Button variant="surface" size="2" onClick={() => setPickerOpen(true)}>
-              From Catalog
-            </Button>
-            <Button variant="surface" size="2" onClick={() => setAddFormOpen(true)}>
-              New Weapon
-            </Button>
-          </Flex>
-        )}
+
+        <Flex gap="2">
+          <Button variant="surface" size="2" onClick={() => setPickerOpen(true)}>
+            From Catalog
+          </Button>
+          <Button variant="surface" size="2" onClick={() => setAddFormOpen(true)}>
+            New Weapon
+          </Button>
+        </Flex>
       </Flex>
 
       <WeaponTable
