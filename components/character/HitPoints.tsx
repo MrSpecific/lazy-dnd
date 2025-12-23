@@ -107,7 +107,7 @@ export const HitPoints = ({
     startTransition(() => formAction(form));
   };
 
-  const applyRest = (type: 'short' | 'long') => {
+  const applyRest = (type: 'short' | 'long', hitDiceToSpend?: number) => {
     const maxValue = typeof maxHp === 'number' ? maxHp : null;
     if (!maxValue) return;
 
@@ -116,13 +116,9 @@ export const HitPoints = ({
 
     if (type === 'short') {
       const availableHd = Math.max(level, 1);
-      const toSpendRaw = prompt(
-        `Short Rest: Spend how many hit dice? You can spend up to ${availableHd} (d${hitDie}).`,
-        '1'
-      );
       const toSpend = Math.max(
         0,
-        Math.min(availableHd, Number.isFinite(Number(toSpendRaw)) ? Number(toSpendRaw) : 0)
+        Math.min(availableHd, Number.isFinite(hitDiceToSpend) ? hitDiceToSpend : 0)
       );
       if (toSpend <= 0) return;
 
@@ -144,7 +140,7 @@ export const HitPoints = ({
 
   useEffect(() => {
     if (!restSignal) return;
-    applyRest(restSignal.type);
+    applyRest(restSignal.type, restSignal.hitDice);
   }, [restSignal]);
 
   const submitWithMode = (mode: 'compute' | 'update' | 'reset') => {

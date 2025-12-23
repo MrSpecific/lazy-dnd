@@ -79,7 +79,7 @@ export default async function CharacterPage({ params }: { params: { id: string }
           />
 
           <Box mt={sectionGap}>
-            <CharacterActions />
+            <CharacterActions level={level} hitDie={hitDie} />
           </Box>
 
           <Grid mt={sectionGap} columns={{ initial: '1', md: '2' }} gap="4">

@@ -7,12 +7,13 @@ type RestType = 'short' | 'long';
 type RestSignal = {
   type: RestType;
   id: number;
+  hitDice?: number;
 };
 
 type CharacterContextValue = {
   characterId: string;
   restSignal: RestSignal | null;
-  triggerRest: (type: RestType) => void;
+  triggerRest: (type: RestType, options?: { hitDice?: number }) => void;
   armorUpdateToken: number;
   notifyArmorChanged: () => void;
 };
@@ -29,8 +30,8 @@ export const CharacterProvider = ({
   const [restSignal, setRestSignal] = useState<RestSignal | null>(null);
   const [armorUpdateToken, setArmorUpdateToken] = useState(0);
 
-  const triggerRest = useCallback((type: RestType) => {
-    setRestSignal({ type, id: Date.now() });
+  const triggerRest = useCallback((type: RestType, options?: { hitDice?: number }) => {
+    setRestSignal({ type, id: Date.now(), hitDice: options?.hitDice });
   }, []);
 
   const notifyArmorChanged = useCallback(() => {
