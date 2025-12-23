@@ -30,6 +30,11 @@ export type UpdateWeaponState =
   | { status: 'success'; weapon: WeaponEntry }
   | { status: 'error'; message: string };
 
+export type RemoveWeaponState =
+  | { status: 'idle'; message?: string }
+  | { status: 'success'; weaponId: string }
+  | { status: 'error'; message: string };
+
 const ensureCharacterAccess = async (characterId: string, userId: string) => {
   const character = await prisma.character.findUnique({
     where: { id: characterId },
@@ -314,6 +319,36 @@ export async function updateWeapon(
   } catch (error) {
     console.error('failed to update weapon', error);
     const message = error instanceof Error ? error.message : 'Failed to update weapon.';
+    return { status: 'error', message };
+  }
+}
+
+export async function removeWeapon(params: {
+  characterId: string;
+  weaponId: string;
+}): Promise<RemoveWeaponState> {
+  try {
+    const user = await stackServerApp.getUser();
+    if (!user) return { status: 'error', message: 'Unauthorized' };
+
+    const { characterId, weaponId } = params;
+    await ensureCharacterAccess(characterId, user.id);
+
+    const existing = await prisma.characterItem.findUnique({
+      where: { id: weaponId },
+      select: { id: true, characterId: true },
+    });
+
+    if (!existing || existing.characterId !== characterId) {
+      return { status: 'error', message: 'Weapon not found.' };
+    }
+
+    await prisma.characterItem.delete({ where: { id: weaponId } });
+
+    return { status: 'success', weaponId };
+  } catch (error) {
+    console.error('failed to remove weapon', error);
+    const message = error instanceof Error ? error.message : 'Failed to remove weapon.';
     return { status: 'error', message };
   }
 }

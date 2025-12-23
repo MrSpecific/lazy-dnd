@@ -9,6 +9,7 @@ import { WeaponPickerDialog } from '@/components/character/WeaponPickerDialog';
 import {
   addExistingWeapon,
   addWeapon,
+  removeWeapon,
   type AddWeaponState,
   type WeaponCatalogItem,
 } from '@/data/character/weapons';
@@ -33,10 +34,12 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
     }
   );
   const [attachTransitionPending, startAttachTransition] = useTransition();
+  const [removeTransitionPending, startRemoveTransition] = useTransition();
   const [localError, setLocalError] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [editWeapon, setEditWeapon] = useState<WeaponRow | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.status === 'success' && state.weapon) {
@@ -63,6 +66,24 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
     [weapons]
   );
 
+  const handleRemove = async (weaponId: string) => {
+    setBusyId(weaponId);
+    try {
+      const result = await removeWeapon({ characterId, weaponId });
+      if (result.status === 'error') {
+        setLocalError(result.message);
+      } else {
+        setLocalError(null);
+        setWeapons((prev) => prev.filter((w) => w.id !== weaponId));
+      }
+    } catch (error) {
+      console.error(error);
+      setLocalError('Failed to remove weapon.');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <Box mt="4">
       <Flex justify="between" align="center" mb="2">
@@ -87,6 +108,18 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
           const found = weapons.find((w) => w.id === id) ?? null;
           setEditWeapon(found);
         }}
+        onRemove={(id) => {
+          startRemoveTransition(() => {
+            void handleRemove(id);
+          });
+        }}
+        disableActions={
+          pending ||
+          attachPending ||
+          attachTransitionPending ||
+          removeTransitionPending ||
+          !!busyId
+        }
       />
 
       <WeaponForm
@@ -112,7 +145,7 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         catalog={catalog}
-        pending={attachPending || attachTransitionPending}
+        pending={attachPending || attachTransitionPending || removeTransitionPending}
         error={localError}
         onAttach={(itemId, slot) => {
           const fd = new FormData();

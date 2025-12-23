@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { EquipmentSlot } from '@prisma/client';
-import { Badge, Box, Button, Flex, Table, Text } from '@radix-ui/themes';
+import { AlertDialog, Badge, Box, Button, Flex, Table, Text } from '@radix-ui/themes';
 import { WeaponEditDialog } from '@/components/character/WeaponEditDialog';
 
 export type WeaponRow = {
@@ -22,10 +22,13 @@ export type WeaponRow = {
 type WeaponTableProps = {
   weapons: WeaponRow[];
   onEdit?: (id: string) => void;
+  onRemove?: (id: string) => void;
+  disableActions?: boolean;
 };
 
-export const WeaponTable = ({ weapons, onEdit }: WeaponTableProps) => {
+export const WeaponTable = ({ weapons, onEdit, onRemove, disableActions = false }: WeaponTableProps) => {
   const hasWeapons = weapons.length > 0;
+  const showActions = Boolean(onEdit || onRemove);
   const sorted = useMemo(
     () => [...weapons].sort((a, b) => a.name.localeCompare(b.name)),
     [weapons]
@@ -40,7 +43,7 @@ export const WeaponTable = ({ weapons, onEdit }: WeaponTableProps) => {
           <Table.ColumnHeaderCell align="center">Slot</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell align="center">Weight</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell align="center">Status</Table.ColumnHeaderCell>
-          {onEdit && <Table.ColumnHeaderCell align="center">Edit</Table.ColumnHeaderCell>}
+          {showActions && <Table.ColumnHeaderCell align="center">Actions</Table.ColumnHeaderCell>}
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -69,16 +72,59 @@ export const WeaponTable = ({ weapons, onEdit }: WeaponTableProps) => {
                   {weapon.equipped ? 'Equipped' : 'Stowed'}
                 </Badge>
               </Table.Cell>
-              <Table.Cell align="center">
-                <Button variant="surface" size="1" onClick={() => onEdit?.(weapon.id)}>
-                  Edit
-                </Button>
-              </Table.Cell>
+              {showActions && (
+                <Table.Cell align="center">
+                  <Flex justify="center" gap="2" wrap="wrap">
+                    {onEdit && (
+                      <Button
+                        variant="surface"
+                        size="1"
+                        onClick={() => onEdit?.(weapon.id)}
+                        disabled={disableActions}
+                      >
+                        Edit
+                      </Button>
+                    )}
+                    {onRemove && (
+                      <AlertDialog.Root>
+                        <AlertDialog.Trigger>
+                          <Button type="button" size="1" color="red" variant="soft">
+                            Remove
+                          </Button>
+                        </AlertDialog.Trigger>
+                        <AlertDialog.Content maxWidth="420px">
+                          <AlertDialog.Title>Remove weapon</AlertDialog.Title>
+                          <AlertDialog.Description size="2">
+                            This removes the weapon from the character.
+                          </AlertDialog.Description>
+                          <Flex justify="end" gap="2" mt="3">
+                            <AlertDialog.Cancel>
+                              <Button type="button" variant="soft" color="gray">
+                                Cancel
+                              </Button>
+                            </AlertDialog.Cancel>
+                            <AlertDialog.Action>
+                              <Button
+                                type="button"
+                                color="red"
+                                onClick={() => onRemove(weapon.id)}
+                                disabled={disableActions}
+                              >
+                                Remove
+                              </Button>
+                            </AlertDialog.Action>
+                          </Flex>
+                        </AlertDialog.Content>
+                      </AlertDialog.Root>
+                    )}
+                  </Flex>
+                </Table.Cell>
+              )}
             </Table.Row>
           ))
         ) : (
           <Table.Row>
-            <Table.Cell colSpan={onEdit ? 6 : 5}>
+            <Table.Cell colSpan={showActions ? 6 : 5}>
               <Flex justify="center" py="4">
                 <Text color="gray">No weapons added yet.</Text>
               </Flex>
