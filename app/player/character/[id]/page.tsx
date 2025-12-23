@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { Box, Grid, Heading, Section, Text } from '@radix-ui/themes';
+import { Box, Grid, Section } from '@radix-ui/themes';
 import { AbilityTable } from '@/components/character/AbilityTable';
 import { WeaponSection } from '@/components/character/WeaponSection';
 import { getCharacterAbilities } from '@/data/character/abilities';
@@ -12,6 +12,12 @@ import { HitPoints } from '@/components/character/HitPoints';
 import { Gender } from '@prisma/client';
 import { ArmorClass } from '@/components/character/ArmorClass';
 import { ArmorSection } from '@/components/character/ArmorSection';
+import { SpellSection } from '@/components/character/SpellSection';
+import {
+  getCharacterSpellSlots,
+  getCharacterSpells,
+  getSpellCatalog,
+} from '@/data/character/spells';
 
 export default async function CharacterPage({ params }: { params: { id: string } }) {
   const user = await stackServerApp.getUser({ or: 'redirect' });
@@ -43,6 +49,9 @@ export default async function CharacterPage({ params }: { params: { id: string }
   const catalog = await getWeaponCatalog();
   const armor = await getCharacterArmor(character.id);
   const armorCatalog = await getArmorCatalog();
+  const spells = await getCharacterSpells(character.id);
+  const spellCatalog = await getSpellCatalog();
+  const spellSlots = await getCharacterSpellSlots(character.id);
   const con = abilities.find((a) => a.ability === 'CON');
   const conScore = con ? con.baseScore + con.bonus + con.temporary : null;
   const level = character.classLevels.reduce((sum, cl) => sum + (cl.level ?? 0), 0) || 1;
@@ -95,7 +104,14 @@ export default async function CharacterPage({ params }: { params: { id: string }
       </Box>
 
       {/* Spells */}
-      <Box mt={sectionGap}></Box>
+      <Box mt={sectionGap}>
+        <SpellSection
+          characterId={character.id}
+          initialSpells={spells}
+          catalog={spellCatalog}
+          initialSlots={spellSlots}
+        />
+      </Box>
 
       {/* Items */}
       <Box mt={sectionGap}></Box>
