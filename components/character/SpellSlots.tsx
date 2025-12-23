@@ -3,7 +3,13 @@
 import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
 import { Box, Button, Card, Flex, Grid, Heading, Text, TextField } from '@radix-ui/themes';
 import { Sparkles } from 'lucide-react';
-import { SpellSlotRow, UpdateSpellSlotState, updateSpellSlots } from '@/data/character/spells';
+import {
+  SpellSlotRow,
+  UpdateSpellSlotState,
+  resetSpellSlots,
+  updateSpellSlots,
+} from '@/data/character/spells';
+import { useCharacterContext } from '@/components/character/CharacterContext';
 
 type SpellSlotsProps = {
   characterId: string;
@@ -12,11 +18,14 @@ type SpellSlotsProps = {
 };
 
 export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsProps) => {
+  const { restSignal } = useCharacterContext();
   const [state, formAction, pending] = useActionState<UpdateSpellSlotState, FormData>(
     updateSpellSlots,
     { status: 'idle', slots: initialSlots }
   );
   const [transitionPending, startTransition] = useTransition();
+  const [restPending, startRestTransition] = useTransition();
+  const [localError, setLocalError] = useState<string | null>(null);
   const [slots, setSlots] = useState<Record<number, SpellSlotRow>>(() =>
     toSlotRecord(initialSlots)
   );
@@ -30,8 +39,25 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
     if (state.status === 'success' && state.slots) {
       setSlots(toSlotRecord(state.slots));
       onUpdated?.(state.slots);
+      setLocalError(null);
+    } else if (state.status === 'error') {
+      setLocalError(state.message);
     }
   }, [state, onUpdated]);
+
+  useEffect(() => {
+    if (!restSignal || restSignal.type !== 'long') return;
+    startRestTransition(async () => {
+      const result = await resetSpellSlots({ characterId });
+      if (result.status === 'success' && result.slots) {
+        setSlots(toSlotRecord(result.slots));
+        onUpdated?.(result.slots);
+        setLocalError(null);
+      } else if (result.status === 'error') {
+        setLocalError(result.message);
+      }
+    });
+  }, [restSignal, characterId, onUpdated]);
 
   useEffect(() => {
     if (!transitionPending) {
@@ -77,7 +103,7 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
 
   const renderRow = (level: number) => {
     const slot = slots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
-    const rowPending = pending || transitionPending;
+    const rowPending = pending || transitionPending || restPending;
     const controlsDisabled = rowPending || slot.maxSlots <= 0;
     return (
       <Box key={level}>
@@ -168,9 +194,9 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
         use/restore saves immediately, and Save commits manual edits.
       </Text>
       {levels.map((lvl) => renderRow(lvl))}
-      {state.status === 'error' && (
+      {(localError || state.status === 'error') && (
         <Text color="red" size="2" mt="2">
-          {state.message ?? 'Failed to update spell slots.'}
+          {localError ?? state.message ?? 'Failed to update spell slots.'}
         </Text>
       )}
     </Card>

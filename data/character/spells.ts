@@ -59,6 +59,11 @@ export type UpdateSpellSlotState =
   | { status: 'success'; slots: SpellSlotRow[] }
   | { status: 'error'; message: string };
 
+export type ResetSpellSlotState =
+  | { status: 'idle'; slots?: SpellSlotRow[] }
+  | { status: 'success'; slots: SpellSlotRow[] }
+  | { status: 'error'; message: string };
+
 const ensureCharacterAccess = async (characterId: string, userId: string) => {
   const character = await prisma.character.findUnique({
     where: { id: characterId },
@@ -180,6 +185,72 @@ export async function getCharacterSpellSlots(
   });
 
   return defaultSlots;
+}
+
+export async function resetSpellSlots(params: {
+  characterId: string;
+}): Promise<ResetSpellSlotState> {
+  try {
+    const user = await stackServerApp.getUser();
+    if (!user) return { status: 'error', message: 'Unauthorized' };
+
+    const { characterId } = params;
+    await ensureCharacterAccess(characterId, user.id);
+
+    const existing = await prisma.characterSpellSlot.findMany({
+      where: { characterId },
+      orderBy: { spellLevel: 'asc' },
+    });
+
+    const slotMap = new Map<number, SpellSlotRow>();
+    existing.forEach((slot) => {
+      slotMap.set(slot.spellLevel, {
+        spellLevel: slot.spellLevel,
+        maxSlots: slot.maxSlots,
+        currentSlots: slot.maxSlots,
+      });
+    });
+
+    const targetSlots: SpellSlotRow[] = Array.from({ length: 9 }).map((_, idx) => {
+      const level = idx + 1;
+      return (
+        slotMap.get(level) ?? {
+          spellLevel: level,
+          maxSlots: 0,
+          currentSlots: 0,
+        }
+      );
+    });
+
+    await prisma.$transaction(
+      targetSlots.map((slot) =>
+        prisma.characterSpellSlot.upsert({
+          where: {
+            characterId_spellLevel: {
+              characterId,
+              spellLevel: slot.spellLevel,
+            },
+          },
+          update: {
+            maxSlots: Math.max(0, Math.floor(slot.maxSlots)),
+            currentSlots: Math.max(0, Math.floor(slot.currentSlots)),
+          },
+          create: {
+            characterId,
+            spellLevel: slot.spellLevel,
+            maxSlots: Math.max(0, Math.floor(slot.maxSlots)),
+            currentSlots: Math.max(0, Math.floor(slot.currentSlots)),
+          },
+        })
+      )
+    );
+
+    return { status: 'success', slots: targetSlots };
+  } catch (error) {
+    console.error('failed to reset spell slots', error);
+    const message = error instanceof Error ? error.message : 'Failed to reset spell slots.';
+    return { status: 'error', message };
+  }
 }
 
 export async function getSpellCatalog(userId?: string): Promise<SpellCatalogItem[]> {

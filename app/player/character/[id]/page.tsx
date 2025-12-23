@@ -13,6 +13,8 @@ import { Gender } from '@prisma/client';
 import { ArmorClass } from '@/components/character/ArmorClass';
 import { ArmorSection } from '@/components/character/ArmorSection';
 import { SpellSection } from '@/components/character/SpellSection';
+import { CharacterProvider } from '@/components/character/CharacterContext';
+import { CharacterActions } from '@/components/character/CharacterActions';
 import {
   getCharacterSpellSlots,
   getCharacterSpells,
@@ -63,65 +65,71 @@ export default async function CharacterPage({ params }: { params: { id: string }
 
   return (
     <Section pt="0">
-      <Grid gap="4">
-        <CharacterInfoEditor
-          characterId={character.id}
-          initialName={character.name}
-          level={level}
-          initialRaceId={character.raceId}
-          initialGender={character.gender as Gender}
-          initialAlignment={character.alignment}
-          className={primaryClass?.name ?? null}
-          raceName={character.race?.name ?? null}
-        />
-
-        <Grid mt={sectionGap} columns={{ initial: '1', md: '2' }} gap="4">
-          <HitPoints
+      <CharacterProvider characterId={character.id}>
+        <Grid gap="4">
+          <CharacterInfoEditor
             characterId={character.id}
+            initialName={character.name}
             level={level}
-            hitDie={hitDie}
-            conScore={conScore}
-            initialBaseHp={character.baseHp}
-            initialMaxHp={character.maxHp}
-            initialCurrentHp={character.currentHp}
-            initialTempHp={character.tempHp}
+            initialRaceId={character.raceId}
+            initialGender={character.gender as Gender}
+            initialAlignment={character.alignment}
+            className={primaryClass?.name ?? null}
+            raceName={character.race?.name ?? null}
           />
-          <ArmorClass
-            characterId={character.id}
-            initialArmorClass={character.armorClass}
-            initialSpeed={character.speed}
-          />
+
+          <Box mt={sectionGap}>
+            <CharacterActions />
+          </Box>
+
+          <Grid mt={sectionGap} columns={{ initial: '1', md: '2' }} gap="4">
+            <HitPoints
+              characterId={character.id}
+              level={level}
+              hitDie={hitDie}
+              conScore={conScore}
+              initialBaseHp={character.baseHp}
+              initialMaxHp={character.maxHp}
+              initialCurrentHp={character.currentHp}
+              initialTempHp={character.tempHp}
+            />
+            <ArmorClass
+              characterId={character.id}
+              initialArmorClass={character.armorClass}
+              initialSpeed={character.speed}
+            />
+          </Grid>
+
+          <Box>
+            <AbilityTable characterId={character.id} abilities={abilities} />
+          </Box>
+
+          <Separator size="4" mt="4" />
+
+          {/* Weapons */}
+          <Box>
+            <WeaponSection characterId={character.id} initialWeapons={weapons} catalog={catalog} />
+          </Box>
+
+          {/* Armor */}
+          <Box>
+            <ArmorSection characterId={character.id} initialArmor={armor} catalog={armorCatalog} />
+          </Box>
+
+          {/* Spells */}
+          <Box>
+            <SpellSection
+              characterId={character.id}
+              initialSpells={spells}
+              catalog={spellCatalog}
+              initialSlots={spellSlots}
+            />
+          </Box>
+
+          {/* Items */}
+          <Box></Box>
         </Grid>
-
-        <Box>
-          <AbilityTable characterId={character.id} abilities={abilities} />
-        </Box>
-
-        <Separator size="4" mt="4" />
-
-        {/* Weapons */}
-        <Box>
-          <WeaponSection characterId={character.id} initialWeapons={weapons} catalog={catalog} />
-        </Box>
-
-        {/* Armor */}
-        <Box>
-          <ArmorSection characterId={character.id} initialArmor={armor} catalog={armorCatalog} />
-        </Box>
-
-        {/* Spells */}
-        <Box>
-          <SpellSection
-            characterId={character.id}
-            initialSpells={spells}
-            catalog={spellCatalog}
-            initialSlots={spellSlots}
-          />
-        </Box>
-
-        {/* Items */}
-        <Box></Box>
-      </Grid>
+      </CharacterProvider>
     </Section>
   );
 }

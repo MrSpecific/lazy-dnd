@@ -5,6 +5,7 @@ import { Box, Button, Card, Flex, Grid, Heading, Text } from '@radix-ui/themes';
 import { Shield } from 'lucide-react';
 import { Form, FormInput } from '@/components/form';
 import { updateArmorClass, type UpdateArmorClassState } from '@/data/character/updateArmorClass';
+import { useCharacterContext } from '@/components/character/CharacterContext';
 
 type ArmorClassProps = {
   characterId: string;
@@ -13,6 +14,7 @@ type ArmorClassProps = {
 };
 
 export const ArmorClass = ({ characterId, initialArmorClass, initialSpeed }: ArmorClassProps) => {
+  const { armorUpdateToken } = useCharacterContext();
   const [state, formAction, pending] = useActionState<UpdateArmorClassState, FormData>(
     updateArmorClass,
     { status: 'idle' }
@@ -32,6 +34,12 @@ export const ArmorClass = ({ characterId, initialArmorClass, initialSpeed }: Arm
       }
     }
   }, [state, lastMode]);
+
+  useEffect(() => {
+    if (armorUpdateToken > 0) {
+      computeFromCharacter();
+    }
+  }, [armorUpdateToken]);
 
   const handleNumberChange =
     (setter: (val: number | '') => void) => (e: ChangeEvent<HTMLInputElement>) => {

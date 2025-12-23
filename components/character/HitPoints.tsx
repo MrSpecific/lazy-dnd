@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { updateHitPoints, type UpdateHpState } from '@/data/character/updateHitPoints';
 import { RandomButton } from '@/components/common/RandomButton';
+import { useCharacterContext } from '@/components/character/CharacterContext';
 
 type HitPointsProps = {
   characterId: string;
@@ -49,6 +50,7 @@ export const HitPoints = ({
   initialCurrentHp,
   initialTempHp,
 }: HitPointsProps) => {
+  const { restSignal } = useCharacterContext();
   const [state, formAction, pending] = useActionState<UpdateHpState, FormData>(updateHitPoints, {
     status: 'idle',
   });
@@ -85,8 +87,32 @@ export const HitPoints = ({
     setCurrentHp(clampNonNegative(value));
   };
 
-  const handleRest = (type: 'short' | 'long') => {
-    setTempHp(0);
+  const submitUpdate = (next?: {
+    baseHp?: number | '';
+    maxHp?: number | '';
+    currentHp?: number | '';
+    tempHp?: number | '';
+  }) => {
+    const form = new FormData();
+    form.set('characterId', characterId);
+    form.set('mode', 'update');
+    const nextBase = next?.baseHp ?? baseHp;
+    const nextMax = next?.maxHp ?? maxHp;
+    const nextCurrent = next?.currentHp ?? currentHp;
+    const nextTemp = next?.tempHp ?? tempHp;
+    if (nextBase !== '') form.set('baseHp', String(nextBase));
+    if (nextMax !== '') form.set('maxHp', String(nextMax));
+    if (nextCurrent !== '') form.set('currentHp', String(nextCurrent));
+    if (nextTemp !== '') form.set('tempHp', String(nextTemp));
+    startTransition(() => formAction(form));
+  };
+
+  const applyRest = (type: 'short' | 'long') => {
+    const maxValue = typeof maxHp === 'number' ? maxHp : null;
+    if (!maxValue) return;
+
+    let nextCurrent = typeof currentHp === 'number' ? currentHp : 0;
+    let nextTemp = 0;
 
     if (type === 'short') {
       const availableHd = Math.max(level, 1);
@@ -98,7 +124,7 @@ export const HitPoints = ({
         0,
         Math.min(availableHd, Number.isFinite(Number(toSpendRaw)) ? Number(toSpendRaw) : 0)
       );
-      if (toSpend <= 0 || typeof maxHp !== 'number') return;
+      if (toSpend <= 0) return;
 
       let healed = 0;
       for (let i = 0; i < toSpend; i += 1) {
@@ -106,17 +132,20 @@ export const HitPoints = ({
         healed += roll + (conMod ?? 0);
       }
       healed = Math.max(0, healed);
-      setCurrentHp((prev) => {
-        const base = typeof prev === 'number' ? prev : 0;
-        return Math.min(base + healed, maxHp as number);
-      });
-      return;
+      nextCurrent = Math.min(nextCurrent + healed, maxValue);
+    } else {
+      nextCurrent = maxValue;
     }
 
-    if (type === 'long' && typeof maxHp === 'number') {
-      setCurrentHp(maxHp);
-    }
+    setTempHp(nextTemp);
+    setCurrentHp(nextCurrent);
+    submitUpdate({ currentHp: nextCurrent, tempHp: nextTemp });
   };
+
+  useEffect(() => {
+    if (!restSignal) return;
+    applyRest(restSignal.type);
+  }, [restSignal]);
 
   const submitWithMode = (mode: 'compute' | 'update' | 'reset') => {
     const form = new FormData();
@@ -272,25 +301,7 @@ export const HitPoints = ({
             </StatField>
           </Grid>
 
-          <Flex justify="between" align="center" mt="3" wrap="wrap" gap="2">
-            <Flex gap="2" align="center">
-              <Button
-                variant="surface"
-                size="2"
-                onClick={() => handleRest('short')}
-                disabled={pending || transitionPending}
-              >
-                Short Rest
-              </Button>
-              <Button
-                variant="surface"
-                size="2"
-                onClick={() => handleRest('long')}
-                disabled={pending || transitionPending}
-              >
-                Long Rest
-              </Button>
-            </Flex>
+          <Flex justify="end" align="center" mt="3">
             <Badge color={hpBadgeColor} size="3" variant="soft">
               {aboveMax && <Sparkles />}
               {typeof currentHp === 'number' && typeof maxHp === 'number'
@@ -377,25 +388,7 @@ export const HitPoints = ({
             <StaticStat label="Temp HP" value={tempHp} />
           </Grid>
 
-          <Flex justify="between" align="center" mt="3" wrap="wrap" gap="2">
-            <Flex gap="2" align="center">
-              <Button
-                variant="surface"
-                size="2"
-                onClick={() => handleRest('short')}
-                disabled={pending || transitionPending}
-              >
-                Short Rest
-              </Button>
-              <Button
-                variant="surface"
-                size="2"
-                onClick={() => handleRest('long')}
-                disabled={pending || transitionPending}
-              >
-                Long Rest
-              </Button>
-            </Flex>
+          <Flex justify="end" align="center" mt="3">
             <Badge color={hpBadgeColor} size="3" variant="soft">
               {hpIsZero && <Skull />}
               {aboveMax && <Sparkles />}

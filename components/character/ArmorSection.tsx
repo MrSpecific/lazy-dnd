@@ -12,6 +12,7 @@ import {
   type AddArmorState,
   type ArmorCatalogItem,
 } from '@/data/character/armor';
+import { useCharacterContext } from '@/components/character/CharacterContext';
 
 type ArmorSectionProps = {
   characterId: string;
@@ -20,6 +21,7 @@ type ArmorSectionProps = {
 };
 
 export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectionProps) => {
+  const { notifyArmorChanged } = useCharacterContext();
   const [armor, setArmor] = useState<ArmorRow[]>(initialArmor);
   const [state, attachAction, pending] = useActionState<AddArmorState, FormData>(addExistingArmor, {
     status: 'idle',
@@ -34,12 +36,13 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
   useEffect(() => {
     if (state.status === 'success' && state.armor) {
       setArmor((prev) => [...prev, state.armor]);
+      notifyArmorChanged();
       setPickerOpen(false);
       setLocalError(null);
     } else if (state.status === 'error') {
       setLocalError(state.message);
     }
-  }, [state]);
+  }, [state, notifyArmorChanged]);
 
   const armorSorted = useMemo(
     () => [...armor].sort((a, b) => a.name.localeCompare(b.name)),
@@ -55,6 +58,7 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
       } else {
         setLocalError(null);
         setArmor((prev) => prev.filter((item) => item.id !== armorId));
+        notifyArmorChanged();
       }
     } catch (error) {
       console.error(error);
@@ -97,10 +101,11 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
           if (!isOpen) setEditArmor(null);
         }}
         armor={editArmor}
-        onUpdated={(updated) => {
-          setArmor((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
-        }}
-      />
+      onUpdated={(updated) => {
+        setArmor((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+        notifyArmorChanged();
+      }}
+    />
 
       <ArmorPickerDialog
         open={pickerOpen}
