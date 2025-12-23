@@ -38,11 +38,14 @@ const ensureCharacterAccess = async (characterId: string, userId: string) => {
   }
 };
 
-export async function getCharacterArmor(characterId: string): Promise<ArmorEntry[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) throw new Error('Unauthorized');
+export async function getCharacterArmor(
+  characterId: string,
+  userId?: string
+): Promise<ArmorEntry[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) throw new Error('Unauthorized');
 
-  await ensureCharacterAccess(characterId, user.id);
+  await ensureCharacterAccess(characterId, resolvedUserId);
 
   const items = await prisma.characterItem.findMany({
     where: {
@@ -64,9 +67,9 @@ export async function getCharacterArmor(characterId: string): Promise<ArmorEntry
   }));
 }
 
-export async function getArmorCatalog(): Promise<ArmorCatalogItem[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) throw new Error('Unauthorized');
+export async function getArmorCatalog(userId?: string): Promise<ArmorCatalogItem[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) throw new Error('Unauthorized');
 
   const items = await prisma.item.findMany({
     where: { isConsumable: false, type: 'ARMOR' },

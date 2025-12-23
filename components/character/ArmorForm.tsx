@@ -5,6 +5,7 @@ import { EquipmentSlot } from '@prisma/client';
 import { Button, Dialog, Flex, Select } from '@radix-ui/themes';
 import { ArmorCatalogItem } from '@/data/character/armor';
 import { EquipmentSlotSelect } from '@/components/character/EquipmentSlotSelect';
+import { Form } from '../form';
 
 type ArmorFormProps = {
   characterId: string;
@@ -46,7 +47,13 @@ export const ArmorForm = ({ catalog = [], pending = false, onSubmit }: ArmorForm
             </Select.Content>
           </Select.Root>
 
-          <EquipmentSlotSelect value={slot} onValueChange={(val) => setSlot(val)} slotType="armor" />
+          <Form>
+            <EquipmentSlotSelect
+              value={slot}
+              onValueChange={(val) => setSlot(val)}
+              slotType="armor"
+            />
+          </Form>
 
           <Flex justify="end" gap="2">
             <Dialog.Close>

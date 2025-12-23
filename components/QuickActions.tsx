@@ -16,23 +16,7 @@ const npcRoute = '/dm/npc/new';
 
 export const QuickActions = ({ isDm = false }: QuickActionsProps) => {
   const user = useUser();
-
-  if (!user) {
-    return null;
-  }
-
-  return (
-    <Flex gap="2" align="center">
-      <RefreshButton />
-      <DmActions />
-      <PlayerActions />
-    </Flex>
-  );
-};
-
-export const DmActions = () => {
   const router = useRouter();
-  const [quickNpcOpen, setQuickNpcOpen] = useState(false);
 
   const navigate = useCallback(
     (path: string) => {
@@ -57,6 +41,30 @@ export const DmActions = () => {
     window.addEventListener('keydown', handleShortcut);
     return () => window.removeEventListener('keydown', handleShortcut);
   }, [navigate]);
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <Flex gap="2" align="center">
+      <RefreshButton />
+      <DmActions />
+      <PlayerActions />
+    </Flex>
+  );
+};
+
+export const DmActions = () => {
+  const router = useRouter();
+  const [quickNpcOpen, setQuickNpcOpen] = useState(false);
+
+  const navigate = useCallback(
+    (path: string) => {
+      router.push(path);
+    },
+    [router]
+  );
 
   return (
     <>
@@ -94,23 +102,6 @@ export const PlayerActions = () => {
     },
     [router]
   );
-
-  useEffect(() => {
-    const handleShortcut = (event: KeyboardEvent) => {
-      const metaPressed = event.metaKey || event.ctrlKey;
-      if (!metaPressed) return;
-
-      const key = event.key.toLowerCase();
-
-      if (key === 'e') {
-        event.preventDefault();
-        navigate(characterRoute);
-      }
-    };
-
-    window.addEventListener('keydown', handleShortcut);
-    return () => window.removeEventListener('keydown', handleShortcut);
-  }, [navigate]);
 
   return (
     <DropdownMenu.Root>

@@ -11,12 +11,12 @@ export type NpcSummary = {
   className: string | null;
 };
 
-export async function getNpcs(): Promise<NpcSummary[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) return [];
+export async function getNpcs(userId?: string): Promise<NpcSummary[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) return [];
 
   const npcs = await prisma.npc.findMany({
-    where: { createdById: user.id },
+    where: { createdById: resolvedUserId },
     include: {
       race: true,
       class: true,

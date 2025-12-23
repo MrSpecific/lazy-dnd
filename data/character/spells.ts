@@ -133,11 +133,14 @@ const getSingleSpellRow = async (characterId: string, spellId: string): Promise<
   return first ?? null;
 };
 
-export async function getCharacterSpells(characterId: string): Promise<SpellRow[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) throw new Error('Unauthorized');
+export async function getCharacterSpells(
+  characterId: string,
+  userId?: string
+): Promise<SpellRow[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) throw new Error('Unauthorized');
 
-  await ensureCharacterAccess(characterId, user.id);
+  await ensureCharacterAccess(characterId, resolvedUserId);
 
   const records = await prisma.characterSpell.findMany({
     where: { characterId },
@@ -147,11 +150,14 @@ export async function getCharacterSpells(characterId: string): Promise<SpellRow[
   return mergeSpellRecords(records);
 }
 
-export async function getCharacterSpellSlots(characterId: string): Promise<SpellSlotRow[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) throw new Error('Unauthorized');
+export async function getCharacterSpellSlots(
+  characterId: string,
+  userId?: string
+): Promise<SpellSlotRow[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) throw new Error('Unauthorized');
 
-  await ensureCharacterAccess(characterId, user.id);
+  await ensureCharacterAccess(characterId, resolvedUserId);
 
   const slots = await prisma.characterSpellSlot.findMany({
     where: { characterId },
@@ -176,9 +182,9 @@ export async function getCharacterSpellSlots(characterId: string): Promise<Spell
   return defaultSlots;
 }
 
-export async function getSpellCatalog(): Promise<SpellCatalogItem[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) throw new Error('Unauthorized');
+export async function getSpellCatalog(userId?: string): Promise<SpellCatalogItem[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) throw new Error('Unauthorized');
 
   const spells = await prisma.spell.findMany({
     orderBy: [
@@ -617,7 +623,7 @@ export async function updateSpellSlots(
       },
     });
 
-    const slots = await getCharacterSpellSlots(characterId);
+    const slots = await getCharacterSpellSlots(characterId, user.id);
     return { status: 'success', slots };
   } catch (error) {
     console.error('failed to update spell slots', error);

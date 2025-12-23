@@ -40,11 +40,14 @@ const ensureCharacterAccess = async (characterId: string, userId: string) => {
   }
 };
 
-export async function getCharacterWeapons(characterId: string): Promise<WeaponEntry[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) throw new Error('Unauthorized');
+export async function getCharacterWeapons(
+  characterId: string,
+  userId?: string
+): Promise<WeaponEntry[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) throw new Error('Unauthorized');
 
-  await ensureCharacterAccess(characterId, user.id);
+  await ensureCharacterAccess(characterId, resolvedUserId);
 
   const items = await prisma.characterItem.findMany({
     where: { characterId, slot: { in: ['MAIN_HAND', 'OFF_HAND', 'TWO_HANDED'] } },
@@ -66,9 +69,9 @@ export async function getCharacterWeapons(characterId: string): Promise<WeaponEn
   }));
 }
 
-export async function getWeaponCatalog(): Promise<WeaponCatalogItem[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) throw new Error('Unauthorized');
+export async function getWeaponCatalog(userId?: string): Promise<WeaponCatalogItem[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) throw new Error('Unauthorized');
 
   const items = await prisma.item.findMany({
     where: { isConsumable: false, type: ItemType.WEAPON },

@@ -10,7 +10,7 @@ export default async function CharactersPage() {
     notFound();
   }
 
-  const characters = await getCharacters();
+  const characters = await getCharacters(user.id);
 
   return (
     <Section pt="0">

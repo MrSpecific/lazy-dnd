@@ -18,12 +18,12 @@ export type CharacterSummary = {
   spells?: string[];
 };
 
-export async function getCharacters(): Promise<CharacterSummary[]> {
-  const user = await stackServerApp.getUser();
-  if (!user) return [];
+export async function getCharacters(userId?: string): Promise<CharacterSummary[]> {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) return [];
 
   const characters = await prisma.character.findMany({
-    where: { userId: user.id },
+    where: { userId: resolvedUserId },
     include: {
       race: true,
       classLevels: {

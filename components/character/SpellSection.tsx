@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useState } from 'react';
+import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
 import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
 import { BookOpenCheck, PlusCircle } from 'lucide-react';
 import {
@@ -52,6 +52,7 @@ export const SpellSection = ({
     updateSpellNotes,
     { status: 'idle' }
   );
+  const [attachPending, startAttachTransition] = useTransition();
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -75,7 +76,7 @@ export const SpellSection = ({
 
   useEffect(() => {
     if (noteState.status === 'success' && noteState.spell) {
-      setSpells((prev) => upsertSpell(prev, noteState.spell));
+      setSpells((prev) => upsertSpell(prev, noteState.spell!));
       setNotesFor(null);
       setLocalError(null);
     } else if (noteState.status === 'error') {
@@ -88,7 +89,7 @@ export const SpellSection = ({
     try {
       const result = await toggleSpellPrepared({ characterId, spellId, prepared });
       if (result.status === 'success' && result.spell) {
-        setSpells((prev) => upsertSpell(prev, result.spell));
+        setSpells((prev) => upsertSpell(prev, result.spell!));
         setLocalError(null);
       } else if (result.status === 'error') {
         setLocalError(result.message);
@@ -188,14 +189,14 @@ export const SpellSection = ({
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         catalog={catalog}
-        pending={pendingAttach}
+        pending={pendingAttach || attachPending}
         error={localError}
         onAttach={(spellId, knowledge) => {
           const fd = new FormData();
           fd.append('characterId', characterId);
           fd.append('spellId', spellId);
           fd.append('knowledge', knowledge);
-          attachAction(fd);
+          startAttachTransition(() => attachAction(fd));
         }}
       />
 
@@ -212,7 +213,9 @@ export const SpellSection = ({
 
       {(localError || state.status === 'error' || attachState.status === 'error') && (
         <Text color="red" size="2" mt="2">
-          {localError ?? state.message ?? attachState.message}
+          {localError ??
+            (state.status === 'error' ? state.message : null) ??
+            (attachState.status === 'error' ? attachState.message : null)}
         </Text>
       )}
     </Box>

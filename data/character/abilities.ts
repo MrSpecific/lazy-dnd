@@ -17,9 +17,9 @@ export type SaveAbilitiesState =
   | { status: 'success'; message?: string }
   | { status: 'error'; message: string };
 
-export async function getCharacterAbilities(characterId: string) {
-  const user = await stackServerApp.getUser();
-  if (!user) throw new Error('Unauthorized');
+export async function getCharacterAbilities(characterId: string, userId?: string) {
+  const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
+  if (!resolvedUserId) throw new Error('Unauthorized');
 
   const character = await prisma.character.findUnique({
     where: { id: characterId },
@@ -29,7 +29,7 @@ export async function getCharacterAbilities(characterId: string) {
     },
   });
 
-  if (!character || character.userId !== user.id) {
+  if (!character || character.userId !== resolvedUserId) {
     throw new Error('Character not found or access denied');
   }
 

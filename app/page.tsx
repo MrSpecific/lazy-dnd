@@ -40,8 +40,8 @@ export const metadata: Metadata = {
 
 export default async function () {
   const user = await stackServerApp.getUser({ or: 'return-null' });
-  const characters = user ? await getCharacters() : [];
-  const npcs = await getNpcs();
+  const characters = user ? await getCharacters(user.id) : [];
+  const npcs = user ? await getNpcs(user.id) : [];
 
   return (
     <>

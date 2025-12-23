@@ -10,7 +10,7 @@ export default async function NpcsPage() {
     notFound();
   }
 
-  const npcs = await getNpcs();
+  const npcs = await getNpcs(user.id);
 
   return (
     <Section pt="0">
