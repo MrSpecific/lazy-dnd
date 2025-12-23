@@ -29,8 +29,13 @@ export const ArmorEditDialog = ({
   const [transitionPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setDraft(armor);
-  }, [armor]);
+    if (armor && armor.id !== draft?.id) {
+      setDraft(armor);
+    }
+    if (!armor && draft) {
+      setDraft(null);
+    }
+  }, [armor, draft]);
 
   useEffect(() => {
     if (state.status === 'success' && state.armor) {
