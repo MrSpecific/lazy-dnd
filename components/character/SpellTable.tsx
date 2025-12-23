@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { Badge, Button, Flex, Table, Text } from '@radix-ui/themes';
 import { Sparkles, NotebookPen, Trash2 } from 'lucide-react';
 import { SpellRow } from '@/data/character/spells';
+import Markdown from '../common/Markdown';
 
 type SpellTableProps = {
   spells: SpellRow[];
@@ -22,7 +23,10 @@ export const SpellTable = ({
 }: SpellTableProps) => {
   const hasActions = Boolean(onTogglePrepared || onEditNotes || onRemove);
   const sorted = useMemo(
-    () => [...spells].sort((a, b) => (a.level === b.level ? a.name.localeCompare(b.name) : a.level - b.level)),
+    () =>
+      [...spells].sort((a, b) =>
+        a.level === b.level ? a.name.localeCompare(b.name) : a.level - b.level
+      ),
     [spells]
   );
 
@@ -47,7 +51,9 @@ export const SpellTable = ({
           <Table.Row>
             <Table.Cell colSpan={hasActions ? 8 : 7}>
               <Flex justify="center" py="4">
-                <Text color="gray">No spells yet. Add cantrips and prepared spells to get started.</Text>
+                <Text color="gray">
+                  No spells yet. Add cantrips and prepared spells to get started.
+                </Text>
               </Flex>
             </Table.Cell>
           </Table.Row>
@@ -61,7 +67,7 @@ export const SpellTable = ({
                     <Text weight="bold">{spell.name}</Text>
                   </Flex>
                   <Text color="gray" size="2">
-                    {spell.description || '—'}
+                    <Markdown>{spell.description || '—'}</Markdown>
                   </Text>
                 </Flex>
               </Table.RowHeaderCell>

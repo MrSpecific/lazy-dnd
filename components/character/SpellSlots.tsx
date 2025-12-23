@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useState } from 'react';
+import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
 import { Box, Button, Card, Flex, Grid, Heading, Text, TextField } from '@radix-ui/themes';
 import { Sparkles } from 'lucide-react';
 import { SpellSlotRow, UpdateSpellSlotState, updateSpellSlots } from '@/data/character/spells';
@@ -16,9 +16,11 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
     updateSpellSlots,
     { status: 'idle', slots: initialSlots }
   );
+  const [transitionPending, startTransition] = useTransition();
   const [slots, setSlots] = useState<Record<number, SpellSlotRow>>(() =>
     toSlotRecord(initialSlots)
   );
+  const [savingLevel, setSavingLevel] = useState<number | null>(null);
 
   useEffect(() => {
     setSlots(toSlotRecord(initialSlots));
@@ -31,25 +33,56 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
     }
   }, [state, onUpdated]);
 
+  useEffect(() => {
+    if (!transitionPending) {
+      setSavingLevel(null);
+    }
+  }, [transitionPending]);
+
   const levels = useMemo(() => Array.from({ length: 9 }).map((_, idx) => idx + 1), []);
 
   const updateLocal = (level: number, field: keyof SpellSlotRow, value: number) => {
     setSlots((prev) => {
       const current = prev[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
-      const next =
-        field === 'maxSlots'
-          ? { ...current, maxSlots: Math.max(0, value), currentSlots: Math.min(current.currentSlots, Math.max(0, value)) }
-          : { ...current, currentSlots: Math.max(0, Math.min(value, current.maxSlots)) };
+      if (field === 'maxSlots') {
+        const nextMax = Math.max(0, value);
+        const currentWasMaxed = current.currentSlots === current.maxSlots;
+        const nextCurrent = currentWasMaxed
+          ? nextMax
+          : Math.min(current.currentSlots, nextMax);
+        return { ...prev, [level]: { ...current, maxSlots: nextMax, currentSlots: nextCurrent } };
+      }
+      const nextCurrent = Math.max(0, Math.min(value, current.maxSlots));
+      return { ...prev, [level]: { ...current, currentSlots: nextCurrent } };
+    });
+  };
+
+  const submitSlot = (level: number, nextSlot?: SpellSlotRow) => {
+    const slot = nextSlot ?? slots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
+    const form = new FormData();
+    form.set('characterId', characterId);
+    form.set('spellLevel', String(level));
+    form.set('maxSlots', String(slot.maxSlots));
+    form.set('currentSlots', String(slot.currentSlots));
+    setSavingLevel(level);
+    startTransition(() => formAction(form));
+  };
+
+  const adjustAndSubmit = (level: number, updater: (current: SpellSlotRow) => SpellSlotRow) => {
+    setSlots((prev) => {
+      const current = prev[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
+      const next = updater(current);
+      submitSlot(level, next);
       return { ...prev, [level]: next };
     });
   };
 
   const renderRow = (level: number) => {
     const slot = slots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
+    const rowPending = pending || transitionPending;
+    const controlsDisabled = rowPending || slot.maxSlots <= 0;
     return (
-      <form key={level} action={formAction}>
-        <input type="hidden" name="characterId" value={characterId} />
-        <input type="hidden" name="spellLevel" value={level} />
+      <Box key={level}>
         <Grid columns={{ initial: '1', md: '5' }} gap="2" align="center" mb="2">
           <Heading size="3">Level {level}</Heading>
           <Box>
@@ -57,7 +90,8 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
               Max slots
             </Text>
             <TextField.Root
-              name="maxSlots"
+              type="number"
+              min={0}
               inputMode="numeric"
               value={slot.maxSlots}
               onChange={(e) => updateLocal(level, 'maxSlots', Number(e.target.value) || 0)}
@@ -68,7 +102,8 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
               Remaining
             </Text>
             <TextField.Root
-              name="currentSlots"
+              type="number"
+              min={0}
               inputMode="numeric"
               value={slot.currentSlots}
               onChange={(e) => updateLocal(level, 'currentSlots', Number(e.target.value) || 0)}
@@ -79,8 +114,13 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
               type="button"
               size="1"
               variant="soft"
-              onClick={() => updateLocal(level, 'currentSlots', Math.max(0, slot.currentSlots - 1))}
-              disabled={pending}
+              onClick={() =>
+                adjustAndSubmit(level, (current) => ({
+                  ...current,
+                  currentSlots: Math.max(0, current.currentSlots - 1),
+                }))
+              }
+              disabled={controlsDisabled}
             >
               Use 1
             </Button>
@@ -89,20 +129,28 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
               size="1"
               variant="soft"
               onClick={() =>
-                updateLocal(level, 'currentSlots', Math.min(slot.maxSlots, slot.currentSlots + 1))
+                adjustAndSubmit(level, (current) => ({
+                  ...current,
+                  currentSlots: Math.min(current.maxSlots, current.currentSlots + 1),
+                }))
               }
-              disabled={pending}
+              disabled={controlsDisabled}
             >
               Restore 1
             </Button>
           </Flex>
           <Flex justify="end" align="center" gap="2">
-            <Button type="submit" size="1" disabled={pending}>
-              {pending ? 'Saving…' : 'Save'}
+            <Button
+              type="button"
+              size="1"
+              disabled={rowPending}
+              onClick={() => submitSlot(level)}
+            >
+              {savingLevel === level && rowPending ? 'Saving…' : 'Save'}
             </Button>
           </Flex>
         </Grid>
-      </form>
+      </Box>
     );
   };
 
@@ -118,8 +166,8 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
         </Text>
       </Flex>
       <Text color="gray" size="2" mb="3">
-        In 5e, cantrips (level 0) do not use slots. Leveled spells expend slots of that level or
-        higher; long rests reset remaining slots to your max.
+        In 5e, cantrips (level 0) do not use slots. Remaining stays in sync when it matches max;
+        use/restore saves immediately, and Save commits manual edits.
       </Text>
       {levels.map((lvl) => renderRow(lvl))}
       {state.status === 'error' && (
