@@ -7,6 +7,7 @@ import { EquipmentSlot } from '@prisma/client';
 export type ArmorEntry = {
   id: string;
   name: string;
+  baseName?: string | null;
   description: string | null;
   weight: number | null;
   slot: EquipmentSlot | null;
@@ -73,6 +74,7 @@ export async function getCharacterArmor(
   return items.map((ci) => ({
     id: ci.id,
     name: ci.customName ?? ci.item?.name ?? 'Armor Name',
+    baseName: ci.item?.name ?? null,
     description: ci.customDescription ?? ci.item?.description ?? 'No description.',
     weight: ci.item?.weight ?? null,
     slot: ci.slot,
@@ -144,6 +146,7 @@ export async function addExistingArmor(
       armor: {
         id: characterItem.id,
         name: item.name,
+        baseName: item.name,
         description: item.description,
         weight: item.weight,
         slot: characterItem.slot,
@@ -214,6 +217,7 @@ export async function updateArmor(
       armor: {
         id: updated.id,
         name: updated.customName ?? updated.item?.name ?? 'Armor Name',
+        baseName: updated.item?.name ?? null,
         description: updated.customDescription ?? updated.item?.description ?? 'No description.',
         weight: updated.item?.weight ?? null,
         slot: updated.slot,

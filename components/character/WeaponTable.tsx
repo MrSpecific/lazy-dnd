@@ -2,12 +2,13 @@
 
 import { useMemo } from 'react';
 import { EquipmentSlot } from '@prisma/client';
-import { Badge, Button, Flex, Table, Text } from '@radix-ui/themes';
+import { Badge, Box, Button, Flex, Table, Text } from '@radix-ui/themes';
 import { WeaponEditDialog } from '@/components/character/WeaponEditDialog';
 
 export type WeaponRow = {
   id: string;
   name: string;
+  baseName?: string | null;
   description: string | null;
   weight: number | null;
   slot: EquipmentSlot | null;
@@ -46,7 +47,18 @@ export const WeaponTable = ({ weapons, onEdit }: WeaponTableProps) => {
         {hasWeapons ? (
           sorted.map((weapon) => (
             <Table.Row key={weapon.id}>
-              <Table.RowHeaderCell>{weapon.name}</Table.RowHeaderCell>
+              <Table.RowHeaderCell>
+                <Box>
+                  <Text weight="bold" as="div">
+                    {weapon.name}
+                  </Text>
+                  {weapon.customName && weapon.baseName && (
+                    <Text size="1" color="gray">
+                      {weapon.baseName}
+                    </Text>
+                  )}
+                </Box>
+              </Table.RowHeaderCell>
               <Table.Cell>
                 <Text color="gray">{weapon.description || '—'}</Text>
               </Table.Cell>

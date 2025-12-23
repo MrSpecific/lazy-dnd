@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertDialog, Badge, Button, Flex, Table, Text } from '@radix-ui/themes';
+import { AlertDialog, Badge, Box, Button, Flex, Table, Text } from '@radix-ui/themes';
 import { ArmorEntry } from '@/data/character/armor';
 
 export type ArmorRow = ArmorEntry;
@@ -41,7 +41,18 @@ export const ArmorTable = ({
       <Table.Body>
         {armor.map((row) => (
           <Table.Row key={row.id}>
-            <Table.RowHeaderCell>{row.name}</Table.RowHeaderCell>
+            <Table.RowHeaderCell>
+              <Box>
+                <Text weight="bold" as="div">
+                  {row.name}
+                </Text>
+                {row.customName && row.baseName && (
+                  <Text size="1" color="gray">
+                    {row.baseName}
+                  </Text>
+                )}
+              </Box>
+            </Table.RowHeaderCell>
             <Table.Cell>
               <Text color="gray">{row.description || '—'}</Text>
             </Table.Cell>
