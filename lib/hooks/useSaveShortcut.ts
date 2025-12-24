@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
 /**
  * Listens for:
@@ -23,34 +23,34 @@ export const useSaveShortcut = ({
   saveOnCmdEnter?: boolean;
 }) => {
   useEffect(() => {
-    const isMac = navigator.userAgent.toUpperCase().includes("MAC");
+    const isMac = navigator.userAgent.toUpperCase().includes('MAC');
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const modHeld = isMac ? e.metaKey : e.ctrlKey;
       const key = e.key.toLowerCase();
 
       // Cmd/Ctrl + S
-      if (saveShortcut && modHeld && key === "s") {
+      if (saveShortcut && modHeld && key === 's') {
         e.preventDefault();
         formRef.current?.requestSubmit();
         return;
       }
 
       // Plain Enter
-      if (saveOnEnter && !modHeld && key === "enter") {
+      if (saveOnEnter && !modHeld && key === 'enter') {
         e.preventDefault();
         formRef.current?.requestSubmit();
         return;
       }
 
       // Cmd/Ctrl + Enter
-      if (saveOnCmdEnter && modHeld && key === "enter") {
+      if (saveOnCmdEnter && modHeld && key === 'enter') {
         e.preventDefault();
         formRef.current?.requestSubmit();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [formRef, saveShortcut, saveOnEnter, saveOnCmdEnter]);
 };

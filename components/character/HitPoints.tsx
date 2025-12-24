@@ -116,9 +116,10 @@ export const HitPoints = ({
 
     if (type === 'short') {
       const availableHd = Math.max(level, 1);
+      const spendRaw = hitDiceToSpend ?? 0;
       const toSpend = Math.max(
         0,
-        Math.min(availableHd, Number.isFinite(hitDiceToSpend) ? hitDiceToSpend : 0)
+        Math.min(availableHd, Number.isFinite(spendRaw) ? spendRaw : 0)
       );
       if (toSpend <= 0) return;
 

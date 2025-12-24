@@ -42,9 +42,11 @@ export const QuickNpcDialog = ({
     if (controlledOnOpenChange) controlledOnOpenChange(isOpen);
     if (controlledOpen === undefined) setInternalOpen(isOpen);
   };
+
   useSaveShortcut({ formRef, saveShortcut: true, saveOnEnter: true, saveOnCmdEnter: true });
 
   const generateNpc = async () => {
+    console.log('Generating NPC with description:', description);
     try {
       setError(null);
       setLoading(true);
@@ -86,7 +88,7 @@ export const QuickNpcDialog = ({
           Describe the NPC and we&apos;ll draft a name, stats, and gear using Gemini.
         </Dialog.Description>
 
-        <form ref={formRef} onSubmit={(e) => e.preventDefault()}>
+        <form ref={formRef} onSubmit={generateNpc}>
           <Box mb="3">
             <TextArea
               placeholder="e.g., Gruff dwarven blacksmith with a secret past"
@@ -94,7 +96,7 @@ export const QuickNpcDialog = ({
               onChange={(e) => setDescription(e.target.value)}
               onKeyDown={(e) => {
                 // Stop menu-level keyboard handlers from swallowing the space key.
-                e.stopPropagation();
+                // e.stopPropagation();
               }}
             />
           </Box>
@@ -105,7 +107,7 @@ export const QuickNpcDialog = ({
                 {error}
               </Text>
             )}
-            <Button type="button" onClick={generateNpc} disabled={!description.trim() || loading}>
+            <Button type="submit" disabled={!description.trim() || loading}>
               {loading ? (
                 <Flex align="center" gap="2">
                   <Spinner /> Generating…

@@ -196,7 +196,9 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
       {levels.map((lvl) => renderRow(lvl))}
       {(localError || state.status === 'error') && (
         <Text color="red" size="2" mt="2">
-          {localError ?? state.message ?? 'Failed to update spell slots.'}
+          {localError ??
+            (state.status === 'error' ? state.message : null) ??
+            'Failed to update spell slots.'}
         </Text>
       )}
     </Card>
