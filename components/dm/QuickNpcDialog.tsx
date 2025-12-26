@@ -1,25 +1,11 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Button, Dialog, Flex, Text, TextArea, Spinner } from '@radix-ui/themes';
 import { useSaveShortcut } from '@/lib/hooks/useSaveShortcut';
-
-type GeneratedNpc = {
-  name?: string;
-  gender?: string;
-  race?: string;
-  class?: string;
-  alignment?: string;
-  title?: string;
-  description?: string;
-  stats?: Record<string, number>;
-  hp?: number;
-  ac?: number;
-  speed?: number;
-  inventory?: string[];
-  [key: string]: unknown;
-};
+import { generateNpc, type GenerateNpcState } from '@/data/npc/generateNpc';
+import { useActionState } from 'react';
 
 export const QuickNpcDialog = ({
   open: controlledOpen,
@@ -34,8 +20,11 @@ export const QuickNpcDialog = ({
   const formRef = useRef<HTMLFormElement | null>(null);
   const [internalOpen, setInternalOpen] = useState(false);
   const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [state, formAction, pending] = useActionState<GenerateNpcState, FormData>(generateNpc, {
+    status: 'idle',
+  });
+  const [transitionPending, startTransition] = useTransition();
 
   const resolvedOpen = controlledOpen ?? internalOpen;
   const handleOpenChange = (isOpen: boolean) => {
@@ -45,32 +34,21 @@ export const QuickNpcDialog = ({
 
   useSaveShortcut({ formRef, saveShortcut: true, saveOnEnter: true, saveOnCmdEnter: true });
 
-  const generateNpc = async () => {
-    console.log('Generating NPC with description:', description);
-    try {
-      setError(null);
-      setLoading(true);
-      const res = await fetch('/api/npcs/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description }),
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `Request failed (${res.status})`);
-      }
-      const data = (await res.json()) as { npc?: GeneratedNpc; id?: string };
-      if (!data.id) {
-        throw new Error('Failed to save NPC.');
-      }
+  useEffect(() => {
+    if (state.status === 'success' && state.id) {
       handleOpenChange(false);
-      router.push(`/dm/npc/${data.id}`);
-    } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : 'Failed to generate NPC.');
-    } finally {
-      setLoading(false);
+      router.push(`/dm/npc/${state.id}`);
+    } else if (state.status === 'error') {
+      setError(state.message ?? 'Failed to generate NPC.');
     }
+  }, [state, router]);
+
+  const handleGenerate = () => {
+    if (!description.trim()) return;
+    setError(null);
+    const fd = new FormData();
+    fd.append('description', description.trim());
+    startTransition(() => formAction(fd));
   };
 
   return (
@@ -88,7 +66,13 @@ export const QuickNpcDialog = ({
           Describe the NPC and we&apos;ll draft a name, stats, and gear using Gemini.
         </Dialog.Description>
 
-        <form ref={formRef} onSubmit={generateNpc}>
+        <form
+          ref={formRef}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleGenerate();
+          }}
+        >
           <Box mb="3">
             <TextArea
               placeholder="e.g., Gruff dwarven blacksmith with a secret past"
@@ -107,8 +91,8 @@ export const QuickNpcDialog = ({
                 {error}
               </Text>
             )}
-            <Button type="submit" disabled={!description.trim() || loading}>
-              {loading ? (
+            <Button type="submit" disabled={!description.trim() || pending || transitionPending}>
+              {pending || transitionPending ? (
                 <Flex align="center" gap="2">
                   <Spinner /> Generating…
                 </Flex>

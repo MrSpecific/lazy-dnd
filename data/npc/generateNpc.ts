@@ -1,11 +1,14 @@
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
+'use server';
 
-import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 import { stackServerApp } from '@/stack/server';
 import { generateGeminiText } from '@/lib/gemini';
-import prisma from '@/lib/prisma';
 import { Alignment, Gender } from '@prisma/client';
+
+export type GenerateNpcState =
+  | { status: 'idle'; message?: string }
+  | { status: 'success'; id: string; npc?: Record<string, unknown> }
+  | { status: 'error'; message: string };
 
 const buildPrompt = (description: string) => {
   return `
@@ -50,6 +53,26 @@ const extractStat = (stats: Record<string, unknown> | undefined, key: string) =>
   return toInt(normalizedStats[key.toLowerCase()]);
 };
 
+const extractStatAny = (source: Record<string, unknown>, key: string) => {
+  const direct = extractStat(source, key);
+  if (direct != null) return direct;
+  const stats =
+    (source.stats as Record<string, unknown>) ??
+    (source.statBlock as Record<string, unknown>) ??
+    (source.stat_block as Record<string, unknown>) ??
+    (source.abilities as Record<string, unknown>);
+  return extractStat(stats, key);
+};
+
+const extractFlat = (source: Record<string, unknown>, keys: string[]) => {
+  for (const key of keys) {
+    const val = source[key];
+    const parsed = toInt(val);
+    if (parsed != null) return parsed;
+  }
+  return null;
+};
+
 const normalizeName = (value: unknown) => {
   if (typeof value !== 'string') return '';
   return value.trim();
@@ -75,7 +98,6 @@ const findRaceId = async (raw: unknown) => {
   return found?.id ?? null;
 };
 
-// Gemini sometimes wraps JSON in code fences or prefixes text; try to salvage the JSON object.
 const parseGeminiJson = (text: string) => {
   const trimmed = text.trim();
   const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -83,7 +105,6 @@ const parseGeminiJson = (text: string) => {
   try {
     return JSON.parse(candidate);
   } catch {
-    // Try to extract the first JSON object substring
     const start = candidate.indexOf('{');
     const end = candidate.lastIndexOf('}');
     if (start !== -1 && end !== -1 && end > start) {
@@ -98,46 +119,16 @@ const parseGeminiJson = (text: string) => {
   }
 };
 
-const extractStatAny = (source: Record<string, unknown>, key: string) => {
-  const direct = extractStat(source, key);
-  if (direct != null) return direct;
-  const stats =
-    (source.stats as Record<string, unknown>) ??
-    (source.statBlock as Record<string, unknown>) ??
-    (source.stat_block as Record<string, unknown>) ??
-    (source.abilities as Record<string, unknown>);
-  return extractStat(stats, key);
-};
-
-const extractFlat = (source: Record<string, unknown>, keys: string[]) => {
-  for (const key of keys) {
-    const val = source[key];
-    const parsed = toInt(val);
-    if (parsed != null) return parsed;
-  }
-  return null;
-};
-
-export async function POST(request: NextRequest) {
+export async function generateNpc(
+  _prev: GenerateNpcState,
+  formData: FormData
+): Promise<GenerateNpcState> {
   try {
     const user = await stackServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
+    if (!user) return { status: 'error', message: 'Unauthorized' };
 
-    let body: { description?: string } = {};
-    try {
-      body = (await request.json()) as { description?: string };
-    } catch {
-      return NextResponse.json(
-        { message: 'Invalid JSON body. Expected { "description": "..." }.' },
-        { status: 400 }
-      );
-    }
-    const description = body.description?.trim();
-    if (!description) {
-      return NextResponse.json({ message: 'Description is required' }, { status: 400 });
-    }
+    const description = (formData.get('description') as string | null)?.trim();
+    if (!description) return { status: 'error', message: 'Description is required.' };
 
     const prompt = buildPrompt(description);
     const { text } = await generateGeminiText(prompt, {
@@ -148,13 +139,8 @@ export async function POST(request: NextRequest) {
     const npc = parseGeminiJson(text) as Record<string, unknown>;
 
     const name = normalizeName(npc.name ?? npc.npcName ?? npc.fullName) || 'Generated NPC';
-    const title =
-      normalizeName(npc.title) ||
-      normalizeName(npc.class) ||
-      null;
-    const descriptionToUse =
-      normalizeName(npc.description) ||
-      description;
+    const title = normalizeName(npc.title) || normalizeName(npc.class) || null;
+    const descriptionToUse = normalizeName(npc.description) || description;
 
     const alignment = normalizeEnum(npc.alignment ?? npc.align, Alignment);
     const gender = normalizeEnum(npc.gender ?? npc.sex, Gender);
@@ -195,10 +181,10 @@ export async function POST(request: NextRequest) {
       select: { id: true },
     });
 
-    return NextResponse.json({ npc, id: created.id });
+    return { status: 'success', id: created.id, npc };
   } catch (error) {
     console.error('failed to generate npc', error);
-    const message = error instanceof Error ? error.message : 'Failed to generate NPC';
-    return NextResponse.json({ message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to generate NPC.';
+    return { status: 'error', message };
   }
 }
