@@ -11,6 +11,8 @@ type GenerateTextOptions = {
   maxOutputTokens?: number;
   systemInstruction?: string;
   signal?: AbortSignal;
+  timeoutMs?: number;
+  retries?: number;
 };
 
 type GenerateTextResult = {
@@ -40,6 +42,8 @@ export async function generateGeminiText(
     maxOutputTokens,
     systemInstruction,
     signal,
+    timeoutMs = 12000,
+    retries = 2,
   }: GenerateTextOptions = {}
 ): Promise<GenerateTextResult> {
   const apiKey = getApiKey();
@@ -69,25 +73,62 @@ export async function generateGeminiText(
     body.generationConfig = generationConfig;
   }
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'lazy-dnd/1.0 (gemini-helper)',
-    },
-    signal,
-    body: JSON.stringify(body),
-  });
+  const maxAttempts = Math.max(1, retries + 1);
+  let lastError: Error | null = null;
 
-  if (!response.ok) {
-    const errorText = await safeReadText(response);
-    throw new Error(`Gemini request failed (${response.status}): ${errorText}`);
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(new Error('timeout')), timeoutMs);
+    const handleAbort = () => controller.abort(signal?.reason ?? new Error('aborted'));
+    if (signal) {
+      if (signal.aborted) {
+        clearTimeout(timeoutId);
+        throw new Error('aborted');
+      }
+      signal.addEventListener('abort', handleAbort, { once: true });
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'lazy-dnd/1.0 (gemini-helper)',
+          Connection: 'close',
+        },
+        signal: controller.signal,
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const errorText = await safeReadText(response);
+        if (attempt < maxAttempts && isRetryableStatus(response.status)) {
+          await wait(attempt * 300);
+          continue;
+        }
+        throw new Error(`Gemini request failed (${response.status}): ${errorText}`);
+      }
+
+      const json = (await response.json()) as any;
+      const text = extractText(json);
+
+      return { text, raw: json };
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Gemini request failed');
+      if (attempt < maxAttempts && isRetryableError(lastError)) {
+        await wait(attempt * 300);
+        continue;
+      }
+      throw lastError;
+    } finally {
+      clearTimeout(timeoutId);
+      if (signal) {
+        signal.removeEventListener('abort', handleAbort);
+      }
+    }
   }
 
-  const json = (await response.json()) as any;
-  const text = extractText(json);
-
-  return { text, raw: json };
+  throw lastError ?? new Error('Gemini request failed');
 }
 
 const extractText = (payload: any): string => {
@@ -110,4 +151,20 @@ const safeReadText = async (response: Response) => {
   } catch {
     return '<no body>';
   }
+};
+
+const wait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+const isRetryableStatus = (status: number) => status === 429 || status >= 500;
+
+const isRetryableError = (error: Error) => {
+  const message = error.message.toLowerCase();
+  const code = (error as { code?: string }).code;
+  if (code === 'ECONNRESET') return true;
+  if (message.includes('aborted') || message.includes('timeout')) return true;
+  if (message.includes('fetch failed') || message.includes('network')) return true;
+  return false;
 };

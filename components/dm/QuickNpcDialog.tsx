@@ -96,7 +96,7 @@ export const QuickNpcDialog = ({
               onChange={(e) => setDescription(e.target.value)}
               onKeyDown={(e) => {
                 // Stop menu-level keyboard handlers from swallowing the space key.
-                // e.stopPropagation();
+                e.stopPropagation();
               }}
             />
           </Box>

@@ -120,7 +120,7 @@ const extractFlat = (source: Record<string, unknown>, keys: string[]) => {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await stackServerApp.getUser({ or: 'return-null' });
+    const user = await stackServerApp.getUser();
     if (!user) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
@@ -132,7 +132,10 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = buildPrompt(description);
-    const { text } = await generateGeminiText(prompt, { maxOutputTokens: 256, temperature: 0.8 });
+    const { text } = await generateGeminiText(prompt, {
+      maxOutputTokens: 256,
+      temperature: 0.8,
+    });
 
     const npc = parseGeminiJson(text) as Record<string, unknown>;
 
