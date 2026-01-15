@@ -13,6 +13,7 @@ type GenerateTextOptions = {
   signal?: AbortSignal;
   timeoutMs?: number;
   retries?: number;
+  responseMimeType?: string;
 };
 
 type GenerateTextResult = {
@@ -44,6 +45,7 @@ export async function generateGeminiText(
     signal,
     timeoutMs = 12000,
     retries = 2,
+    responseMimeType,
   }: GenerateTextOptions = {}
 ): Promise<GenerateTextResult> {
   const apiKey = getApiKey();
@@ -67,6 +69,7 @@ export async function generateGeminiText(
     topP,
     topK,
     maxOutputTokens,
+    responseMimeType,
   };
 
   if (Object.values(generationConfig).some((value) => value !== undefined)) {
@@ -139,6 +142,14 @@ const extractText = (payload: any): string => {
   return parts
     .map((part: any) => {
       if (typeof part?.text === 'string') return part.text;
+      const inlineData = part?.inlineData;
+      if (inlineData?.data && typeof inlineData.data === 'string') {
+        try {
+          return Buffer.from(inlineData.data, 'base64').toString('utf8');
+        } catch {
+          return '';
+        }
+      }
       return '';
     })
     .join('')
