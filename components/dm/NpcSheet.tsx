@@ -10,7 +10,11 @@ import { GenderSelect } from '@/components/character/GenderSelect';
 import { AlignmentSelect } from '@/components/character/AlignmentSelect';
 import { Form, FormInput } from '@/components/form';
 import { updateNpc, type UpdateNpcState, type NpcResponse } from '@/data/npc/updateNpc';
-import { CharacterNameInput, type Hints as NameHints } from '@/components/character/CharacterNameInput';
+import {
+  CharacterNameInput,
+  type Hints as NameHints,
+} from '@/components/character/CharacterNameInput';
+import { alignmentMeta } from '@/lib/helpers/alignment';
 
 type NpcSheetProps = {
   npc: NpcResponse;
@@ -92,6 +96,8 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
     ...(raceName ? [{ hint: 'Race', value: raceName }] : []),
   ];
 
+  const npcAlignment = alignmentMeta[view.alignment as Alignment];
+
   return (
     <Card>
       <Flex justify="between" align="start" mb="3">
@@ -101,7 +107,7 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
             {view.title ?? 'NPC'} • {className ?? 'Unclassed'} {raceName ?? ''}
           </Text>
           <Text color="gray" size="2">
-            {view.gender ?? 'Unspecified'} • {view.alignment ?? 'No alignment'}
+            {view.gender ?? 'Unspecified'} • {npcAlignment.label ?? 'No alignment'}
           </Text>
         </Box>
         <Button variant="surface" size="1" onClick={toggleEdit}>
@@ -137,7 +143,11 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
           )}
         </Box>
       ) : (
-        <Form action={formAction} submitText={pending ? 'Saving…' : 'Save'} submitDisabled={pending}>
+        <Form
+          action={formAction}
+          submitText={pending ? 'Saving…' : 'Save'}
+          submitDisabled={pending}
+        >
           <input type="hidden" name="npcId" value={npc.id} />
           <CharacterNameInput
             name="name"
@@ -151,7 +161,9 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
             name="title"
             label="Title"
             value={draft.title ?? ''}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setDraft({ ...draft, title: e.target.value })}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setDraft({ ...draft, title: e.target.value })
+            }
           />
           <RaceSelect
             name="race"
@@ -165,7 +177,10 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
             defaultValue={draft.classId ?? undefined}
             onValueChange={(val) => setDraft({ ...draft, classId: val })}
           />
-          <GenderSelect value={draft.gender ?? ''} onValueChange={(val) => setDraft({ ...draft, gender: val })} />
+          <GenderSelect
+            value={draft.gender ?? ''}
+            onValueChange={(val) => setDraft({ ...draft, gender: val })}
+          />
           <AlignmentSelect
             value={draft.alignment ?? ''}
             onValueChange={(val) => setDraft({ ...draft, alignment: val })}
@@ -175,7 +190,9 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
             name="description"
             label="Description"
             value={draft.description ?? ''}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setDraft({ ...draft, description: e.target.value })}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setDraft({ ...draft, description: e.target.value })
+            }
           />
 
           <Heading size="4" mt="3">
@@ -187,21 +204,27 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
               label="Armor Class"
               inputMode="numeric"
               value={draft.statBlock?.armorClass ?? ''}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => updateStatBlock('armorClass', e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                updateStatBlock('armorClass', e.target.value)
+              }
             />
             <FormInput
               name="maxHp"
               label="Hit Points"
               inputMode="numeric"
               value={draft.statBlock?.maxHp ?? ''}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => updateStatBlock('maxHp', e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                updateStatBlock('maxHp', e.target.value)
+              }
             />
             <FormInput
               name="speed"
               label="Speed"
               inputMode="numeric"
               value={draft.statBlock?.speed ?? ''}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => updateStatBlock('speed', e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                updateStatBlock('speed', e.target.value)
+              }
             />
           </Grid>
 
@@ -209,18 +232,27 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
             Abilities
           </Heading>
           <Grid columns={{ initial: '2', sm: '3' }} gap="2">
-            {(['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'] as const).map(
-              (ability) => (
-                <FormInput
-                  key={ability}
-                  name={ability}
-                  label={ability.toUpperCase()}
-                  inputMode="numeric"
-                  value={(draft.statBlock as any)?.[ability] ?? ''}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => updateStatBlock(ability, e.target.value)}
-                />
-              )
-            )}
+            {(
+              [
+                'strength',
+                'dexterity',
+                'constitution',
+                'intelligence',
+                'wisdom',
+                'charisma',
+              ] as const
+            ).map((ability) => (
+              <FormInput
+                key={ability}
+                name={ability}
+                label={ability.toUpperCase()}
+                inputMode="numeric"
+                value={(draft.statBlock as any)?.[ability] ?? ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updateStatBlock(ability, e.target.value)
+                }
+              />
+            ))}
           </Grid>
 
           {state.status === 'error' && (
@@ -234,7 +266,15 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
   );
 };
 
-const StatTile = ({ label, value, suffix }: { label: string; value: number | null; suffix?: string }) => (
+const StatTile = ({
+  label,
+  value,
+  suffix,
+}: {
+  label: string;
+  value: number | null;
+  suffix?: string;
+}) => (
   <Box p="2" style={{ border: '1px solid var(--gray-4)', borderRadius: 8 }}>
     <Text color="gray" size="1">
       {label}
