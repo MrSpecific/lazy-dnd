@@ -53,7 +53,25 @@ model GameSession {
   archived Boolean  @default(false)
 
   campaignId String
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaign   Campaign    @relation(fields: [campaignId], references: [id])
+  encounters Encounter[]
+
+  @@schema("public")
+}
+
+model Encounter {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  notes       String?
+  dmNotes     String?
+  loot        String?
+  difficulty  String?
+
+  sessionId String
+  session   GameSession @relation(fields: [sessionId], references: [id])
+
+  npcs Npc[] @relation("EncounterNpcs")
 
   @@schema("public")
 }

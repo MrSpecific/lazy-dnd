@@ -93,6 +93,7 @@ model Npc {
   relationshipsFrom NpcRelationship[] @relation("NpcRelationshipFrom")
   relationshipsTo   NpcRelationship[] @relation("NpcRelationshipTo")
   campaigns         Campaign[]        @relation("CampaignNpcs")
+  encounters        Encounter[]       @relation("EncounterNpcs")
 
   characterRelationships CharacterNpcRelationship[]
 
