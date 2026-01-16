@@ -26,9 +26,22 @@ export async function updateCampaign(
       return { status: 'error', message: 'Campaign id is required.' };
     }
 
-    const description = normalizeString(formData.get('description')) || null;
-    const notes = normalizeString(formData.get('notes')) || null;
-    const dmNotes = normalizeString(formData.get('dmNotes')) || null;
+    const data: { description?: string | null; notes?: string | null; dmNotes?: string | null } =
+      {};
+
+    if (formData.has('description')) {
+      data.description = normalizeString(formData.get('description')) || null;
+    }
+    if (formData.has('notes')) {
+      data.notes = normalizeString(formData.get('notes')) || null;
+    }
+    if (formData.has('dmNotes')) {
+      data.dmNotes = normalizeString(formData.get('dmNotes')) || null;
+    }
+
+    if (!Object.keys(data).length) {
+      return { status: 'error', message: 'No updates provided.' };
+    }
 
     const campaign = await prisma.campaign.findFirst({
       where: {
@@ -44,11 +57,7 @@ export async function updateCampaign(
 
     await prisma.campaign.update({
       where: { id: campaignId },
-      data: {
-        description,
-        notes,
-        dmNotes,
-      },
+      data,
     });
 
     return { status: 'success' };

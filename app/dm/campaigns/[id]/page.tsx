@@ -50,21 +50,7 @@ export default async function CampaignPage({ params }: { params: { id: string } 
         <Heading size="6">{campaign.name}</Heading>
       </Box>
 
-      <Box mb="5">
-        <Card>
-          <Heading size="4" mb="2">
-            Campaign details
-          </Heading>
-          <CampaignDetailsForm
-            campaignId={campaign.id}
-            description={campaign.description}
-            notes={campaign.notes}
-            dmNotes={campaign.dmNotes}
-          />
-        </Card>
-      </Box>
-
-      <Flex gap="4" wrap="wrap">
+      <Flex gap="4" wrap="wrap" mb="4">
         <Card style={{ flex: '1 1 280px' }}>
           <Heading size="4" mb="2">
             Dungeon Masters
@@ -104,6 +90,20 @@ export default async function CampaignPage({ params }: { params: { id: string } 
           )}
         </Card>
       </Flex>
+
+      <Box mb="5">
+        <Card>
+          <Heading size="4" mb="2">
+            Campaign details
+          </Heading>
+          <CampaignDetailsForm
+            campaignId={campaign.id}
+            description={campaign.description}
+            notes={campaign.notes}
+            dmNotes={campaign.dmNotes}
+          />
+        </Card>
+      </Box>
     </Section>
   );
 }
