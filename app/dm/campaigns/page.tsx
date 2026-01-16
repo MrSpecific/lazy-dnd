@@ -17,10 +17,7 @@ export default async function () {
   return (
     <Section pt="0">
       <Box mb="5">
-        <Heading size="6">My stuff</Heading>
-        <Text size="2" color="gray">
-          Campaigns, NPCs, and the worlds you&apos;re building.
-        </Text>
+        <Heading size="6">Campaigns</Heading>
       </Box>
 
       <Box mb="6">
@@ -35,10 +32,6 @@ export default async function () {
             No campaigns yet. Start one to invite players and track sessions.
           </Text>
         </Card>
-      </Box>
-
-      <Box>
-        <NpcList npcs={npcs} detail="medium" />
       </Box>
     </Section>
   );

@@ -85,7 +85,14 @@ export const DmActions = () => {
           >
             New NPC
           </DropdownMenu.Item>
+          <DropdownMenu.Item onSelect={() => navigate('/dm/campaigns/new')}>
+            New Campaign
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
           <DropdownMenu.Item onSelect={() => navigate('/dm/npcs')}>My NPCs</DropdownMenu.Item>
+          <DropdownMenu.Item onSelect={() => navigate('/dm/campaigns')}>
+            My Campaigns
+          </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
       <QuickNpcDialog showTrigger={false} open={quickNpcOpen} onOpenChange={setQuickNpcOpen} />
