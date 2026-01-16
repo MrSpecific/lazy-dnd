@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Badge, Box, Button, Flex, IconButton, Text, TextField } from '@radix-ui/themes';
 import { Cross2Icon, PlusIcon } from '@radix-ui/react-icons';
 import { useUser } from '@stackframe/stack';
 import { Form, FormInput, InputLabel, MarkdownInput } from '@/components/form';
+import { createCampaign, type CreateCampaignState } from '@/data/campaign/createCampaign';
 
 const splitPlayers = (value: string) =>
   value
@@ -14,8 +16,19 @@ const splitPlayers = (value: string) =>
 
 export const CampaignForm = () => {
   const user = useUser();
+  const router = useRouter();
   const [playerInput, setPlayerInput] = useState('');
   const [players, setPlayers] = useState<string[]>([]);
+  const [state, formAction, pending] = useActionState<CreateCampaignState, FormData>(
+    createCampaign,
+    { status: 'idle' },
+  );
+
+  useEffect(() => {
+    if (state.status === 'success' && state.id) {
+      router.push(`/dm/campaigns/${state.id}`);
+    }
+  }, [state, router]);
 
   const handleAddPlayers = (value: string) => {
     const nextPlayers = splitPlayers(value);
@@ -38,15 +51,14 @@ export const CampaignForm = () => {
 
   return (
     <Form
-      submitText="Create campaign"
-      onSubmit={(event) => {
-        event.preventDefault();
-      }}
+      action={formAction}
+      submitText={pending ? 'Creating…' : 'Create campaign'}
+      submitDisabled={pending}
     >
       <Flex direction="column" gap="4" mb="4">
         <FormInput
           name="name"
-          label="Campaign Name"
+          label="Campaign name"
           placeholder="Shadows over Stormpeak"
           required
         />
@@ -70,14 +82,9 @@ export const CampaignForm = () => {
         </Box>
 
         <Box>
-          <InputLabel
-            label="Players"
-            tooltip="Add players by email or username."
-            htmlFor="playersInput"
-          />
+          <InputLabel label="Players" tooltip="Add players by email or username." />
           <Flex gap="2" align="center" mt="1" wrap="wrap">
             <TextField.Root
-              name="playersInput"
               value={playerInput}
               placeholder="mara@example.com, thorin"
               onChange={(event) => setPlayerInput(event.target.value)}
@@ -131,6 +138,11 @@ export const CampaignForm = () => {
             </Text>
           )}
         </Box>
+        {state.status === 'error' && (
+          <Text color="red" size="2">
+            {state.message ?? 'Failed to create campaign.'}
+          </Text>
+        )}
       </Flex>
     </Form>
   );
