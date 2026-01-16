@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { Box, Card, Flex, Heading, Section, Text } from '@radix-ui/themes';
 import prisma from '@/lib/prisma';
 import { stackServerApp } from '@/stack/server';
+import { CampaignDetailsForm } from '@/components/dm/CampaignDetailsForm';
 
 const formatName = (person: { name: string | null; email: string | null }) =>
   person.name || person.email || 'Unknown';
@@ -19,6 +20,8 @@ export default async function CampaignPage({ params }: { params: { id: string } 
       id: true,
       name: true,
       description: true,
+      notes: true,
+      dmNotes: true,
       ownerId: true,
       dms: {
         select: {
@@ -45,11 +48,20 @@ export default async function CampaignPage({ params }: { params: { id: string } 
     <Section pt="0">
       <Box mb="4">
         <Heading size="6">{campaign.name}</Heading>
-        {campaign.description && (
-          <Text size="2" color="gray">
-            {campaign.description}
-          </Text>
-        )}
+      </Box>
+
+      <Box mb="5">
+        <Card>
+          <Heading size="4" mb="2">
+            Campaign details
+          </Heading>
+          <CampaignDetailsForm
+            campaignId={campaign.id}
+            description={campaign.description}
+            notes={campaign.notes}
+            dmNotes={campaign.dmNotes}
+          />
+        </Card>
       </Box>
 
       <Flex gap="4" wrap="wrap">

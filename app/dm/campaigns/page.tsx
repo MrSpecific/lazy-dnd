@@ -1,10 +1,9 @@
 import { notFound } from 'next/navigation';
-import { Box, Card, Flex, Heading, Section, Text } from '@radix-ui/themes';
+import { Box, Card, Flex, Grid, Heading, Section, Text } from '@radix-ui/themes';
 import { PlusCircle } from 'lucide-react';
 import { stackServerApp } from '@/stack/server';
-import { getNpcs } from '@/data/npc/getNpcs';
-import { NpcList } from '@/components/npc/NpcList';
-import { ButtonLink } from '@/components/common/Link';
+import { getCampaigns } from '@/data/campaign/getCampaigns';
+import { ButtonLink, Link } from '@/components/common/Link';
 
 export default async function () {
   const user = await stackServerApp.getUser({ or: 'return-null' });
@@ -12,7 +11,7 @@ export default async function () {
     notFound();
   }
 
-  const npcs = await getNpcs(user.id);
+  const campaigns = await getCampaigns(user.id);
 
   return (
     <Section pt="0">
@@ -27,11 +26,28 @@ export default async function () {
             <PlusCircle size="1em" /> Start new
           </ButtonLink>
         </Flex>
-        <Card>
-          <Text color="gray" size="2">
-            No campaigns yet. Start one to invite players and track sessions.
-          </Text>
-        </Card>
+        {campaigns.length ? (
+          <Grid columns={{ initial: '1', sm: '2', md: '3' }} gap="3">
+            {campaigns.map((campaign) => (
+              <Link key={campaign.id} href={`/dm/campaigns/${campaign.id}`}>
+                <Card>
+                  <Heading size="3">{campaign.name}</Heading>
+                  {campaign.description && (
+                    <Text color="gray" size="2">
+                      {campaign.description}
+                    </Text>
+                  )}
+                </Card>
+              </Link>
+            ))}
+          </Grid>
+        ) : (
+          <Card>
+            <Text color="gray" size="2">
+              No campaigns yet. Start one to invite players and track sessions.
+            </Text>
+          </Card>
+        )}
       </Box>
     </Section>
   );
