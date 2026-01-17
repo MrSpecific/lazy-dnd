@@ -12,6 +12,8 @@ import { getNpcs } from '@/data/npc/getNpcs';
 import { NpcList } from '@/components/npc/NpcList';
 import { Link } from '@/components/common/Link';
 import Illustration from '@/components/svg/lazy-dragon.svg';
+import prisma from '@/lib/prisma';
+import { InvitesAndConnectionsSection } from '@/components/player/InvitesAndConnectionsSection';
 
 const btoa = (str: string) => Buffer.from(str).toString('base64');
 
@@ -43,6 +45,31 @@ export default async function () {
   const characters = user ? await getCharacters(user.id) : [];
   const npcs = user ? await getNpcs(user.id) : [];
 
+  const [invitedCampaigns, parties] = user
+    ? await Promise.all([
+        prisma.campaign.findMany({
+          where: {
+            players: { some: { id: user.id } },
+            NOT: { OR: [{ ownerId: user.id }, { dms: { some: { id: user.id } } }] },
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            owner: { select: { name: true, email: true } },
+          },
+          orderBy: { updatedAt: 'desc' },
+        }),
+        prisma.playerParty.findMany({
+          where: { ownerId: user.id },
+          select: { id: true, campaigns: { select: { id: true } } },
+        }),
+      ])
+    : [[], []];
+
+  const partyCampaignIds = new Set(parties.flatMap((party) => party.campaigns.map((c) => c.id)));
+  const pendingInvites = invitedCampaigns.filter((campaign) => !partyCampaignIds.has(campaign.id));
+
   return (
     <>
       {/* <ThemePanel /> */}
@@ -52,6 +79,23 @@ export default async function () {
         <Card>
           {user ? (
             <>
+              <Box mb="6">
+                <InvitesAndConnectionsSection
+                  pendingInvites={pendingInvites.map((invite) => ({
+                    id: invite.id,
+                    name: invite.name,
+                    description: invite.description ?? null,
+                    ownerName: invite.owner?.name ?? invite.owner?.email ?? null,
+                  }))}
+                  characters={characters.map((character) => ({
+                    id: character.id,
+                    name: character.name,
+                    className: character.className,
+                    raceName: character.raceName,
+                    level: character.level,
+                  }))}
+                />
+              </Box>
               <CharacterList characters={characters} />
               {npcs?.length > 0 && (
                 <Box mt="6">

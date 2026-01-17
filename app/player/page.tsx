@@ -3,8 +3,7 @@ import { Box, Card, Flex, Grid, Heading, Section, Text } from '@radix-ui/themes'
 import prisma from '@/lib/prisma';
 import { stackServerApp } from '@/stack/server';
 import { getCharacters } from '@/data/character/getCharacters';
-import { CampaignInviteCard } from '@/components/player/CampaignInviteCard';
-import { FriendRequestForm } from '@/components/player/FriendRequestForm';
+import { InvitesAndConnectionsSection } from '@/components/player/InvitesAndConnectionsSection';
 
 export default async function () {
   const user = await stackServerApp.getUser({ or: 'return-null' });
@@ -61,38 +60,17 @@ export default async function () {
       </Box>
 
       <Box mb="6">
-        <Flex align="center" justify="between" mb="2">
-          <Heading size="4">Campaign invites</Heading>
-          <Text size="1" color="gray">
-            {pendingInvites.length} pending
-          </Text>
-        </Flex>
-        {pendingInvites.length ? (
-          <Grid columns={{ initial: '1', md: '2' }} gap="3">
-            {pendingInvites.map((invite) => (
-              <CampaignInviteCard
-                key={invite.id}
-                invite={{
-                  id: invite.id,
-                  name: invite.name,
-                  description: invite.description ?? null,
-                  ownerName: invite.owner?.name ?? invite.owner?.email ?? null,
-                }}
-                characters={characterOptions}
-              />
-            ))}
-          </Grid>
-        ) : (
-          <Card>
-            <Text size="2" color="gray">
-              No pending invites right now.
-            </Text>
-          </Card>
-        )}
-      </Box>
-
-      <Box mb="6">
-        <FriendRequestForm />
+        <InvitesAndConnectionsSection
+          heading="Invites & Connections"
+          subheading="Manage campaign invites and send friend requests."
+          pendingInvites={pendingInvites.map((invite) => ({
+            id: invite.id,
+            name: invite.name,
+            description: invite.description ?? null,
+            ownerName: invite.owner?.name ?? invite.owner?.email ?? null,
+          }))}
+          characters={characterOptions}
+        />
       </Box>
 
       <Box>
