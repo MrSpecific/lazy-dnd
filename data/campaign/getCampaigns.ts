@@ -13,14 +13,25 @@ export type CampaignSummary = {
   updatedAt: Date;
 };
 
-export async function getCampaigns(userId?: string): Promise<CampaignSummary[]> {
+export async function getCampaigns(
+  userId?: string,
+  scope: 'dm' | 'player' = 'dm',
+): Promise<CampaignSummary[]> {
   const resolvedUserId = userId ?? (await stackServerApp.getUser())?.id;
   if (!resolvedUserId) return [];
 
+  const whereClause =
+    scope === 'player'
+      ? {
+          players: { some: { id: resolvedUserId } },
+          NOT: { OR: [{ ownerId: resolvedUserId }, { dms: { some: { id: resolvedUserId } } }] },
+        }
+      : {
+          OR: [{ ownerId: resolvedUserId }, { dms: { some: { id: resolvedUserId } } }],
+        };
+
   const campaigns = await prisma.campaign.findMany({
-    where: {
-      OR: [{ ownerId: resolvedUserId }, { dms: { some: { id: resolvedUserId } } }],
-    },
+    where: whereClause,
     orderBy: { updatedAt: 'desc' },
     select: {
       id: true,

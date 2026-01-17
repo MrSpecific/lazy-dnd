@@ -9,6 +9,7 @@ export type WeaponEntry = {
   name: string;
   baseName?: string | null;
   description: string | null;
+  damage: string | null;
   weight: number | null;
   slot: EquipmentSlot | null;
   equipped: boolean;
@@ -46,6 +47,12 @@ const ensureCharacterAccess = async (characterId: string, userId: string) => {
   }
 };
 
+const parseDamageFromDescription = (description: string | null) => {
+  if (!description) return null;
+  const match = description.match(/damage:\s*([^|]+)/i);
+  return match?.[1]?.trim() ?? null;
+};
+
 export async function getCharacterWeapons(
   characterId: string,
   userId?: string
@@ -66,6 +73,9 @@ export async function getCharacterWeapons(
     name: ci.customName ?? ci.item?.name ?? 'Weapon Name',
     baseName: ci.item?.name ?? null,
     description: ci.customDescription ?? ci.item?.description ?? 'No description.',
+    damage:
+      ci.item?.damage ??
+      parseDamageFromDescription(ci.customDescription ?? ci.item?.description ?? null),
     weight: ci.item?.weight ?? null,
     slot: ci.slot,
     equipped: ci.equipped,
@@ -137,13 +147,9 @@ export async function addWeapon(
       return { status: 'error', message: 'Weapon name is required.' };
     }
 
-    const descriptionParts: string[] = [];
-    if (damage && typeof damage === 'string' && damage.trim())
-      descriptionParts.push(`Damage: ${damage.trim()}`);
-    if (properties && typeof properties === 'string' && properties.trim())
-      descriptionParts.push(properties.trim());
-
-    const description = descriptionParts.length ? descriptionParts.join(' | ') : null;
+    const damageValue = typeof damage === 'string' ? damage.trim() : '';
+    const propertiesValue = typeof properties === 'string' ? properties.trim() : '';
+    const description = propertiesValue ? propertiesValue : null;
     const parsedWeight = typeof weight === 'string' && weight.trim() ? Number(weight) : null;
     const slotValue =
       typeof slot === 'string' && ['MAIN_HAND', 'OFF_HAND', 'TWO_HANDED'].includes(slot)
@@ -154,6 +160,7 @@ export async function addWeapon(
       data: {
         name: name.trim(),
         description,
+        damage: damageValue || null,
         weight: Number.isNaN(parsedWeight) ? null : parsedWeight,
         rarity: ItemRarity.COMMON,
         isConsumable: false,
@@ -176,6 +183,7 @@ export async function addWeapon(
         name: item.name,
         baseName: item.name,
         description: item.description,
+        damage: item.damage,
         weight: item.weight,
         slot: characterItem.slot,
         equipped: characterItem.equipped,
@@ -232,6 +240,7 @@ export async function addExistingWeapon(
         id: characterItem.id,
         name: item.name,
         description: item.description,
+        damage: item.damage,
         weight: item.weight,
         slot: characterItem.slot,
         equipped: characterItem.equipped,
@@ -307,6 +316,9 @@ export async function updateWeapon(
         name: updated.customName ?? updated.item?.name ?? 'Weapon Name',
         baseName: updated.item?.name ?? null,
         description: updated.customDescription ?? updated.item?.description ?? 'No description.',
+        damage:
+          updated.item?.damage ??
+          parseDamageFromDescription(updated.customDescription ?? updated.item?.description ?? null),
         weight: updated.item?.weight ?? null,
         slot: updated.slot,
         equipped: updated.equipped,

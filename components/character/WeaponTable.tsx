@@ -10,6 +10,7 @@ export type WeaponRow = {
   name: string;
   baseName?: string | null;
   description: string | null;
+  damage: string | null;
   weight: number | null;
   slot: EquipmentSlot | null;
   equipped: boolean;
@@ -39,6 +40,7 @@ export const WeaponTable = ({ weapons, onEdit, onRemove, disableActions = false 
       <Table.Header>
         <Table.Row>
           <Table.ColumnHeaderCell>Name</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell align="center">Damage</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell>Description</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell align="center">Slot</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell align="center">Weight</Table.ColumnHeaderCell>
@@ -62,6 +64,9 @@ export const WeaponTable = ({ weapons, onEdit, onRemove, disableActions = false 
                   )}
                 </Box>
               </Table.RowHeaderCell>
+              <Table.Cell align="center">
+                <Text color="gray">{weapon.damage || '—'}</Text>
+              </Table.Cell>
               <Table.Cell>
                 <Text color="gray">{weapon.description || '—'}</Text>
               </Table.Cell>
@@ -124,7 +129,7 @@ export const WeaponTable = ({ weapons, onEdit, onRemove, disableActions = false 
           ))
         ) : (
           <Table.Row>
-            <Table.Cell colSpan={showActions ? 6 : 5}>
+            <Table.Cell colSpan={showActions ? 7 : 6}>
               <Flex justify="center" py="4">
                 <Text color="gray">No weapons added yet.</Text>
               </Flex>

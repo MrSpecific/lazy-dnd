@@ -13,7 +13,7 @@ export default async function () {
     notFound();
   }
 
-  const campaigns = await getCampaigns(user.id);
+  const campaigns = await getCampaigns(user.id, 'dm');
   const npcs = await getNpcs(user.id);
 
   return (

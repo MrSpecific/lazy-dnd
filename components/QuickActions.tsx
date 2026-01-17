@@ -130,6 +130,9 @@ export const PlayerActions = () => {
         <DropdownMenu.Item onSelect={() => navigate('/player/characters')}>
           My Characters
         </DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={() => navigate('/player/campaigns')}>
+          My Campaigns
+        </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );
