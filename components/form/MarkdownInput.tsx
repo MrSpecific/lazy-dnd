@@ -6,8 +6,10 @@ import {
   FontBoldIcon,
   FontItalicIcon,
   Link1Icon,
+  ListBulletIcon,
   QuestionMarkCircledIcon,
 } from '@radix-ui/react-icons';
+import { ListOrdered } from 'lucide-react';
 import { InputLabel } from './InputLabel';
 
 type MarkdownInputProps = {
@@ -52,12 +54,14 @@ export const MarkdownInput: React.FC<MarkdownInputProps> = ({
     onValueChange(nextValue);
   };
 
+  const getTextarea = () => document.getElementById(inputId) as HTMLTextAreaElement | null;
+
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateValue(event.target.value);
   };
 
   const applyMarkdownSyntax = (syntax: string) => {
-    const textarea = document.getElementById(inputId) as HTMLTextAreaElement | null;
+    const textarea = getTextarea();
     if (!textarea) return;
     const start = textarea.selectionStart ?? 0;
     const end = textarea.selectionEnd ?? start;
@@ -74,6 +78,44 @@ export const MarkdownInput: React.FC<MarkdownInputProps> = ({
     requestAnimationFrame(() => {
       textarea.focus();
       textarea.setSelectionRange(start, selectionEnd);
+    });
+  };
+
+  const applyListSyntax = (type: 'bullet' | 'ordered') => {
+    const textarea = getTextarea();
+    if (!textarea) return;
+    const value = textarea.value;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? start;
+    const blockStart = value.lastIndexOf('\n', start - 1) + 1;
+    const blockEndIndex = value.indexOf('\n', end);
+    const blockEnd = blockEndIndex === -1 ? value.length : blockEndIndex;
+    const block = value.slice(blockStart, blockEnd);
+    const lines = block.split('\n');
+
+    let order = 1;
+    const formattedLines = lines.map((line) => {
+      if (!line.trim()) return line;
+      if (type === 'bullet') {
+        return /^\s*[-*+]\s+/.test(line) ? line : `- ${line}`;
+      }
+      if (/^\s*\d+\.\s+/.test(line)) return line;
+      return `${order++}. ${line}`;
+    });
+
+    const formattedBlock = formattedLines.join('\n');
+    const updatedText = value.slice(0, blockStart) + formattedBlock + value.slice(blockEnd);
+    updateValue(updatedText);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      if (start === end) {
+        const prefixDelta = formattedLines[0].length - lines[0].length;
+        const cursor = start + prefixDelta;
+        textarea.setSelectionRange(cursor, cursor);
+      } else {
+        textarea.setSelectionRange(blockStart, blockStart + formattedBlock.length);
+      }
     });
   };
 
@@ -123,6 +165,24 @@ export const MarkdownInput: React.FC<MarkdownInputProps> = ({
             variant="soft"
           >
             <Link1Icon />
+          </IconButton>
+          <IconButton
+            type="button"
+            onClick={() => applyListSyntax('bullet')}
+            size="1"
+            color="gray"
+            variant="soft"
+          >
+            <ListBulletIcon />
+          </IconButton>
+          <IconButton
+            type="button"
+            onClick={() => applyListSyntax('ordered')}
+            size="1"
+            color="gray"
+            variant="soft"
+          >
+            <ListOrdered size={14} />
           </IconButton>
         </Flex>
       </Flex>

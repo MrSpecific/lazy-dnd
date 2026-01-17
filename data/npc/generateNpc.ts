@@ -257,6 +257,7 @@ export async function generateNpc(
       modelName !== '' ||
       title != null ||
       modelDescription !== '' ||
+      descriptionToUse.trim() !== '' ||
       alignment != null ||
       gender != null ||
       raceId != null ||

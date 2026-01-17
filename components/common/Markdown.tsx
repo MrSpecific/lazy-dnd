@@ -10,6 +10,11 @@ interface MarkdownProps {
 export const Markdown: React.FC<MarkdownProps> = ({ children }) => (
   <MarkdownComponent
     components={{
+      p: ({ children, ...props }) => (
+        <p style={{ whiteSpace: 'pre-wrap' }} {...props}>
+          {children}
+        </p>
+      ),
       a: ({ children, href, target }) => (
         <Link href={href as string} target={target}>
           {children}
