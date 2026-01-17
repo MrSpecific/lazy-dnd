@@ -146,7 +146,7 @@ export const SpellSection = ({
 
       <Box mt="4">
         {spellsByLevel.length === 0 ? (
-          <Text color="gray" size="2">
+          <Text as="div" color="gray" size="2" mb="6">
             No spells yet. Add cantrips and choose prepared spells to see them here.
           </Text>
         ) : (
