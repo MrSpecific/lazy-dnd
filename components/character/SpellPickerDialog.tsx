@@ -111,8 +111,6 @@ export const SpellPickerDialog = ({
             <Table.Header>
               <Table.Row>
                 <Table.ColumnHeaderCell>Spell</Table.ColumnHeaderCell>
-                <Table.ColumnHeaderCell align="center">Level</Table.ColumnHeaderCell>
-                <Table.ColumnHeaderCell align="center">School</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell>Description</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell align="center">Tags</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell align="center">Select</Table.ColumnHeaderCell>
@@ -122,13 +120,24 @@ export const SpellPickerDialog = ({
               {items.map((item) => (
                 <Table.Row key={item.id}>
                   <Table.RowHeaderCell>
-                    <Flex gap="2" align="center">
-                      <Sparkles size="1em" />
-                      {item.name}
+                    <Flex align="start" gap="2">
+                      <Box mt="1">
+                        <Sparkles size="1em" />
+                      </Box>
+                      <Flex gap="1" direction="column">
+                        <Text as="div" weight="bold">
+                          {item.name}
+                        </Text>
+                        <Text as="div" color={item.level === 0 ? 'jade' : 'iris'} size="1">
+                          {item.level === 0 ? 'Cantrip' : `Level ${item.level}`}
+                        </Text>
+
+                        <Text as="div" size="1" color="gray">
+                          {formatSchool(item.school)}
+                        </Text>
+                      </Flex>
                     </Flex>
                   </Table.RowHeaderCell>
-                  <Table.Cell align="center">{item.level === 0 ? 'Cantrip' : item.level}</Table.Cell>
-                  <Table.Cell align="center">{formatSchool(item.school)}</Table.Cell>
                   <Table.Cell>
                     <Text color="gray">{item.description || '—'}</Text>
                   </Table.Cell>
@@ -167,7 +176,10 @@ export const SpellPickerDialog = ({
               <Text size="2" weight="bold">
                 Add as:
               </Text>
-              <Select.Root value={knowledge} onValueChange={(val) => setKnowledge(val as SpellKnowledgeType)}>
+              <Select.Root
+                value={knowledge}
+                onValueChange={(val) => setKnowledge(val as SpellKnowledgeType)}
+              >
                 <Select.Trigger />
                 <Select.Content>
                   <Select.Item value={SpellKnowledgeType.KNOWN}>Known spell</Select.Item>
