@@ -7,7 +7,7 @@ import {
   Box,
   Button,
   Card,
-  CheckboxGroup,
+  Checkbox,
   Flex,
   Heading,
   Text,
@@ -114,24 +114,43 @@ export const CampaignInviteCard = ({ invite, characters }: CampaignInviteCardPro
             <Box>
               <InputLabel label="Choose characters" />
               {characters.length ? (
-                <CheckboxGroup.Root
-                  value={selectedCharacters}
-                  onValueChange={(value) => setSelectedCharacters(value)}
-                >
-                  <Flex direction="column" gap="2">
-                    {characters.map((character) => (
+                <Flex direction="column" gap="2">
+                  {characters.map((character) => {
+                    const label = buildCharacterLabel(character);
+                    const inputId = `party-character-${character.id}`;
+                    const isChecked = selectedCharacters.includes(character.id);
+
+                    return (
                       <Flex key={character.id} align="center" gap="2">
-                        <CheckboxGroup.Item value={character.id} />
+                        <Checkbox
+                          id={inputId}
+                          checked={isChecked}
+                          onCheckedChange={(checked) => {
+                            setSelectedCharacters((prev) => {
+                              const shouldAdd = checked === true;
+                              if (shouldAdd) {
+                                return prev.includes(character.id)
+                                  ? prev
+                                  : [...prev, character.id];
+                              }
+                              return prev.filter((entry) => entry !== character.id);
+                            });
+                          }}
+                        />
                         <Box>
-                          <Text size="2">{character.name}</Text>
-                          <Text size="1" color="gray">
-                            {buildCharacterLabel(character)}
+                          <Text as="label" htmlFor={inputId} size="2">
+                            {character.name}
                           </Text>
+                          {label && (
+                            <Text size="1" color="gray">
+                              {label}
+                            </Text>
+                          )}
                         </Box>
                       </Flex>
-                    ))}
-                  </Flex>
-                </CheckboxGroup.Root>
+                    );
+                  })}
+                </Flex>
               ) : (
                 <Text size="1" color="gray">
                   No characters yet.{' '}
