@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
+import { useActionState, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
 import { Shield } from 'lucide-react';
 import { ArmorTable, type ArmorRow } from '@/components/character/ArmorTable';
@@ -32,6 +32,18 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
   const [localError, setLocalError] = useState<string | null>(null);
   const [editArmor, setEditArmor] = useState<ArmorRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const handleEditOpenChange = useCallback((isOpen: boolean) => {
+    if (!isOpen) setEditArmor(null);
+  }, []);
+
+  const handleArmorUpdated = useCallback(
+    (updated: ArmorRow) => {
+      setArmor((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+      notifyArmorChanged();
+    },
+    [notifyArmorChanged]
+  );
 
   useEffect(() => {
     if (state.status === 'success' && state.armor) {
@@ -97,15 +109,10 @@ export const ArmorSection = ({ characterId, initialArmor, catalog }: ArmorSectio
 
       <ArmorEditDialog
         open={!!editArmor}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setEditArmor(null);
-        }}
+        onOpenChange={handleEditOpenChange}
         armor={editArmor}
-      onUpdated={(updated) => {
-        setArmor((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
-        notifyArmorChanged();
-      }}
-    />
+        onUpdated={handleArmorUpdated}
+      />
 
       <ArmorPickerDialog
         open={pickerOpen}

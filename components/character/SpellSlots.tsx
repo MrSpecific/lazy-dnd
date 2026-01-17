@@ -29,15 +29,22 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
   const [slots, setSlots] = useState<Record<number, SpellSlotRow>>(() =>
     toSlotRecord(initialSlots)
   );
+  const [savedSlots, setSavedSlots] = useState<Record<number, SpellSlotRow>>(() =>
+    toSlotRecord(initialSlots)
+  );
   const [savingLevel, setSavingLevel] = useState<number | null>(null);
 
   useEffect(() => {
-    setSlots(toSlotRecord(initialSlots));
+    const next = toSlotRecord(initialSlots);
+    setSlots(next);
+    setSavedSlots(next);
   }, [initialSlots]);
 
   useEffect(() => {
     if (state.status === 'success' && state.slots) {
-      setSlots(toSlotRecord(state.slots));
+      const next = toSlotRecord(state.slots);
+      setSlots(next);
+      setSavedSlots(next);
       onUpdated?.(state.slots);
       setLocalError(null);
     } else if (state.status === 'error') {
@@ -50,7 +57,9 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
     startRestTransition(async () => {
       const result = await resetSpellSlots({ characterId });
       if (result.status === 'success' && result.slots) {
-        setSlots(toSlotRecord(result.slots));
+        const next = toSlotRecord(result.slots);
+        setSlots(next);
+        setSavedSlots(next);
         onUpdated?.(result.slots);
         setLocalError(null);
       } else if (result.status === 'error') {
@@ -103,6 +112,9 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
 
   const renderRow = (level: number) => {
     const slot = slots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
+    const saved = savedSlots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
+    const rowDirty =
+      slot.maxSlots !== saved.maxSlots || slot.currentSlots !== saved.currentSlots;
     const rowPending = pending || transitionPending || restPending;
     const controlsDisabled = rowPending || slot.maxSlots <= 0;
     return (
@@ -167,7 +179,7 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
             <Button
               type="button"
               size="1"
-              disabled={rowPending}
+              disabled={rowPending || !rowDirty}
               onClick={() => submitSlot(level)}
             >
               {savingLevel === level && rowPending ? 'Saving…' : 'Save'}

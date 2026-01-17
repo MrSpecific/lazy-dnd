@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useState, useTransition } from 'react';
+import { useActionState, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
 import { BowArrow } from 'lucide-react';
 import { WeaponForm } from '@/components/character/WeaponForm';
@@ -40,6 +40,14 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [editWeapon, setEditWeapon] = useState<WeaponRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const handleEditOpenChange = useCallback((isOpen: boolean) => {
+    if (!isOpen) setEditWeapon(null);
+  }, []);
+
+  const handleWeaponUpdated = useCallback((weapon: WeaponRow) => {
+    setWeapons((prev) => prev.map((w) => (w.id === weapon.id ? weapon : w)));
+  }, []);
 
   useEffect(() => {
     if (state.status === 'success' && state.weapon) {
@@ -132,13 +140,9 @@ export const WeaponSection = ({ characterId, initialWeapons, catalog }: WeaponSe
 
       <WeaponEditDialog
         open={!!editWeapon}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setEditWeapon(null);
-        }}
+        onOpenChange={handleEditOpenChange}
         weapon={editWeapon}
-        onUpdated={(weapon) => {
-          setWeapons((prev) => prev.map((w) => (w.id === weapon.id ? weapon : w)));
-        }}
+        onUpdated={handleWeaponUpdated}
       />
 
       <WeaponPickerDialog
