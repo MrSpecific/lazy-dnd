@@ -46,27 +46,29 @@ export async function updateArmorClass(
         dex?.baseScore !== undefined ? dex.baseScore + dex.bonus + dex.temporary : null;
       const dexMod = dexScore != null ? Math.floor((dexScore - 10) / 2) : 0;
 
-      const equippedArmor = character.inventory
-        .filter((ci) => ci.equipped && ci.item?.type === 'ARMOR' && ci.item?.armorClass != null)
-        .sort((a, b) => (b.item?.armorClass ?? 0) - (a.item?.armorClass ?? 0))[0];
+      const parseArmorClassFromDescription = (description: string | null) => {
+        if (!description) return null;
+        const acMatch = description.match(/\b(?:ac|armor class)\s*[:=]?\s*(\d{1,2})\b/i);
+        return acMatch ? Number(acMatch[1]) : null;
+      };
 
-      const shieldBonus =
-        character.inventory
-          .filter(
-            (ci) =>
-              ci.equipped &&
-              ci.item?.type === 'ARMOR' &&
-              (ci.item?.name?.toLowerCase().includes('shield') || ci.slot === 'OFF_HAND') &&
-              ci.item.armorClass != null
-          )
-          .reduce((max, ci) => Math.max(max, ci.item?.armorClass ?? 0), 0) || 0;
+      const equippedArmorValues = character.inventory
+        .filter((ci) => ci.equipped)
+        .map((ci) => {
+          const armorClass =
+            ci.item?.armorClass ?? parseArmorClassFromDescription(ci.item?.description ?? null);
+          return typeof armorClass === 'number' && Number.isFinite(armorClass) ? armorClass : null;
+        })
+        .filter((value): value is number => value != null);
 
-      const baseArmor =
-        equippedArmor?.item?.armorClass != null
-          ? (equippedArmor.item.armorClass as number) + Math.max(dexMod, 0)
-          : 10 + dexMod;
+      const baseCandidates = equippedArmorValues.filter((value) => value >= 10);
+      const baseArmor = baseCandidates.length ? Math.max(...baseCandidates) : 10;
+      const bonusArmor = equippedArmorValues.filter((value) =>
+        baseCandidates.length ? value < 10 : value > 0
+      );
+      const totalArmorBonus = bonusArmor.reduce((sum, value) => sum + value, 0);
 
-      const computedAc = baseArmor + shieldBonus;
+      const computedAc = baseArmor + dexMod + totalArmorBonus;
       const computedSpeed = character.speed ?? 30;
 
       return { status: 'success', armorClass: computedAc, speed: computedSpeed };

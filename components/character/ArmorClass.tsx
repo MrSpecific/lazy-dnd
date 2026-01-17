@@ -66,6 +66,10 @@ export const ArmorClass = ({ characterId, initialArmorClass, initialSpeed }: Arm
           {editing ? 'Cancel' : 'Edit'}
         </Button>
       </Flex>
+      <Text color="gray" size="1" mb="3">
+        AC is calculated from your base armor, Dexterity modifier, and any armor bonuses (like
+        shields). Use “Set from character” to recompute from equipped gear.
+      </Text>
 
       {!editing ? (
         <Grid columns={{ initial: '2' }} gap="3">
