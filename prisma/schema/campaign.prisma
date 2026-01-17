@@ -19,9 +19,10 @@ model Campaign {
   dms     users_sync[] @relation("CampaignDMs")
   players users_sync[] @relation("CampaignPlayers")
 
-  npcs          Npc[]         @relation("CampaignNpcs")
-  sessions      GameSession[]
-  playerParties PlayerParty[] @relation("CampaignPlayerParties")
+  npcs            Npc[]            @relation("CampaignNpcs")
+  sessions        GameSession[]
+  playerParties   PlayerParty[]    @relation("CampaignPlayerParties")
+  campaignInvites CampaignInvite[]
 
   @@schema("public")
 }
@@ -73,5 +74,64 @@ model Encounter {
 
   npcs Npc[] @relation("EncounterNpcs")
 
+  @@schema("public")
+}
+
+enum CampaignInviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+
+  @@schema("public")
+}
+
+model CampaignInvite {
+  id String @id @default(uuid())
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+
+  inviterId String     @db.Text
+  inviter   users_sync @relation("CampaignInviteInviter", fields: [inviterId], references: [id])
+
+  inviteeId String     @db.Text
+  invitee   users_sync @relation("CampaignInviteInvitee", fields: [inviteeId], references: [id])
+
+  status CampaignInviteStatus @default(PENDING)
+  note   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([campaignId, inviteeId])
+  @@index([inviteeId])
+  @@schema("public")
+}
+
+enum PlayerConnectionStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+
+  @@schema("public")
+}
+
+model PlayerConnection {
+  id String @id @default(uuid())
+
+  requesterId String     @db.Text
+  requester   users_sync @relation("PlayerConnectionRequester", fields: [requesterId], references: [id])
+
+  addresseeId String     @db.Text
+  addressee   users_sync @relation("PlayerConnectionAddressee", fields: [addresseeId], references: [id])
+
+  status PlayerConnectionStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId])
   @@schema("public")
 }

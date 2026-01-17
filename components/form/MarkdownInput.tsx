@@ -33,38 +33,54 @@ export const MarkdownInput: React.FC<MarkdownInputProps> = ({
 }) => {
   const reactId = useId();
   const inputId = id || reactId;
-  const [text, setText] = useState<string>(value || defaultValue || '');
+  const isControlled = value !== undefined;
+  const [internalValue, setInternalValue] = useState<string>(() => value ?? defaultValue ?? '');
 
   useEffect(() => {
-    setText(value || defaultValue || '');
-  }, [value, defaultValue]);
+    if (isControlled) return;
+    if (defaultValue !== undefined) {
+      setInternalValue(defaultValue ?? '');
+    }
+  }, [defaultValue, isControlled]);
+
+  const currentValue = isControlled ? value ?? '' : internalValue;
+
+  const updateValue = (nextValue: string) => {
+    if (!isControlled) {
+      setInternalValue(nextValue);
+    }
+    onValueChange(nextValue);
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = event.target.value;
-    setText(newValue);
-    onValueChange(newValue);
+    updateValue(event.target.value);
   };
 
   const applyMarkdownSyntax = (syntax: string) => {
-    const textarea = document.getElementById(inputId) as HTMLTextAreaElement;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
+    const textarea = document.getElementById(inputId) as HTMLTextAreaElement | null;
+    if (!textarea) return;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? start;
+    if (start === end) return;
     const selectedText = textarea.value.substring(start, end);
 
-    if (selectedText) {
-      const formattedText =
-        syntax === 'link' ? `[${selectedText}](url)` : `${syntax}${selectedText}${syntax}`;
-      const updatedText =
-        textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-      setText(updatedText);
-      onValueChange(updatedText);
-    }
+    const formattedText =
+      syntax === 'link' ? `[${selectedText}](url)` : `${syntax}${selectedText}${syntax}`;
+    const updatedText =
+      textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    updateValue(updatedText);
+
+    const selectionEnd = end + (formattedText.length - selectedText.length);
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start, selectionEnd);
+    });
   };
 
   return (
     <Box>
       <Flex gap="1" justify="between">
-        <InputLabel htmlFor={id} label={label || name} required={required}>
+        <InputLabel htmlFor={inputId} label={label || name} required={required}>
           {tooltip && (
             <Tooltip content={tooltip}>
               <QuestionMarkCircledIcon />
@@ -113,7 +129,7 @@ export const MarkdownInput: React.FC<MarkdownInputProps> = ({
       <TextArea
         name={name}
         id={inputId}
-        value={text}
+        value={currentValue}
         onChange={handleInputChange}
         style={{
           minHeight: '6em',

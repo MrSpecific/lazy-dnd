@@ -13,6 +13,10 @@ model users_sync {
   campaignOwner  Campaign[]    @relation("CampaignOwner")
   campaignPlayer Campaign[]    @relation("CampaignPlayers")
   partiesOwned   PlayerParty[] @relation("PartyOwner")
+  campaignInvitesSent     CampaignInvite[]  @relation("CampaignInviteInviter")
+  campaignInvitesReceived CampaignInvite[]  @relation("CampaignInviteInvitee")
+  connectionsRequested    PlayerConnection[] @relation("PlayerConnectionRequester")
+  connectionsReceived     PlayerConnection[] @relation("PlayerConnectionAddressee")
 
   @@index([deleted_at])
   @@schema("neon_auth")
