@@ -26,8 +26,8 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
   const [transitionPending, startTransition] = useTransition();
   const [restPending, startRestTransition] = useTransition();
   const [localError, setLocalError] = useState<string | null>(null);
-  const [slots, setSlots] = useState<Record<number, SpellSlotRow>>(() =>
-    toSlotRecord(initialSlots)
+  const [slots, setSlots] = useState<Record<number, SpellSlotDraft>>(() =>
+    toDraftRecord(initialSlots)
   );
   const [savedSlots, setSavedSlots] = useState<Record<number, SpellSlotRow>>(() =>
     toSlotRecord(initialSlots)
@@ -36,14 +36,14 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
 
   useEffect(() => {
     const next = toSlotRecord(initialSlots);
-    setSlots(next);
+    setSlots(toDraftRecord(initialSlots));
     setSavedSlots(next);
   }, [initialSlots]);
 
   useEffect(() => {
     if (state.status === 'success' && state.slots) {
       const next = toSlotRecord(state.slots);
-      setSlots(next);
+      setSlots(toDraftRecord(state.slots));
       setSavedSlots(next);
       onUpdated?.(state.slots);
       setLocalError(null);
@@ -58,7 +58,7 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
       const result = await resetSpellSlots({ characterId });
       if (result.status === 'success' && result.slots) {
         const next = toSlotRecord(result.slots);
-        setSlots(next);
+        setSlots(toDraftRecord(result.slots));
         setSavedSlots(next);
         onUpdated?.(result.slots);
         setLocalError(null);
@@ -76,18 +76,30 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
 
   const levels = useMemo(() => Array.from({ length: 9 }).map((_, idx) => idx + 1), []);
 
-  const updateLocal = (level: number, field: keyof SpellSlotRow, value: number) => {
+  const updateLocal = (level: number, field: keyof SpellSlotRow, value: number | '') => {
     setSlots((prev) => {
       const current = prev[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
+      if (value === '') {
+        return {
+          ...prev,
+          [level]: { ...current, [field]: '' },
+        };
+      }
       if (field === 'maxSlots') {
         const nextMax = Math.max(0, value);
-        const currentWasMaxed = current.currentSlots === current.maxSlots;
+        const currentSlotsValue = toNumber(current.currentSlots);
+        const currentMaxValue = toNumber(current.maxSlots);
+        const currentWasMaxed = currentSlotsValue === currentMaxValue;
         const nextCurrent = currentWasMaxed
           ? nextMax
-          : Math.min(current.currentSlots, nextMax);
-        return { ...prev, [level]: { ...current, maxSlots: nextMax, currentSlots: nextCurrent } };
+          : Math.min(currentSlotsValue, nextMax);
+        return {
+          ...prev,
+          [level]: { ...current, maxSlots: nextMax, currentSlots: nextCurrent },
+        };
       }
-      const nextCurrent = Math.max(0, Math.min(value, current.maxSlots));
+      const maxValue = toNumber(current.maxSlots);
+      const nextCurrent = Math.max(0, Math.min(value, maxValue));
       return { ...prev, [level]: { ...current, currentSlots: nextCurrent } };
     });
   };
@@ -97,15 +109,20 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
     const form = new FormData();
     form.set('characterId', characterId);
     form.set('spellLevel', String(level));
-    form.set('maxSlots', String(slot.maxSlots));
-    form.set('currentSlots', String(slot.currentSlots));
+    form.set('maxSlots', String(toNumber(slot.maxSlots)));
+    form.set('currentSlots', String(toNumber(slot.currentSlots)));
     setSavingLevel(level);
     startTransition(() => formAction(form));
   };
 
   const adjustAndSubmit = (level: number, updater: (current: SpellSlotRow) => SpellSlotRow) => {
     const current = slots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
-    const next = updater(current);
+    const normalized = {
+      spellLevel: level,
+      maxSlots: toNumber(current.maxSlots),
+      currentSlots: toNumber(current.currentSlots),
+    };
+    const next = updater(normalized);
     setSlots((prev) => ({ ...prev, [level]: next }));
     submitSlot(level, next);
   };
@@ -114,9 +131,10 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
     const slot = slots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
     const saved = savedSlots[level] ?? { spellLevel: level, maxSlots: 0, currentSlots: 0 };
     const rowDirty =
-      slot.maxSlots !== saved.maxSlots || slot.currentSlots !== saved.currentSlots;
+      toNumber(slot.maxSlots) !== saved.maxSlots ||
+      toNumber(slot.currentSlots) !== saved.currentSlots;
     const rowPending = pending || transitionPending || restPending;
-    const controlsDisabled = rowPending || slot.maxSlots <= 0;
+    const controlsDisabled = rowPending || toNumber(slot.maxSlots) <= 0;
     return (
       <Box key={level}>
         <Grid columns={{ initial: '1', md: '5' }} gap="2" align="center" mb="2">
@@ -130,7 +148,17 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
               min={0}
               inputMode="numeric"
               value={slot.maxSlots}
-              onChange={(e) => updateLocal(level, 'maxSlots', Number(e.target.value) || 0)}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  updateLocal(level, 'maxSlots', '');
+                  return;
+                }
+                const parsed = Number(raw);
+                if (!Number.isNaN(parsed)) {
+                  updateLocal(level, 'maxSlots', parsed);
+                }
+              }}
             />
           </Box>
           <Box>
@@ -142,7 +170,17 @@ export const SpellSlots = ({ characterId, initialSlots, onUpdated }: SpellSlotsP
               min={0}
               inputMode="numeric"
               value={slot.currentSlots}
-              onChange={(e) => updateLocal(level, 'currentSlots', Number(e.target.value) || 0)}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  updateLocal(level, 'currentSlots', '');
+                  return;
+                }
+                const parsed = Number(raw);
+                if (!Number.isNaN(parsed)) {
+                  updateLocal(level, 'currentSlots', parsed);
+                }
+              }}
             />
           </Box>
           <Flex gap="2" align="center" justify="start">
@@ -222,4 +260,26 @@ const toSlotRecord = (rows: SpellSlotRow[]): Record<number, SpellSlotRow> => {
     acc[row.spellLevel] = row;
     return acc;
   }, {});
+};
+
+type SpellSlotDraft = {
+  spellLevel: number;
+  maxSlots: number | '';
+  currentSlots: number | '';
+};
+
+const toDraftRecord = (rows: SpellSlotRow[]): Record<number, SpellSlotDraft> => {
+  return rows.reduce<Record<number, SpellSlotDraft>>((acc, row) => {
+    acc[row.spellLevel] = {
+      spellLevel: row.spellLevel,
+      maxSlots: row.maxSlots,
+      currentSlots: row.currentSlots,
+    };
+    return acc;
+  }, {});
+};
+
+const toNumber = (value: number | '' | null | undefined) => {
+  if (value === '' || value == null) return 0;
+  return value;
 };

@@ -123,6 +123,9 @@ export default async function CharacterPage({ params }: { params: { id: string }
               initialSpells={spells}
               catalog={spellCatalog}
               initialSlots={spellSlots}
+              className={primaryClass?.name ?? null}
+              level={level}
+              abilities={abilities}
             />
           </Box>
 
