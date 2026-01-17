@@ -96,7 +96,7 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
     ...(raceName ? [{ hint: 'Race', value: raceName }] : []),
   ];
 
-  const npcAlignment = alignmentMeta[view.alignment as Alignment];
+  const npcAlignment = view.alignment ? alignmentMeta[view.alignment as Alignment] : null;
 
   return (
     <Card>
@@ -107,7 +107,7 @@ export const NpcSheet = ({ npc, className, raceName }: NpcSheetProps) => {
             {view.title ?? 'NPC'} • {className ?? 'Unclassed'} {raceName ?? ''}
           </Text>
           <Text color="gray" size="2">
-            {view.gender ?? 'Unspecified'} • {npcAlignment.label ?? 'No alignment'}
+            {view.gender ?? 'Unspecified'} • {npcAlignment?.label ?? 'No alignment'}
           </Text>
         </Box>
         <Button variant="surface" size="1" onClick={toggleEdit}>
